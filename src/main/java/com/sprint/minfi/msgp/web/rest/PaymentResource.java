@@ -33,6 +33,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.sprint.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprint.minfi.msgp.service.HistoriquePaymentService;
 import com.sprint.minfi.msgp.service.PaymentService;
+import com.sprint.minfi.msgp.service.PaymentSpecialServices;
 import com.sprint.minfi.msgp.service.RESTClientEmissionService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
@@ -65,18 +66,21 @@ public class PaymentResource {
     private final DetailVersementIntermediaireService detailVersementIntermediaireService;
     private final RESTClientTransactionService restClientTransactionService;
     private final RESTClientEmissionService restClientEmissionService; 
+    private final PaymentSpecialServices paymentSpecialServices;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
     					   , TransactionService transactionService
     					   , DetailVersementIntermediaireService detailVersementIntermediaireService
     					   , RESTClientTransactionService restClientTransactionService
-    					   , RESTClientEmissionService restClientEmissionService) {
+    					   , RESTClientEmissionService restClientEmissionService
+    					   , PaymentSpecialServices paymentSpecialServices) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.transactionService = transactionService;
         this.detailVersementIntermediaireService = detailVersementIntermediaireService;
         this.restClientTransactionService = restClientTransactionService;
         this.restClientEmissionService = restClientEmissionService;
+        this.paymentSpecialServices = paymentSpecialServices;
     }
 
     /**
@@ -112,30 +116,9 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay("DRAFT", LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	Map<String, String> requestTransaction = new HashMap<String, String>();
-    	requestTransaction.put("clientId", "");
-    	requestTransaction.put("clientToken", "");
-    	requestTransaction.put("phone", debitInfo);
-    	requestTransaction.put("orderId", "");
-    	requestTransaction.put("uniqueId", "");
-    	requestTransaction.put("amount", paymentDTO.getAmount().toString());
-    	requestTransaction.put("email", "");
-    	requestTransaction.put("firstname","");
-    	requestTransaction.put("lastname","");
-    	requestTransaction.put("currency", "");
-    	requestTransaction.put("description", "");
-    	requestTransaction.put("companyName", "");
-    	requestTransaction.put("successUrl", "");
-    	requestTransaction.put("failureUrl", "");
-    	requestTransaction.put("returnUrl", "");
-    	requestTransaction.put("transactionid", "");
-    	requestTransaction.put("ref", "");
-    	requestTransaction.put("notificationUrl", "");
-    	requestTransaction.put("ipAddress", "");
     	System.out.println("***************" + debitInfo + paymentDTO.getAmount());
-    	restClientTransactionService.getTransaction("mtncmr", requestTransaction);
-//    	System.out.print("--------------------");
-//    	System.out.println(restClientTransactionService.getAlltransaction("mtncmr"));
+    	restClientTransactionService.getTransaction(paymentDTO.getMeansOfPayment().toString(), this.paymentSpecialServices
+    			.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
