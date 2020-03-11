@@ -91,7 +91,7 @@ public class PaymentResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PaymentResource paymentResource = new PaymentResource(paymentService, null, null, null, null, null);
+        final PaymentResource paymentResource = new PaymentResource(paymentService, null, null, null, null, null, null);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
