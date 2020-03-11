@@ -1,0 +1,71 @@
+{
+    "name": "Payment",
+    "fields": [
+        {
+            "fieldName": "code",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "meansOfPayment",
+            "fieldType": "MeansOfPayment",
+            "fieldValues": "MOBILE_MONEY,ORANGE_MONEY,YUP,EXPRESS_UNION,VISA,MASTER_CARD"
+        },
+        {
+            "fieldName": "statut",
+            "fieldType": "Statut",
+            "fieldValues": "DRAFT,PENDING,VALIDATED,RECONCILED,CANCEL"
+        },
+        {
+            "fieldName": "amount",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "idEmission",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "idRecette",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "idOrganisation",
+            "fieldType": "Long"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "historiquePayment",
+            "otherEntityRelationshipName": "payment",
+            "relationshipName": "idHistPay"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "transaction",
+            "otherEntityRelationshipName": "payment",
+            "relationshipName": "idTransaction",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "detailVersementIntermediaire",
+            "otherEntityRelationshipName": "payment",
+            "relationshipName": "idDetVers",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200219155700",
+    "entityTableName": "payment",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}
