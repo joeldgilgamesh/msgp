@@ -1,0 +1,33 @@
+{
+    "name": "HistoriquePayment",
+    "fields": [
+        {
+            "fieldName": "status",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dateStatus",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "payment",
+            "otherEntityRelationshipName": "idHistPay",
+            "relationshipName": "payment",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200219155800",
+    "entityTableName": "historique_payment",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}
