@@ -135,7 +135,7 @@ public class PaymentResource {
     	System.out.println("***************" + debitInfo + paymentDTO.getAmount());
     	restClientTransactionService.getTransaction("mtncmr", requestTransaction);
 //    	System.out.print("--------------------");
-    	System.out.println(restClientTransactionService.getAlltransaction("mtncmr"));
+//    	System.out.println(restClientTransactionService.getAlltransaction("mtncmr"));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
