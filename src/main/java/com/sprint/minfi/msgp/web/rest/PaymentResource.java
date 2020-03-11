@@ -3,7 +3,9 @@ package com.sprint.minfi.msgp.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -110,20 +112,30 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay("DRAFT", LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	JSONObject requestTransaction = new JSONObject();
+    	Map<String, String> requestTransaction = new HashMap<String, String>();
     	requestTransaction.put("clientId", "");
     	requestTransaction.put("clientToken", "");
     	requestTransaction.put("phone", debitInfo);
     	requestTransaction.put("orderId", "");
-    	requestTransaction.put("amount", paymentDTO.getAmount());
+    	requestTransaction.put("uniqueId", "");
+    	requestTransaction.put("amount", paymentDTO.getAmount().toString());
+    	requestTransaction.put("email", "");
+    	requestTransaction.put("firstname","");
+    	requestTransaction.put("lastname","");
     	requestTransaction.put("currency", "");
     	requestTransaction.put("description", "");
     	requestTransaction.put("companyName", "");
     	requestTransaction.put("successUrl", "");
     	requestTransaction.put("failureUrl", "");
+    	requestTransaction.put("returnUrl", "");
+    	requestTransaction.put("transactionid", "");
+    	requestTransaction.put("ref", "");
     	requestTransaction.put("notificationUrl", "");
     	requestTransaction.put("ipAddress", "");
-    	restClientTransactionService.getTransaction(requestTransaction);
+    	System.out.println("***************" + debitInfo + paymentDTO.getAmount());
+    	restClientTransactionService.getTransaction("mtncmr", requestTransaction);
+//    	System.out.print("--------------------");
+    	System.out.println(restClientTransactionService.getAlltransaction("mtncmr"));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
