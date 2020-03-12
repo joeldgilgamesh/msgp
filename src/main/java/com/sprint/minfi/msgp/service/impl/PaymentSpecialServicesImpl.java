@@ -6,9 +6,11 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sprint.minfi.msgp.service.PaymentSpecialServices;
+
 @Service
 @Transactional
-public class PaymentSpecialServicesImpl {
+public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider) {
 		
@@ -29,7 +31,7 @@ public class PaymentSpecialServicesImpl {
 	    	request.put("ipAddress", "");
 		}
 		
-		if (provider == "MASTER_CARD") {
+		if (provider == "UBA") {
 			request.put("clientId", "");
 	    	request.put("clientToken", "");
 	    	request.put("phone", debitInfo);
