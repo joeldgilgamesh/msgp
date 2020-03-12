@@ -11,4 +11,11 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider);
+	
+	/**
+	 * 
+	 * @param provider
+	 * @return
+	 */
+	public String convertProvider(String provider);
 }

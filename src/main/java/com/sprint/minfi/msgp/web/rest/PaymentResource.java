@@ -117,8 +117,8 @@ public class PaymentResource {
     	
     	//appel du service -> demande transaction
     	System.out.println("***************" + debitInfo + paymentDTO.getAmount());
-    	restClientTransactionService.getTransaction(paymentDTO.getMeansOfPayment().toString(), this.paymentSpecialServices
-    			.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
+    	restClientTransactionService.getTransaction(this.paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
+    			this.paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }

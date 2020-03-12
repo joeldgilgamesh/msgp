@@ -56,4 +56,36 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		return request;
 	}
 
+	@Override
+	public String convertProvider(String provider) {
+		// TODO Auto-generated method stub
+		String result = "";
+		switch (provider) {
+		case "MOBILE_MONEY":
+			result = "mtncmr";
+			break;
+			
+		case "ORANGE_MONEY":
+			result = "orangecmr";
+			break;
+			
+		case "EXPRESS_UNION":
+			result = "eucmr";
+			break;
+			
+		case "MASTER_CARD":
+			result = "card";
+			break;
+			
+		case "YUP":
+			result = "yup";
+			break;
+
+		default:
+			result = null;
+			break;
+		}
+		return result;
+	}
+
 }
