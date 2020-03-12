@@ -105,7 +105,6 @@ public class PaymentResource {
     @PostMapping("/effectuerPaiement/{debitInfo}")
     public ResponseEntity<String> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo) throws URISyntaxException, JSONException {
-    	//strategie de generation du code et mise a jour du code dans PayementDTO
     	
     	String resultat = "";
     	if (paymentDTO.getId() != null) {
@@ -116,7 +115,6 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay("DRAFT", LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	System.out.println("***************" + debitInfo + paymentDTO.getAmount());
     	restClientTransactionService.getTransaction(this.paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
     			this.paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
 
