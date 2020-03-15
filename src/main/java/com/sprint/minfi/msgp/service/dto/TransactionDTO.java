@@ -1,18 +1,22 @@
 package com.sprint.minfi.msgp.service.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the {@link com.sprint.minfi.msgp.domain.Transaction} entity.
  */
 public class TransactionDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2926824893431364045L;
+
+	private Long id;
 
     private String codeTransaction;
 

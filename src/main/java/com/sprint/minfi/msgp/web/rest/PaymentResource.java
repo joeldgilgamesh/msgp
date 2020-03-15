@@ -115,8 +115,8 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay("DRAFT", LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	restClientTransactionService.getTransaction(this.paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
-    			this.paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
+    	restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
+    			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
