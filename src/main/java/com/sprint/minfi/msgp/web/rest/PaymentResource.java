@@ -38,6 +38,7 @@ import com.sprint.minfi.msgp.service.RESTClientEmissionService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
 import com.sprint.minfi.msgp.web.rest.errors.BadRequestAlertException;
@@ -139,7 +140,7 @@ public class PaymentResource {
     	PaymentDTO paymentDTO = paymentService.findByIdTransation(transactionDTO.getId());
     	paymentService.update(paymentDTO.getId(), "PAYE");
     	historiquePaymentService.saveHistPay("PAYE", transactionDTO.getDate());
-    	restClientEmissionService.historiserEmission(paymentDTO.getIdEmission());
+    	restClientEmissionService.historiserEmission(new HistoriquePaymentDTO());
     	
     	//appel du service generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
