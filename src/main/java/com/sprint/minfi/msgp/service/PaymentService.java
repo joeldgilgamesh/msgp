@@ -61,4 +61,11 @@ public interface PaymentService {
      * @return PaymentDTO
      */
 	PaymentDTO findByIdTransation(Long Id);
+
+	/**
+	 * 
+	 * @param code
+	 * @return
+	 */
+	PaymentDTO findByCode(String code);
 }

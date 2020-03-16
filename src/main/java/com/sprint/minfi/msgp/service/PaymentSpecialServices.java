@@ -10,7 +10,7 @@ public interface PaymentSpecialServices {
 	 * @param amount
 	 * @return
 	 */
-	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider);
+	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code);
 	
 	/**
 	 * 
@@ -18,4 +18,9 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	public String convertProvider(String provider);
+	
+	/*
+	 * 
+	 */
+	public String codeNext();
 }

@@ -18,5 +18,5 @@ public interface RESTClientEmissionService {
 	public ResponseEntity<HistoriquePaymentDTO> historiserEmission(@RequestBody HistoriquePaymentDTO historiquePaymentDTO);
 	
 	@PutMapping("/api/updateEmission/{refEmi}/{status}")
-	public ResponseEntity<String> updateEmission(@PathVariable String refEmis, @PathVariable Statut status);
+	public ResponseEntity<String> updateEmission(@PathVariable ("refEmi") String refEmi, @PathVariable ("status") String status);
 }

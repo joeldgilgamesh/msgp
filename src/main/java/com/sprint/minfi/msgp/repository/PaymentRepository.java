@@ -27,4 +27,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
 	PaymentDTO updatePayment(@Param("idPaymeLong") Long idP, @Param("state") String state);
 
+	PaymentDTO findByCode(String code);
+
+	@Query(value = "SELECT code FROM Payment p ORDER BY p.code DESC LIMIT 1", nativeQuery = true)
+	String findLastCode();
+
 }

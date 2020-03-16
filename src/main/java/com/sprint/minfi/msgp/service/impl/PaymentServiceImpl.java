@@ -102,4 +102,10 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdTransaction(Id);
 	}
+
+	@Override
+	public PaymentDTO findByCode(String code) {
+		// TODO Auto-generated method stub
+		return paymentRepository.findByCode(code);
+	}
 }
