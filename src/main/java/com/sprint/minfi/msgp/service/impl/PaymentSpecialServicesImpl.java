@@ -3,16 +3,21 @@ package com.sprint.minfi.msgp.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sprint.minfi.msgp.repository.PaymentRepository;
 import com.sprint.minfi.msgp.service.PaymentSpecialServices;
 
 @Service
 @Transactional
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
-	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider) {
+	@Autowired
+	private PaymentRepository paymentRepository;
+	
+	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
 		
@@ -20,7 +25,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			request.put("clientId", "");
 	    	request.put("clientToken", "");
 	    	request.put("phone", debitInfo);
-	    	request.put("orderId", "");
+	    	request.put("orderId", code);
 	    	request.put("amount", amount.toString());
 	    	request.put("currency", "");
 	    	request.put("description", "");
@@ -35,7 +40,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			request.put("clientId", "");
 	    	request.put("clientToken", "");
 	    	request.put("phone", debitInfo);
-	    	request.put("orderId", "");
+	    	request.put("orderId", code);
 	    	request.put("uniqueId", "");
 	    	request.put("amount", amount.toString());
 	    	request.put("email", "");
@@ -86,6 +91,13 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			break;
 		}
 		return result;
+	}
+
+	@Override
+	public String codeNext() {
+		// TODO Auto-generated method stub
+		System.out.println("------------------------------ lastcode" + this.paymentRepository.findLastCode());
+		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
 	}
 
 }

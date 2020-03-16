@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprint.minfi.msgp.service.HistoriquePaymentService;
 import com.sprint.minfi.msgp.service.PaymentService;
@@ -38,6 +39,7 @@ import com.sprint.minfi.msgp.service.RESTClientEmissionService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
 import com.sprint.minfi.msgp.web.rest.errors.BadRequestAlertException;
@@ -111,35 +113,43 @@ public class PaymentResource {
 			return new ResponseEntity<>(resultat = "Payment Exist", HttpStatus.CONFLICT);
 		}
     	
+    	//enregistrer le payment au statut DRAFT
+    	paymentDTO.setStatut(Statut.DRAFT);
+    	paymentDTO.setCode(paymentSpecialServices.codeNext());
+    	paymentService.save(paymentDTO);
+    	
     	//gestion historiquePaymentDTO, valider, historiser le paiement
-    	historiquePaymentService.saveHistPay("DRAFT", LocalDateTime.now());
+    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now());
     	
     	//appel du service -> demande transaction
     	restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
-    			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString()));
+    			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
 
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
     
-    @GetMapping("/callbackTransaction")
-    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
+    @GetMapping("/callbackTransaction/{code}")
+    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO, @PathVariable String code) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
     	
     	//controle des données du flux en entrée, quelles sont elles ?
     	//ici je vais d abord tester que la transaction a réussi, voici un exemple
     	String resultat = "";
+    	
     	if (transactionDTO.getMsg().isEmpty()) {
     		return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);
 		}
+    	
+    	String status = Statut.VALIDATED.toString();
     	
     	//gestion transactionDTO, appel du service -> save transaction (il faut bien spécifier l objet Transaction)
     	transactionService.save(transactionDTO);
     	
     	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
     	//doit elles etre exécuté simultanément ou sequentiellement ????
-    	PaymentDTO paymentDTO = paymentService.findByIdTransation(transactionDTO.getId());
-    	paymentService.update(paymentDTO.getId(), "PAYE");
-    	historiquePaymentService.saveHistPay("PAYE", transactionDTO.getDate());
-    	restClientEmissionService.historiserEmission(paymentDTO.getIdEmission());
+    	PaymentDTO paymentDTO = paymentService.findByCode(code);
+    	paymentService.update(paymentDTO.getId(), status);
+    	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
+    	restClientEmissionService.historiserEmission(new HistoriquePaymentDTO());
     	
     	//appel du service generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
@@ -168,11 +178,13 @@ public class PaymentResource {
 			return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
 		}
     	
+    	String status = Statut.RECONCILED.toString();
+    	
     	//mettre a jour le statut du paiement en cours de reconciliation
-    	paymentService.update(paymentDTO.getId(), "RECONCILED");
+    	paymentService.update(paymentDTO.getId(), status);
     	
     	//historiser le paiement
-    	historiquePaymentService.saveHistPay("RECONCILED", LocalDateTime.now());
+    	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
     	
     	//appel du service de comparaisons des données des paiements des deux cotés
     	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different

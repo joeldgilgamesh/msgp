@@ -32,7 +32,7 @@ public class Payment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @NotNull
     @Column(name = "code", nullable = false)
     private String code;
