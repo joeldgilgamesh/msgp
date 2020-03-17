@@ -29,7 +29,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 	PaymentDTO findByCode(String code);
 
-	@Query(value = "SELECT code FROM Payment p ORDER BY p.code DESC LIMIT 1", nativeQuery = true)
-	String findLastCode();
+	@Query(value = "SELECT COUNT(id) FROM Payment", nativeQuery = true)
+	int findLastCode();
 
 }
