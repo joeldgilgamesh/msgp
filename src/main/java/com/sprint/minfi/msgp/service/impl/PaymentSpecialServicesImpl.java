@@ -96,9 +96,9 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	@Override
 	public String codeNext() {
 		// TODO Auto-generated method stub
-		System.out.println("------------------------------ lastcode" + this.paymentRepository.findLastCode());
+		System.out.println("------------------------------ lastcode" + this.paymentRepository.countLine());
 //		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
-		return "code_" + (this.paymentRepository.findLastCode() + 1);
+		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
 	}
 
 }

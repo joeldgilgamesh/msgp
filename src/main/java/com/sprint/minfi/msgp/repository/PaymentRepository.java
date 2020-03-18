@@ -21,7 +21,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	 * @param idT
 	 * @return idPayment 
 	 */
-	@Query("SELECT code FROM Payment p WHERE p.idTransaction = :idT ")
+	@Query("SELECT code FROM Payment p WHERE p.idTransaction = :idT")
 	PaymentDTO findByIdTransaction(@Param("idT") Long idT);
 
 	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
@@ -30,6 +30,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	PaymentDTO findByCode(String code);
 
 	@Query(value = "SELECT COUNT(id) FROM Payment", nativeQuery = true)
-	int findLastCode();
+	Long countLine();
+	
+	@Query("SELECT id FROM Payment p WHERE p.id = :idLast")
+	Long getLastId(@Param("idLast") Long idLast);
 
 }
