@@ -1,7 +1,7 @@
 package com.sprint.minfi.msgp.service.dto;
 
-import java.time.LocalDate;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -9,11 +9,16 @@ import java.util.Objects;
  */
 public class DetailVersementIntermediaireDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1142468912269715875L;
+
+	private Long id;
 
     private String numeroVersment;
 
-    private LocalDate date;
+    private LocalDateTime date;
 
     private Double montant;
 
@@ -34,11 +39,11 @@ public class DetailVersementIntermediaireDTO implements Serializable {
         this.numeroVersment = numeroVersment;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

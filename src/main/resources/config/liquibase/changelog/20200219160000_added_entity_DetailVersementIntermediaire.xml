@@ -19,7 +19,7 @@
             <column name="numero_versment" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="date" type="date">
+            <column name="date" type="timestamp">
                 <constraints nullable="true" />
             </column>
             <column name="montant" type="double">
@@ -49,7 +49,7 @@
                   tableName="detail_versement_intermediaire">
             <column name="id" type="numeric"/>
             <column name="numero_versment" type="string"/>
-            <column name="date" type="date"/>
+            <column name="date" type="timestamp"/>
             <column name="montant" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>

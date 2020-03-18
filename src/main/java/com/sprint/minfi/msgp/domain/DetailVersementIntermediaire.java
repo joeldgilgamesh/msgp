@@ -1,10 +1,15 @@
 package com.sprint.minfi.msgp.domain;
 
 
-import javax.persistence.*;
-
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * A DetailVersementIntermediaire.
@@ -23,7 +28,7 @@ public class DetailVersementIntermediaire implements Serializable {
     private String numeroVersment;
 
     @Column(name = "date")
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Column(name = "montant")
     private Double montant;
@@ -50,16 +55,16 @@ public class DetailVersementIntermediaire implements Serializable {
         this.numeroVersment = numeroVersment;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public DetailVersementIntermediaire date(LocalDate date) {
+    public DetailVersementIntermediaire date(LocalDateTime date) {
         this.date = date;
         return this;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

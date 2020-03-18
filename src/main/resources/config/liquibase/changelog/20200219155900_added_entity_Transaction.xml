@@ -25,7 +25,7 @@
             <column name="msg" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="date" type="date">
+            <column name="date" type="timestamp">
                 <constraints nullable="false" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
@@ -54,7 +54,7 @@
             <column name="code_transaction" type="string"/>
             <column name="telephone" type="string"/>
             <column name="msg" type="string"/>
-            <column name="date" type="date"/>
+            <column name="date" type="timestamp"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
         </loadData>
     </changeSet>
