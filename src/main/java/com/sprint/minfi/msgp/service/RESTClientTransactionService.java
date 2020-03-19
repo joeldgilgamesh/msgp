@@ -2,7 +2,6 @@ package com.sprint.minfi.msgp.service;
 
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +15,7 @@ import com.sprint.minfi.msgp.service.dto.TransactionDTO;
 public interface RESTClientTransactionService {
 
 	@PostMapping("/api/payment/{provider}")
-	public TransactionDTO getTransaction(@PathVariable ("provider") String provider, @RequestBody Map<String, String> request);
+	public Map<String, String> getTransaction(@PathVariable ("provider") String provider, @RequestBody Map<String, String> request);
 	
 	@GetMapping("/api/payment/{provider}/notification/status")
 	public String getAlltransaction(@PathVariable ("provider") String provider);

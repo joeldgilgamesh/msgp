@@ -3,15 +3,12 @@ package com.sprint.minfi.msgp.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,7 +103,7 @@ public class PaymentResource {
     
     @PostMapping("/effectuerPaiement/{debitInfo}")
     public ResponseEntity<String> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
-    												, @PathVariable String debitInfo) throws URISyntaxException, JSONException {
+    												, @PathVariable String debitInfo) {
     	
     	String resultat = "";
     	if (paymentDTO.getId() != null) {
@@ -122,9 +119,12 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
+    	Map<String, String> retour =  restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
     			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
 
+    	System.out.print("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-");
+    	System.out.println(retour);
+    	
     	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
     }
     
@@ -149,7 +149,7 @@ public class PaymentResource {
     	PaymentDTO paymentDTO = paymentService.findByCode(code);
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
-    	restClientEmissionService.historiserEmission(new HistoriquePaymentDTO());
+    	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
     	
     	//appel du service generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
@@ -161,7 +161,7 @@ public class PaymentResource {
     @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
     public ResponseEntity<String> reconcilierPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												  , @PathVariable String codeVersement
-    												  , @PathVariable double montant) throws URISyntaxException {
+    												  , @PathVariable double montant) {
     	//validation des champs des objets
     	
     	//au cas où le paiement est dejà reconcilié
