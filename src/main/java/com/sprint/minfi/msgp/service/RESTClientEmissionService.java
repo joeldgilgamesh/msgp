@@ -12,7 +12,7 @@ public interface RESTClientEmissionService {
 
 	//cette demande doit etre envoyé sans Id
 	@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
-	public ResponseEntity<String> historiserEmission(@PathVariable String status, @PathVariable Long idEmis);
+	public ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 	
 	@PutMapping("/api/updateEmission/{refEmi}/{status}")
 	public ResponseEntity<String> updateEmission(@PathVariable ("refEmi") String refEmi, @PathVariable ("status") String status);
