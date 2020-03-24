@@ -36,7 +36,6 @@ import com.sprint.minfi.msgp.service.RESTClientEmissionService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
-import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
 import com.sprint.minfi.msgp.web.rest.errors.BadRequestAlertException;
@@ -101,31 +100,39 @@ public class PaymentResource {
             .body(result);
     }
     
-    @PostMapping("/effectuerPaiement/{debitInfo}")
-    public ResponseEntity<String> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
+    
+	@SuppressWarnings("finally")
+	@PostMapping("/effectuerPaiement/{debitInfo}")
+    public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo) {
     	
-    	String resultat = "";
+    	Map<String, Object> result = null;
+    	Map<String, String> resultTransaction = null;
     	if (paymentDTO.getId() != null) {
-			return new ResponseEntity<>(resultat = "Payment Exist", HttpStatus.CONFLICT);
+			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 		}
     	
     	//enregistrer le payment au statut DRAFT
     	paymentDTO.setStatut(Statut.DRAFT);
     	paymentDTO.setCode(paymentSpecialServices.codeNext());
-    	paymentService.save(paymentDTO);
+    	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
     	
     	//gestion historiquePaymentDTO, valider, historiser le paiement
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now());
     	
     	//appel du service -> demande transaction
-    	Map<String, String> retour =  restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
-    			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
-
-    	System.out.print("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-");
-    	System.out.println(retour);
     	
-    	return new ResponseEntity<>(resultat = "Payment in Progress...", HttpStatus.OK);
+    		try {
+    			resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
+            			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
+    		}
+    	
+    		finally {
+    			result.put("paymentDTO", paymentDTO2);
+				result.put("resultTransaction", resultTransaction);
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			}
+    		
     }
     
     @GetMapping("/callbackTransaction/{code}")
