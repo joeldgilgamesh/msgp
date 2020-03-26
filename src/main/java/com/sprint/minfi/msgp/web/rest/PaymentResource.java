@@ -3,6 +3,7 @@ package com.sprint.minfi.msgp.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,8 +107,8 @@ public class PaymentResource {
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo) {
     	
-    	Map<String, Object> result = null;
-    	Map<String, String> resultTransaction = null;
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	Map<String, String> resultTransaction = new HashMap<String, String>();
     	if (paymentDTO.getId() != null) {
 			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
 		}
