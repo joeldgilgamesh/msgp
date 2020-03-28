@@ -107,10 +107,13 @@ public class PaymentResource {
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo) {
     	
-    	Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<String, Object>();
     	Map<String, String> resultTransaction = new HashMap<String, String>();
-    	if (paymentDTO.getId() != null) {
-			return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+    	
+    	//Validation 
+		if((paymentDTO.getId() != null || paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null || debitInfo.isEmpty()) {
+			result.put("Reject", "Demande de paiement rejetté");
+			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
     	
     	//enregistrer le payment au statut DRAFT
@@ -136,15 +139,17 @@ public class PaymentResource {
     		
     }
     
-    @GetMapping("/callbackTransaction/{code}")
-    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO, @PathVariable String code) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
-    	
+    @GetMapping("/callbackTransaction/{codePaiement}")
+    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO, 
+    													@PathVariable String codePaiement) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
+
     	//controle des données du flux en entrée, quelles sont elles ?
     	//ici je vais d abord tester que la transaction a réussi, voici un exemple
-    	String resultat = "";
+    	String resultat = "Success";
     	
-    	if (transactionDTO.getMsg().isEmpty()) {
-    		return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);
+		if (transactionDTO.getCodeTransaction().isEmpty() || transactionDTO.getTelephone().isEmpty() || transactionDTO.getMsg().isEmpty()) {
+			//appeler le service de notification pour renseigner de l echec du paiement
+			return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);		
 		}
     	
     	String status = Statut.VALIDATED.toString();
@@ -154,15 +159,16 @@ public class PaymentResource {
     	
     	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
     	//doit elles etre exécuté simultanément ou sequentiellement ????
-    	PaymentDTO paymentDTO = paymentService.findByCode(code);
+    	PaymentDTO paymentDTO = paymentService.findByCode(codePaiement);
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
     	
     	//appel du service generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
+    	//appel du service notification pour renseigner sur l etat reussi du paiement
     	
-    	return new ResponseEntity<>(resultat = "Success", HttpStatus.OK);
+    	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
     
     
@@ -170,12 +176,15 @@ public class PaymentResource {
     public ResponseEntity<String> reconcilierPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												  , @PathVariable String codeVersement
     												  , @PathVariable double montant) {
-    	//validation des champs des objets
     	
-    	//au cas où le paiement est dejà reconcilié
+    	String resultat = "RECONCILED Succes";
     	
-    	String resultat = "";
-    	if (paymentDTO.getStatut().toString() == "RECONCILED") {
+    	//Validation 
+    	if (paymentDTO.getId() == null || paymentDTO.getCode() == null) {
+    		return new ResponseEntity<>(resultat = "Paiement Not Exist", HttpStatus.BAD_REQUEST);
+		}
+    	
+    	if (paymentDTO.getStatut().toString() == "RECONCILED") {//au cas où le paiement est dejà reconcilié
 			return new ResponseEntity<>(resultat = "Paiement Already RECONCILED", HttpStatus.CONFLICT);
 		}
     	
@@ -196,12 +205,16 @@ public class PaymentResource {
     	
     	//appel du service de comparaisons des données des paiements des deux cotés
     	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different
+    		status = Statut.CANCEL.toString();
+        	paymentService.update(paymentDTO.getId(), status);
+        	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
     	
     	//appel du service generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
+    	//appel du service notification pour renseigner sur l etat de la reconciliation
     	
-    	return new ResponseEntity<>(resultat = "RECONCILED Succes", HttpStatus.OK);
+    	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
     
     @GetMapping("/listertransaction")

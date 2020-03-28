@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -33,12 +34,12 @@ public class Payment implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotNull
+    @NotNull(message = "rajouter le code du paiement")
     @Column(name = "code", nullable = false)
     private String code;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "rajouter le moyen de paiement")
     @Column(name = "means_of_payment")
     private MeansOfPayment meansOfPayment;
 
@@ -46,7 +47,7 @@ public class Payment implements Serializable {
     @Column(name = "statut", columnDefinition = "varchar(32) default 'DRAFT'")
     private Statut statut;
 
-    @NotNull
+    @NotNull(message = "rejouter le moyen de paiement")
     @Column(name = "amount")
     private Double amount;
 

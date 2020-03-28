@@ -31,11 +31,11 @@ public class Transaction implements Serializable {
     @Column(name = "telephone")
     private String telephone;
 
-    @NotNull
+    @NotNull(message = "rajouter le detail de la transaction")
     @Column(name = "msg", nullable = false)
     private String msg;
 
-    @NotNull
+    @NotNull(message = "rajouter la date de la transaction")
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
