@@ -2,10 +2,13 @@ package com.sprint.minfi.msgp.web.rest;
 
 import com.sprint.minfi.msgp.SpminfimsgpApp;
 import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
+import com.sprint.minfi.msgp.domain.HistoriquePayment;
 import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
 import com.sprint.minfi.msgp.repository.PaymentRepository;
 import com.sprint.minfi.msgp.service.PaymentService;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
+import com.sprint.minfi.msgp.service.mapper.HistoriquePaymentMapper;
 import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprint.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
@@ -62,6 +65,9 @@ public class PaymentResourceIT {
 
     @Autowired
     private PaymentRepository paymentRepository;
+    
+    @Autowired
+    private HistoriquePaymentRepository historiquePaymentRepo;
 
     @Autowired
     private PaymentMapper paymentMapper;
@@ -87,6 +93,8 @@ public class PaymentResourceIT {
     private MockMvc restPaymentMockMvc;
 
     private Payment payment;
+    
+    private HistoriquePayment historique;
 
     @BeforeEach
     public void setup() {
@@ -328,5 +336,42 @@ public class PaymentResourceIT {
         // Validate the database contains one less item
         List<Payment> paymentList = paymentRepository.findAll();
         assertThat(paymentList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+    
+    public void effectuerPayment() throws Exception {
+    	//initialize database
+        paymentRepository.saveAndFlush(payment);
+        historiquePaymentRepo.saveAndFlush(historique);
+        
+    	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
+
+        // effectuer Payment
+//        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}", "671585236"))
+            .andExpect(status().isOk());
+
+	    // Validate the Payment in the database
+	    List<Payment> paymentList = paymentRepository.findAll();
+	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
+	    Payment testPayment = paymentList.get(paymentList.size() - 1);
+	    assertThat(testPayment.getStatut().toString()).isEqualTo("DRAFT");
+	    
+	    // Validate HistoriquePayment
+	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
+	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate + 1);
+	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
+	    assertThat(testhistorique.getStatus().toString()).isEqualTo("DRAFT");
+
+    }
+    
+    public void reconcilierPaiement() throws Exception {
+    	//initialize the database 
+    	paymentRepository.saveAndFlush(payment);
+    	int databaseSizeBeforeDelete = paymentRepository.findAll().size();
+    	
+    	//reconcilier Paiement
+    	restPaymentMockMvc.perform(post("/reconcilierPaiement/{codeVersement}/{montant}", "code_01", 1000))
+    					  .andReturn();
+    	
     }
 }
