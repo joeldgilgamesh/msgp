@@ -139,7 +139,7 @@ public class PaymentResource {
     		
     }
     
-    @GetMapping("/callbackTransaction/{codePaiement}")
+    @PostMapping("/callbackTransaction/{codePaiement}")
     public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO, 
     													@PathVariable String codePaiement) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
 

@@ -4,7 +4,7 @@ import com.sprint.minfi.msgp.client.AuthorizedFeignClient;
 
 @AuthorizedFeignClient(name = "spminfimsxxxx")
 public interface RESTClientQuittanceService {
-
-//	@PostMapping("/xxx/xxx")
-//	public QuittanceDTO getQuittance(PaymentDTO paymentDTO);
+	
+	//@PostMapping("/api/justificatif-paiements")
+	//public ResponseEntity<JustificatifPaiementDTO> createJustificatifPaiement(@RequestBody JustificatifPaiementDTO justificatifPaiementDTO)
 }
