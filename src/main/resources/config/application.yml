@@ -46,8 +46,8 @@ feign:
   client:
        config:
            default:
-               connectTimeout: 20000
-               readTimeout: 20000
+               connectTimeout: 8000
+               readTimeout: 8000
 
 # See https://github.com/Netflix/Hystrix/wiki/Configuration
 hystrix:
