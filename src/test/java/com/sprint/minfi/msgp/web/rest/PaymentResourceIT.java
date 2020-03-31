@@ -386,8 +386,7 @@ public class PaymentResourceIT {
     	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
     	int databaseSizeBeforeCreate3 = transactionRepo.findAll().size();
 
-        // effectuer Payment en mode test
-//        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
+        // callbackTransaction en mode test
         restPaymentMockMvc.perform(post("/api/callbackTransaction/{codePaiement}", "code_10"))
         	.andExpect(status().isOk());
 
@@ -413,13 +412,29 @@ public class PaymentResourceIT {
     }
     
     public void reconcilierPaiement() throws Exception {
-    	//initialize the database 
-    	paymentRepository.saveAndFlush(payment);
-    	int databaseSizeBeforeDelete = paymentRepository.findAll().size();
+    	//initialize database
+        paymentRepository.saveAndFlush(payment);
+        historiquePaymentRepo.saveAndFlush(historique);
+        
+    	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
+    	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
     	
-    	//reconcilier Paiement
+    	//reconcilier Paiement en mode test
     	restPaymentMockMvc.perform(post("/reconcilierPaiement/{codeVersement}/{montant}", "code_01", 1000))
-    					  .andReturn();
+        	.andExpect(status().isOk());
+
+	    // Verifier que le paiement s est enregistré correctement
+	    List<Payment> paymentList = paymentRepository.findAll();
+	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
+	    Payment testPayment = paymentList.get(paymentList.size() - 1);
+	    assertThat(testPayment.getStatut().toString()).isEqualTo("RECONCILED");
+	    
+	    //  Verifier que l historique s est enregistré correctement
+	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
+	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate2 + 1);
+	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
+	    assertThat(testhistorique.getStatus().toString()).isEqualTo("RECONCILED");
+	    assertThat(testhistorique.getDateStatus()).isBefore(LocalDateTime.now());
     	
     }
 }
