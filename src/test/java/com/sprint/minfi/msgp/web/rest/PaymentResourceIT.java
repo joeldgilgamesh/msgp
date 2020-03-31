@@ -4,8 +4,10 @@ import com.sprint.minfi.msgp.SpminfimsgpApp;
 import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprint.minfi.msgp.domain.HistoriquePayment;
 import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.domain.Transaction;
 import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
 import com.sprint.minfi.msgp.repository.PaymentRepository;
+import com.sprint.minfi.msgp.repository.TransactionRepository;
 import com.sprint.minfi.msgp.service.PaymentService;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.mapper.HistoriquePaymentMapper;
@@ -26,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
@@ -68,6 +72,9 @@ public class PaymentResourceIT {
     
     @Autowired
     private HistoriquePaymentRepository historiquePaymentRepo;
+    
+    @Autowired
+    private TransactionRepository transactionRepo;
 
     @Autowired
     private PaymentMapper paymentMapper;
@@ -95,6 +102,8 @@ public class PaymentResourceIT {
     private Payment payment;
     
     private HistoriquePayment historique;
+    
+    private Transaction transaction;
 
     @BeforeEach
     public void setup() {
@@ -344,24 +353,63 @@ public class PaymentResourceIT {
         historiquePaymentRepo.saveAndFlush(historique);
         
     	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
-
-        // effectuer Payment
+    	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
+        // effectuer Payment en mode test
 //        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
         restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}", "671585236"))
-            .andExpect(status().isOk());
+        	.andExpect(status().isOk())
+            .andExpect(jsonPath("$.paymentDTO.id").value(payment.getId() + 1))
+            .andExpect(jsonPath("$.resultTransaction").isNotEmpty());
 
-	    // Validate the Payment in the database
+	    // Verifier que le paiement s est enregistré correctement
 	    List<Payment> paymentList = paymentRepository.findAll();
 	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
 	    Payment testPayment = paymentList.get(paymentList.size() - 1);
 	    assertThat(testPayment.getStatut().toString()).isEqualTo("DRAFT");
 	    
-	    // Validate HistoriquePayment
+	    //  Verifier que l historique s est enregistré correctement
+	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
+	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate2 + 1);
+	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
+	    assertThat(testhistorique.getStatus().toString()).isEqualTo("DRAFT");
+	    assertThat(testhistorique.getDateStatus()).isBefore(LocalDateTime.now());
+
+    }
+    
+    public void callbackTransaction() throws Exception {
+    	//initialize database
+        paymentRepository.saveAndFlush(payment);
+        historiquePaymentRepo.saveAndFlush(historique);
+        transactionRepo.saveAndFlush(transaction);
+        
+    	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
+    	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
+    	int databaseSizeBeforeCreate3 = transactionRepo.findAll().size();
+
+        // effectuer Payment en mode test
+//        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
+        restPaymentMockMvc.perform(post("/api/callbackTransaction/{codePaiement}", "code_10"))
+        	.andExpect(status().isOk());
+
+	    // Verifier que le paiement s est enregistré correctement
+	    List<Payment> paymentList = paymentRepository.findAll();
+	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
+	    Payment testPayment = paymentList.get(paymentList.size() - 1);
+	    assertThat(testPayment.getStatut().toString()).isEqualTo("VALIDATED");
+	    
+	    //  Verifier que l historique s est enregistré correctement
 	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
 	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate + 1);
 	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
-	    assertThat(testhistorique.getStatus().toString()).isEqualTo("DRAFT");
-
+	    assertThat(testhistorique.getStatus().toString()).isEqualTo("VALIDATED");
+	    assertThat(testhistorique.getDateStatus()).isBefore(LocalDateTime.now());
+	    
+	    // Verifier que la transaction s est enregistré correctement
+	    List<Transaction> transactionList = transactionRepo.findAll();
+	    assertThat(transactionList).hasSize(databaseSizeBeforeCreate + 1);
+	    Transaction testTransaction = transactionList.get(transactionList.size() - 1);
+	    assertThat(!(testTransaction.getCodeTransaction().isEmpty()));
+	    assertThat(!(testTransaction.getTelephone().isEmpty()));
     }
     
     public void reconcilierPaiement() throws Exception {
