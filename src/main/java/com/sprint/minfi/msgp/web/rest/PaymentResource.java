@@ -102,6 +102,15 @@ public class PaymentResource {
     }
     
     
+//    @PostMapping("/payments")
+//    public ResponseEntity<PaymentDTO> savePayment(@Valid @RequestBody PaymentDTO paymentDTO) {
+//        log.debug("REST request to save Payment : {}", paymentDTO);
+//        
+//        PaymentDTO result = paymentService.save(paymentDTO);
+//        
+//        return new ResponseEntity<PaymentDTO>(result, HttpStatus.CREATED);
+//    }
+    
 	@SuppressWarnings("finally")
 	@PostMapping("/effectuerPaiement/{debitInfo}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
@@ -111,9 +120,13 @@ public class PaymentResource {
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	
     	//Validation 
-		if((paymentDTO.getId() != null || paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null || debitInfo.isEmpty()) {
+		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null || debitInfo.isEmpty()) {
 			result.put("Reject", "Demande de paiement rejetté");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+		}
+		
+		if (paymentDTO.getId() != null) {
+			System.out.println("je vais annuler l enregistrement de ce paiement");
 		}
     	
     	//enregistrer le payment au statut DRAFT
@@ -160,6 +173,11 @@ public class PaymentResource {
     	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
     	//doit elles etre exécuté simultanément ou sequentiellement ????
     	PaymentDTO paymentDTO = paymentService.findByCode(codePaiement);
+
+    	if (paymentDTO == null) {
+    		return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+		}
+    	
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
@@ -190,6 +208,10 @@ public class PaymentResource {
     	
     	//appel du service verifier detail versement 
     	DetailVersementIntermediaireDTO det = detailVersementIntermediaireService.findByCode(codeVersement);
+    	
+    	if (det == null) {
+    		return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+		}
     	
     	if (det.getNumeroVersment().isEmpty()) {
 			return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
@@ -296,4 +318,5 @@ public class PaymentResource {
         paymentService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
+    
 }

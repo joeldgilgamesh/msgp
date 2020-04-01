@@ -14,8 +14,12 @@ import com.sprint.minfi.msgp.service.PaymentSpecialServices;
 @Transactional
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
-	@Autowired
+	
 	private PaymentRepository paymentRepository;
+	
+	public PaymentSpecialServicesImpl(PaymentRepository paymentRepository) {
+		this.paymentRepository = paymentRepository;
+	}
 	
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
 		
