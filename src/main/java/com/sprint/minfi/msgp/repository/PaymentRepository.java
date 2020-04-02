@@ -5,6 +5,8 @@ import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -34,5 +36,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	
 	@Query("SELECT id FROM Payment p WHERE p.id = :idLast")
 	Long getLastId(@Param("idLast") Long idLast);
+
+	Page<PaymentDTO> findByStatut(String statut, Pageable pageable);
 
 }

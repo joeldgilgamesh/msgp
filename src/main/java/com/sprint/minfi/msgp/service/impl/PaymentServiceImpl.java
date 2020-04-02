@@ -108,4 +108,10 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByCode(code);
 	}
+
+	@Override
+	public Page<PaymentDTO> findByStatut(String statut, Pageable pageable) {
+		// TODO Auto-generated method stub
+		return paymentRepository.findByStatut(statut, pageable);
+	}
 }

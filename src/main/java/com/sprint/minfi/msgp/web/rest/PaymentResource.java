@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -247,6 +248,12 @@ public class PaymentResource {
     	 */
  
     	return new ResponseEntity<>(transactionService.findAll(pageable), HttpStatus.OK);
+    }
+    
+    @GetMapping("/literPaymentByStatut/{statut}")
+    public ResponseEntity<Page<PaymentDTO>> literPaymentByStatut(@PathVariable String statut) {
+    	
+    	return new ResponseEntity<>(paymentService.findByStatut(statut, PageRequest.of(0, 5)), HttpStatus.FOUND);
     }
     
     
