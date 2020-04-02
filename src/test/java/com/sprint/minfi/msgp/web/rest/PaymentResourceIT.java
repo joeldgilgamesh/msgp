@@ -1,24 +1,27 @@
 package com.sprint.minfi.msgp.web.rest;
 
-import com.sprint.minfi.msgp.SpminfimsgpApp;
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
-import com.sprint.minfi.msgp.domain.HistoriquePayment;
-import com.sprint.minfi.msgp.domain.Payment;
-import com.sprint.minfi.msgp.domain.Transaction;
-import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
-import com.sprint.minfi.msgp.repository.PaymentRepository;
-import com.sprint.minfi.msgp.repository.TransactionRepository;
-import com.sprint.minfi.msgp.service.PaymentService;
-import com.sprint.minfi.msgp.service.dto.PaymentDTO;
-import com.sprint.minfi.msgp.service.mapper.HistoriquePaymentMapper;
-import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
-import com.sprint.minfi.msgp.web.rest.errors.ExceptionTranslator;
+import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.persistence.EntityManager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -27,26 +30,35 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import javax.persistence.EntityManager;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import com.sprint.minfi.msgp.SpminfimsgpApp;
+import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
+import com.sprint.minfi.msgp.domain.HistoriquePayment;
+import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.domain.Transaction;
 import com.sprint.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprint.minfi.msgp.domain.enumeration.Statut;
+import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
+import com.sprint.minfi.msgp.repository.PaymentRepository;
+import com.sprint.minfi.msgp.repository.TransactionRepository;
+import com.sprint.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprint.minfi.msgp.service.HistoriquePaymentService;
+import com.sprint.minfi.msgp.service.PaymentService;
+import com.sprint.minfi.msgp.service.PaymentSpecialServices;
+import com.sprint.minfi.msgp.service.RESTClientEmissionService;
+import com.sprint.minfi.msgp.service.RESTClientTransactionService;
+import com.sprint.minfi.msgp.service.TransactionService;
+import com.sprint.minfi.msgp.service.dto.PaymentDTO;
+import com.sprint.minfi.msgp.service.dto.TransactionDTO;
+import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprint.minfi.msgp.service.mapper.TransactionMapper;
+import com.sprint.minfi.msgp.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link PaymentResource} REST controller.
  */
 @SpringBootTest(classes = {SecurityBeanOverrideConfiguration.class, SpminfimsgpApp.class})
 public class PaymentResourceIT {
 
-    private static final String DEFAULT_CODE = "AAAAAAAAAA";
+    private static final String DEFAULT_CODE = "code_01";
     private static final String UPDATED_CODE = "BBBBBBBBBB";
 
     private static final MeansOfPayment DEFAULT_MEANS_OF_PAYMENT = MeansOfPayment.MOBILE_MONEY;
@@ -66,6 +78,8 @@ public class PaymentResourceIT {
 
     private static final Long DEFAULT_ID_ORGANISATION = 1L;
     private static final Long UPDATED_ID_ORGANISATION = 2L;
+    
+    private static final String DEFAULT_DEBIT_INFO = "657826658";
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -78,9 +92,30 @@ public class PaymentResourceIT {
 
     @Autowired
     private PaymentMapper paymentMapper;
+    
+    @Autowired
+    private TransactionMapper transactionMapper;
 
     @Autowired
     private PaymentService paymentService;
+    
+    @Autowired
+    private HistoriquePaymentService historiquePaymentService;
+    
+    @Autowired
+    private TransactionService transactionService;
+    
+    @Autowired
+    private DetailVersementIntermediaireService detailVersementIntermediaireService;
+    
+    @MockBean
+    private RESTClientTransactionService restClientTransactionService;
+    
+    @MockBean
+    private RESTClientEmissionService restClientEmissionService; 
+    
+    @MockBean
+    private PaymentSpecialServices paymentSpecialServices;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -108,7 +143,9 @@ public class PaymentResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PaymentResource paymentResource = new PaymentResource(paymentService, null, null, null, null, null, null);
+        final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService, transactionService, 
+        															detailVersementIntermediaireService, restClientTransactionService, 
+        															restClientEmissionService, paymentSpecialServices);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -134,6 +171,33 @@ public class PaymentResourceIT {
             .idOrganisation(DEFAULT_ID_ORGANISATION);
         return payment;
     }
+    
+    /**
+     * create entity historique for test.
+     * @param em
+     * @return
+     */
+    public static HistoriquePayment createEntityHistorique(EntityManager em) {
+    	HistoriquePayment historique = new HistoriquePayment()
+    			.dateStatus(LocalDateTime.now())
+    			.status(DEFAULT_STATUT.toString());
+    	return historique;
+    }
+    
+    /**
+     * create entity transaction for test
+     * @param em
+     * @return
+     */
+    public static Transaction createEntityTransaction(EntityManager em) {
+    	Transaction transaction = new Transaction()
+    			.codeTransaction(DEFAULT_CODE)
+    			.telephone("651826658")
+    			.date(LocalDateTime.now())
+    			.msg("transaction failed");
+    	return transaction;
+    }
+    
     /**
      * Create an updated entity for this test.
      *
@@ -155,6 +219,8 @@ public class PaymentResourceIT {
     @BeforeEach
     public void initTest() {
         payment = createEntity(em);
+        historique = createEntityHistorique(em);
+        transaction = createEntityTransaction(em);
     }
 
     @Test
@@ -347,79 +413,59 @@ public class PaymentResourceIT {
         assertThat(paymentList).hasSize(databaseSizeBeforeDelete - 1);
     }
     
+    @Test
+    @Transactional
     public void effectuerPayment() throws Exception {
     	//initialize database
-        paymentRepository.saveAndFlush(payment);
-        historiquePaymentRepo.saveAndFlush(historique);
-        
-    	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
-    	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
+    	paymentRepository.saveAndFlush(payment);
+    	
         // effectuer Payment en mode test
-//        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}", "671585236"))
-        	.andExpect(status().isOk())
-            .andExpect(jsonPath("$.paymentDTO.id").value(payment.getId() + 1))
-            .andExpect(jsonPath("$.resultTransaction").isNotEmpty());
+        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
+        paymentDTO.setCode(DEFAULT_CODE);
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}", transaction.getTelephone())
+        .contentType(TestUtil.APPLICATION_JSON)
+        .content(TestUtil.convertObjectToJsonBytes(paymentDTO)))
+        .andExpect(status().isOk());
 
-	    // Verifier que le paiement s est enregistré correctement
-	    List<Payment> paymentList = paymentRepository.findAll();
-	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
-	    Payment testPayment = paymentList.get(paymentList.size() - 1);
-	    assertThat(testPayment.getStatut().toString()).isEqualTo("DRAFT");
-	    
-	    //  Verifier que l historique s est enregistré correctement
-	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
-	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate2 + 1);
-	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
-	    assertThat(testhistorique.getStatus().toString()).isEqualTo("DRAFT");
-	    assertThat(testhistorique.getDateStatus()).isBefore(LocalDateTime.now());
 
     }
     
+    @Test
+    @Transactional
     public void callbackTransaction() throws Exception {
     	//initialize database
-        paymentRepository.saveAndFlush(payment);
-        historiquePaymentRepo.saveAndFlush(historique);
-        transactionRepo.saveAndFlush(transaction);
-        
-    	int databaseSizeBeforeCreate = paymentRepository.findAll().size();
-    	int databaseSizeBeforeCreate2 = historiquePaymentRepo.findAll().size();
-    	int databaseSizeBeforeCreate3 = transactionRepo.findAll().size();
+    	transactionRepo.saveAndFlush(transaction);
+    	
+        // callbackTransaction en mode test
+    	TransactionDTO transactionDTO = transactionMapper.toDto(transaction);
+        restPaymentMockMvc.perform(post("/api/callbackTransaction/{codePaiement}", transactionDTO.getCodeTransaction())
+        		.contentType(TestUtil.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(transactionDTO)))
+         	    .andExpect(status().isBadRequest());
 
-        // effectuer Payment en mode test
-//        PaymentDTO paymentDTO = paymentMapper.toDto(payment);
-        restPaymentMockMvc.perform(post("/api/callbackTransaction/{codePaiement}", "code_10"))
-        	.andExpect(status().isOk());
-
-	    // Verifier que le paiement s est enregistré correctement
-	    List<Payment> paymentList = paymentRepository.findAll();
-	    assertThat(paymentList).hasSize(databaseSizeBeforeCreate + 1);
-	    Payment testPayment = paymentList.get(paymentList.size() - 1);
-	    assertThat(testPayment.getStatut().toString()).isEqualTo("VALIDATED");
-	    
-	    //  Verifier que l historique s est enregistré correctement
-	    List<HistoriquePayment> historiquePayments = historiquePaymentRepo.findAll();
-	    assertThat(historiquePayments).hasSize(databaseSizeBeforeCreate + 1);
-	    HistoriquePayment testhistorique = historiquePayments.get(historiquePayments.size() - 1);
-	    assertThat(testhistorique.getStatus().toString()).isEqualTo("VALIDATED");
-	    assertThat(testhistorique.getDateStatus()).isBefore(LocalDateTime.now());
-	    
-	    // Verifier que la transaction s est enregistré correctement
-	    List<Transaction> transactionList = transactionRepo.findAll();
-	    assertThat(transactionList).hasSize(databaseSizeBeforeCreate + 1);
-	    Transaction testTransaction = transactionList.get(transactionList.size() - 1);
-	    assertThat(!(testTransaction.getCodeTransaction().isEmpty()));
-	    assertThat(!(testTransaction.getTelephone().isEmpty()));
     }
     
+    @Test
+    @Transactional
     public void reconcilierPaiement() throws Exception {
-    	//initialize the database 
+    	//initialize database
     	paymentRepository.saveAndFlush(payment);
-    	int databaseSizeBeforeDelete = paymentRepository.findAll().size();
     	
-    	//reconcilier Paiement
-    	restPaymentMockMvc.perform(post("/reconcilierPaiement/{codeVersement}/{montant}", "code_01", 1000))
-    					  .andReturn();
+    	//reconcilier Paiement en mode test
+    	PaymentDTO paymentDTO = paymentMapper.toDto(payment);
+    	restPaymentMockMvc.perform(post("/api/reconcilierPaiement/{codeVersement}/{montant}", DEFAULT_CODE, DEFAULT_AMOUNT)
+    			.contentType(TestUtil.APPLICATION_JSON)
+                .content(TestUtil.convertObjectToJsonBytes(paymentDTO)))
+    			.andExpect(status().isBadRequest());
     	
     }
+    
+    @Test
+    @Transactional
+    public void listerTransaction() throws Exception {
+    	
+    	// lister transaction en mode test
+    	restPaymentMockMvc.perform(get("/api/listertransaction")).andExpect(status().isOk());
+    }
+    
 }

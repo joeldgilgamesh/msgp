@@ -68,4 +68,6 @@ public interface PaymentService {
 	 * @return
 	 */
 	PaymentDTO findByCode(String code);
+
+	Page<PaymentDTO> findByStatut(String statut, Pageable pageable);
 }
