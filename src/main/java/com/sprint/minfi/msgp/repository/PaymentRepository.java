@@ -1,6 +1,7 @@
 package com.sprint.minfi.msgp.repository;
 
 import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	@Query("SELECT id FROM Payment p WHERE p.id = :idLast")
 	Long getLastId(@Param("idLast") Long idLast);
 
-	Page<PaymentDTO> findByStatut(String statut, Pageable pageable);
+	Page<PaymentDTO> findByStatut(Statut statut, Pageable pageable);
+
 
 }

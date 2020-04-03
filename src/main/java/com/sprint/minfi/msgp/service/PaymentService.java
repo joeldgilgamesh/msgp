@@ -1,5 +1,6 @@
 package com.sprint.minfi.msgp.service;
 
+import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 
 import org.springframework.data.domain.Page;
@@ -69,5 +70,11 @@ public interface PaymentService {
 	 */
 	PaymentDTO findByCode(String code);
 
-	Page<PaymentDTO> findByStatut(String statut, Pageable pageable);
+	/**
+	 * 
+	 * @param statut
+	 * @param pageable
+	 * @return
+	 */
+	Page<PaymentDTO> findByStatut(Statut statut, Pageable pageable);
 }

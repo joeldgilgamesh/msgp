@@ -2,6 +2,7 @@ package com.sprint.minfi.msgp.service.impl;
 
 import com.sprint.minfi.msgp.service.PaymentService;
 import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.repository.PaymentRepository;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
@@ -110,7 +111,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Page<PaymentDTO> findByStatut(String statut, Pageable pageable) {
+	public Page<PaymentDTO> findByStatut(Statut statut, Pageable pageable) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByStatut(statut, pageable);
 	}

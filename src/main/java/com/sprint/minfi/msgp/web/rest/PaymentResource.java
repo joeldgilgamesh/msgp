@@ -253,7 +253,7 @@ public class PaymentResource {
     @GetMapping("/literPaymentByStatut/{statut}")
     public ResponseEntity<Page<PaymentDTO>> literPaymentByStatut(@PathVariable Statut statut) {
     	
-    	return new ResponseEntity<>(paymentService.findByStatut(statut.toString(), PageRequest.of(0, 5)), HttpStatus.FOUND);
+    	return new ResponseEntity<>(paymentService.findByStatut(statut, PageRequest.of(0, 5)), HttpStatus.FOUND);
     }
     
     
