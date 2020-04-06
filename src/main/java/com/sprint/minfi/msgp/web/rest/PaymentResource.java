@@ -253,7 +253,10 @@ public class PaymentResource {
     @GetMapping("/literPaymentByStatut/{status}")
     public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut status) {
     	
-        return new ResponseEntity<>((paymentService.findByStatut(status, PageRequest.of(0, 5))).getContent(), HttpStatus.OK);
+//        return new ResponseEntity<>((paymentService.findByStatut(status, PageRequest.of(0, 5))).getContent(), HttpStatus.OK);
+    	Page<Object> page = paymentService.findByStatut(status, PageRequest.of(0, 5));
+//        HttpHeaders headers = null;
+        return ResponseEntity.ok().body(page.getContent());
     }
     
     
