@@ -38,7 +38,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	@Query("SELECT id FROM Payment p WHERE p.id = :idLast")
 	Long getLastId(@Param("idLast") Long idLast);
 
-	Page<PaymentDTO> findByStatut(Statut statut, Pageable pageable);
+	@Query("SELECT p FROM Payment p WHERE p.statut = 'VALIDATED'")
+	Page<Object> findByPaymentValidated(Pageable pageable);
 
 
 }

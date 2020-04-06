@@ -1,20 +1,20 @@
 package com.sprint.minfi.msgp.service.impl;
 
-import com.sprint.minfi.msgp.service.PaymentService;
-import com.sprint.minfi.msgp.domain.Payment;
-import com.sprint.minfi.msgp.domain.enumeration.Statut;
-import com.sprint.minfi.msgp.repository.PaymentRepository;
-import com.sprint.minfi.msgp.service.dto.PaymentDTO;
-import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import com.sprint.minfi.msgp.domain.Payment;
+import com.sprint.minfi.msgp.domain.enumeration.Statut;
+import com.sprint.minfi.msgp.repository.PaymentRepository;
+import com.sprint.minfi.msgp.service.PaymentService;
+import com.sprint.minfi.msgp.service.dto.PaymentDTO;
+import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
 
 /**
  * Service Implementation for managing {@link Payment}.
@@ -111,8 +111,8 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Page<PaymentDTO> findByStatut(Statut statut, Pageable pageable) {
+	public Page<Object> findByStatut(Statut status, Pageable pageable) {
 		// TODO Auto-generated method stub
-		return paymentRepository.findByStatut(statut, pageable);
+		return paymentRepository.findByPaymentValidated(pageable);
 	}
 }
