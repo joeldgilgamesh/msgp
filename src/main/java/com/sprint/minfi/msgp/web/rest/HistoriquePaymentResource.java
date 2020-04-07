@@ -116,10 +116,10 @@ public class HistoriquePaymentResource {
      * @param id the id of the historiquePaymentDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/historique-payments/{id}")
-    public ResponseEntity<Void> deleteHistoriquePayment(@PathVariable Long id) {
-        log.debug("REST request to delete HistoriquePayment : {}", id);
-        historiquePaymentService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
-    }
+//    @DeleteMapping("/historique-payments/{id}")
+//    public ResponseEntity<Void> deleteHistoriquePayment(@PathVariable Long id) {
+//        log.debug("REST request to delete HistoriquePayment : {}", id);
+//        historiquePaymentService.delete(id);
+//        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+//    }
 }

@@ -126,9 +126,7 @@ public class PaymentResource {
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 		
-		if (paymentDTO.getId() != null) {
-			System.out.println("je vais annuler l enregistrement de ce paiement");
-		}
+		if (paymentDTO.getId() != null) System.out.println("je vais annuler l enregistrement de ce paiement");
     	
     	//enregistrer le payment au statut DRAFT
     	paymentDTO.setStatut(Statut.DRAFT);
@@ -175,17 +173,15 @@ public class PaymentResource {
     	//doit elles etre exécuté simultanément ou sequentiellement ????
     	PaymentDTO paymentDTO = paymentService.findByCode(codePaiement);
 
-    	if (paymentDTO == null) {
-    		return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
-		}
+    	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
     	
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
     	
-    	//appel du service generer recu de payment (micro service quittance pas encore pret)
+    	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
-    	//appel du service notification pour renseigner sur l etat reussi du paiement
+    	//appel du endpoint notification pour renseigner sur l etat reussi du paiement
     	
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
@@ -199,24 +195,17 @@ public class PaymentResource {
     	String resultat = "RECONCILED Succes";
     	
     	//Validation 
-    	if (paymentDTO.getId() == null || paymentDTO.getCode() == null) {
-    		return new ResponseEntity<>(resultat = "Paiement Not Exist", HttpStatus.BAD_REQUEST);
-		}
+    	if (paymentDTO.getId() == null || paymentDTO.getCode() == null) return new ResponseEntity<>(resultat = "Paiement Not Exist", HttpStatus.BAD_REQUEST);
     	
-    	if (paymentDTO.getStatut().toString() == "RECONCILED") {//au cas où le paiement est dejà reconcilié
-			return new ResponseEntity<>(resultat = "Paiement Already RECONCILED", HttpStatus.CONFLICT);
-		}
+    	//au cas où le paiement est dejà reconcilié
+    	if (paymentDTO.getStatut().toString() == "RECONCILED") return new ResponseEntity<>(resultat = "Paiement Already RECONCILED", HttpStatus.CONFLICT);
     	
     	//appel du service verifier detail versement 
     	DetailVersementIntermediaireDTO det = detailVersementIntermediaireService.findByCode(codeVersement);
     	
-    	if (det == null) {
-    		return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
-		}
+    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
     	
-    	if (det.getNumeroVersment().isEmpty()) {
-			return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
-		}
+    	if (det.getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
     	
     	String status = Statut.RECONCILED.toString();
     	
@@ -234,8 +223,9 @@ public class PaymentResource {
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
     	
-    	//appel du service generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
-    	//appel du service notification pour renseigner sur l etat de la reconciliation
+    	//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
+    	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
+    	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
     	
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }

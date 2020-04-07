@@ -250,21 +250,21 @@ public class HistoriquePaymentResourceIT {
         assertThat(historiquePaymentList).hasSize(databaseSizeBeforeUpdate);
     }
 
-    @Test
-    @Transactional
-    public void deleteHistoriquePayment() throws Exception {
-        // Initialize the database
-        historiquePaymentRepository.saveAndFlush(historiquePayment);
-
-        int databaseSizeBeforeDelete = historiquePaymentRepository.findAll().size();
-
-        // Delete the historiquePayment
-        restHistoriquePaymentMockMvc.perform(delete("/api/historique-payments/{id}", historiquePayment.getId())
-            .accept(TestUtil.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
-
-        // Validate the database contains one less item
-        List<HistoriquePayment> historiquePaymentList = historiquePaymentRepository.findAll();
-        assertThat(historiquePaymentList).hasSize(databaseSizeBeforeDelete - 1);
-    }
+//    @Test
+//    @Transactional
+//    public void deleteHistoriquePayment() throws Exception {
+//        // Initialize the database
+//        historiquePaymentRepository.saveAndFlush(historiquePayment);
+//
+//        int databaseSizeBeforeDelete = historiquePaymentRepository.findAll().size();
+//
+//        // Delete the historiquePayment
+//        restHistoriquePaymentMockMvc.perform(delete("/api/historique-payments/{id}", historiquePayment.getId())
+//            .accept(TestUtil.APPLICATION_JSON))
+//            .andExpect(status().isNoContent());
+//
+//        // Validate the database contains one less item
+//        List<HistoriquePayment> historiquePaymentList = historiquePaymentRepository.findAll();
+//        assertThat(historiquePaymentList).hasSize(databaseSizeBeforeDelete - 1);
+//    }
 }
