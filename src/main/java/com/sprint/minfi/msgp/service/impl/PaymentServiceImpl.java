@@ -5,7 +5,9 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,6 +115,13 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Page<Object> findByStatut(Statut status, Pageable pageable) {
 		// TODO Auto-generated method stub
-		return paymentRepository.findByPaymentValidated(pageable);
+		return paymentRepository.findByPaymentValidated(status, pageable);
 	}
+	
+	@Scheduled(fixedDelay = 60000)
+	public void testFind(){
+		
+		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
+	}
+	
 }

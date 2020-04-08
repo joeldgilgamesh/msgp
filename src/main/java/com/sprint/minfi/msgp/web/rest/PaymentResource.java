@@ -230,20 +230,20 @@ public class PaymentResource {
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
     
-    @GetMapping("/listertransaction")
-    public ResponseEntity<Page<TransactionDTO>> listerTransaction() {
+    @GetMapping("/listertransaction/{page}/{size}")
+    public ResponseEntity<Page<TransactionDTO>> listerTransaction(@PathVariable int page, @PathVariable int size) {
     	/**
     	 * ici on fera appel à RESTClientTransactionService.getAllTransaction pour recuperer les transaction probablement selon un critere
     	 * qu'on definira
     	 */
  
-    	return new ResponseEntity<>(transactionService.findAll(PageRequest.of(0, 5)), HttpStatus.OK);
+    	return new ResponseEntity<>(transactionService.findAll(PageRequest.of(page, size)), HttpStatus.OK);
     }
     
-    @GetMapping("/literPaymentByStatut/{statut}")
-    public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut) {
-    	
-        return new ResponseEntity<>((paymentService.findByStatut(statut, PageRequest.of(0, 5))).getContent(), HttpStatus.OK);
+    @GetMapping("/literPaymentByStatut/{statut}/{page}/{size}")
+    public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, @PathVariable int page, @PathVariable int size) {
+    	Pageable pageable = PageRequest.of(page, size);
+        return new ResponseEntity<>((paymentService.findByStatut(statut, pageable)).getContent(), HttpStatus.OK);
     }
     
     
