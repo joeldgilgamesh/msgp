@@ -45,5 +45,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	@Query("SELECT p FROM Payment p WHERE p.statut = :stat")
 	Page<Object> findByPaymentValidated(@Param("stat") Statut status, Pageable pageable);
 
+	PaymentDTO findByIdTransactionId(Long id);
+
 
 }

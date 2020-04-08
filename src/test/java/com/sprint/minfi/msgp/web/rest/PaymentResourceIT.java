@@ -460,12 +460,4 @@ public class PaymentResourceIT {
     	
     }
     
-    @Test
-    @Transactional
-    public void listerTransaction() throws Exception {
-    	
-    	// lister transaction en mode test
-    	restPaymentMockMvc.perform(get("/api/listertransaction/{page}/{size}", 0, 5)).andExpect(status().isOk());
-    }
-    
 }

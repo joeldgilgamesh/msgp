@@ -42,4 +42,12 @@ public interface TransactionService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * 
+     * @param codeTransaction
+     * @return
+     */
+	TransactionDTO findByCodeTransaction(String codeTransaction);
+
 }

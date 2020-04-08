@@ -78,4 +78,11 @@ public interface PaymentService {
 	 * @return
 	 */
 	Page<Object> findByStatut(Statut status, Pageable pageable);
+
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	PaymentDTO findByIdTransactionId(Long id);
 }

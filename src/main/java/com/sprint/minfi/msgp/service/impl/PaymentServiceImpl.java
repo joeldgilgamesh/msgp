@@ -117,6 +117,12 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByPaymentValidated(status, pageable);
 	}
+
+	@Override
+	public PaymentDTO findByIdTransactionId(Long id) {
+		// TODO Auto-generated method stub
+		return paymentRepository.findByIdTransactionId(id);
+	}
 	
 	@Scheduled(fixedDelay = 60000)
 	public void testFind(){

@@ -85,4 +85,14 @@ public class TransactionServiceImpl implements TransactionService {
         log.debug("Request to delete Transaction : {}", id);
         transactionRepository.deleteById(id);
     }
+
+    /**
+     * 
+     */
+	@Override
+	public TransactionDTO findByCodeTransaction(String codeTransaction) {
+		// TODO Auto-generated method stub
+		return transactionRepository.findByCodeTransaction(codeTransaction);
+	}
+
 }

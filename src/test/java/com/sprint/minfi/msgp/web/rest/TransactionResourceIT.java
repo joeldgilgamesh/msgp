@@ -220,7 +220,7 @@ public class TransactionResourceIT {
         transactionRepository.saveAndFlush(transaction);
 
         // Get all the transactionList
-        restTransactionMockMvc.perform(get("/api/transactions?sort=id,desc"))
+        restTransactionMockMvc.perform(get("/api/listerTransaction?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transaction.getId().intValue())))

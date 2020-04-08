@@ -230,25 +230,27 @@ public class PaymentResource {
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
     
-    @GetMapping("/listertransaction/{page}/{size}")
-    public ResponseEntity<Page<TransactionDTO>> listerTransaction(@PathVariable int page, @PathVariable int size) {
-    	/**
-    	 * ici on fera appel à RESTClientTransactionService.getAllTransaction pour recuperer les transaction probablement selon un critere
-    	 * qu'on definira
-    	 */
- 
-    	return new ResponseEntity<>(transactionService.findAll(PageRequest.of(page, size)), HttpStatus.OK);
-    }
     
-    @GetMapping("/literPaymentByStatut/{statut}/{page}/{size}")
-    public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, @PathVariable int page, @PathVariable int size) {
-    	Pageable pageable = PageRequest.of(page, size);
+    @GetMapping("/literPaymentByStatut/{statut}")
+    public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
+
     	Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
         return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
     }
     
     
+    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
+    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
+    	Map<String, String> resultData = new LinkedHashMap<String, String>();
+    	TransactionDTO transaction = transactionService.findByCodeTransaction(codeTransaction);
+    	PaymentDTO payment = paymentService.findByIdTransactionId(transaction.getId());
+    	
+    	resultData.put("statusPaie", payment.getStatut().toString());
+    	resultData.put("codePaie", payment.getCode());
+    	resultData.put("datePaie", transaction.getDate().toString());
+    	return new ResponseEntity<>(resultData, HttpStatus.OK);
+    }
     
     
     
