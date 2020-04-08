@@ -243,7 +243,9 @@ public class PaymentResource {
     @GetMapping("/literPaymentByStatut/{statut}/{page}/{size}")
     public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, @PathVariable int page, @PathVariable int size) {
     	Pageable pageable = PageRequest.of(page, size);
-        return new ResponseEntity<>((paymentService.findByStatut(statut, pageable)).getContent(), HttpStatus.OK);
+    	Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
+        return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
     }
     
     
