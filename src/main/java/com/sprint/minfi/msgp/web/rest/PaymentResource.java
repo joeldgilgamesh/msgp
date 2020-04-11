@@ -141,12 +141,15 @@ public class PaymentResource {
     		try {
     			resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
             			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
+    			result.put("paymentDTO", paymentDTO2);
+				result.put("resultTransaction", resultTransaction);
     		}
     	
     		finally {
-    			result.put("paymentDTO", paymentDTO2);
-				result.put("resultTransaction", resultTransaction);
+    			
+				
 				return new ResponseEntity<>(result, HttpStatus.OK);
+				
 			}
     		
     }
@@ -159,7 +162,9 @@ public class PaymentResource {
     	//ici je vais d abord tester que la transaction a réussi, voici un exemple
     	String resultat = "Success";
     	
-		if (transactionDTO.getCodeTransaction().isEmpty() || transactionDTO.getTelephone().isEmpty() || transactionDTO.getMsg().isEmpty()) {
+		if (transactionDTO.getCodeTransaction().isEmpty() || transactionDTO.getTelephone().isEmpty() 
+														  || transactionDTO.getMsg().isEmpty()
+														  || transactionDTO.getMsg().contains("Failed")) {
 			//appeler le service de notification pour renseigner de l echec du paiement
 			return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);		
 		}
