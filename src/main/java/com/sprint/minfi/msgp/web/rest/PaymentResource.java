@@ -138,19 +138,15 @@ public class PaymentResource {
     	
     	//appel du service -> demande transaction
     	
-    		try {
+    		
+    			
     			resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
             			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
     			result.put("paymentDTO", paymentDTO2);
 				result.put("resultTransaction", resultTransaction);
-    		}
-    	
-    		finally {
-    			
-				
 				return new ResponseEntity<>(result, HttpStatus.OK);
 				
-			}
+			
     		
     }
     
