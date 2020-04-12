@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.UUID;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class PaymentResource {
     private final TransactionService transactionService;
     private final DetailVersementIntermediaireService detailVersementIntermediaireService;
     private final RESTClientTransactionService restClientTransactionService;
-    private final RESTClientEmissionService restClientEmissionService; 
+    private final RESTClientEmissionService restClientEmissionService;
     private final PaymentSpecialServices paymentSpecialServices;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
@@ -101,121 +101,122 @@ public class PaymentResource {
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-    
-    
+
+
 //    @PostMapping("/payments")
 //    public ResponseEntity<PaymentDTO> savePayment(@Valid @RequestBody PaymentDTO paymentDTO) {
 //        log.debug("REST request to save Payment : {}", paymentDTO);
-//        
+//
 //        PaymentDTO result = paymentService.save(paymentDTO);
-//        
+//
 //        return new ResponseEntity<PaymentDTO>(result, HttpStatus.CREATED);
 //    }
-    
+
 	@SuppressWarnings("finally")
 	@PostMapping("/effectuerPaiement/{debitInfo}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo) {
-    	
+
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
-    	
-    	//Validation 
+
+    	//Validation
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null || debitInfo.isEmpty()) {
 			result.put("Reject", "Demande de paiement rejetté");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
-		
+
 		if (paymentDTO.getId() != null) System.out.println("je vais annuler l enregistrement de ce paiement");
-    	
+
     	//enregistrer le payment au statut DRAFT
     	paymentDTO.setStatut(Statut.DRAFT);
-    	paymentDTO.setCode(paymentSpecialServices.codeNext());
+    	// paymentDTO.setCode(paymentSpecialServices.codeNext());
+      paymentDTO.setCode(UUID.randomUUID().toString());
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
-    	
+
     	//gestion historiquePaymentDTO, valider, historiser le paiement
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now());
-    	
+
     	//appel du service -> demande transaction
-    	
-    		
-    			
-    			resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), 
+
+
+
+    			resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
             			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
     			result.put("paymentDTO", paymentDTO2);
 				result.put("resultTransaction", resultTransaction);
 				return new ResponseEntity<>(result, HttpStatus.OK);
-				
-			
-    		
+
+
+
     }
-    
+
     @PostMapping("/callbackTransaction/{codePaiement}")
-    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO, 
+    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
     													@PathVariable String codePaiement) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
 
     	//controle des données du flux en entrée, quelles sont elles ?
     	//ici je vais d abord tester que la transaction a réussi, voici un exemple
     	String resultat = "Success";
-    	
-		if (transactionDTO.getCodeTransaction().isEmpty() || transactionDTO.getTelephone().isEmpty() 
+
+		if (transactionDTO.getCodeTransaction().isEmpty() || transactionDTO.getTelephone().isEmpty()
 														  || transactionDTO.getMsg().isEmpty()
 														  || transactionDTO.getMsg().contains("Failed")) {
 			//appeler le service de notification pour renseigner de l echec du paiement
-			return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);		
+			return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);
 		}
-    	
+
     	String status = Statut.VALIDATED.toString();
-    	
+
     	//gestion transactionDTO, appel du service -> save transaction (il faut bien spécifier l objet Transaction)
     	transactionService.save(transactionDTO);
-    	
+
     	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
     	//doit elles etre exécuté simultanément ou sequentiellement ????
     	PaymentDTO paymentDTO = paymentService.findByCode(codePaiement);
 
     	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
-    	
+
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
-    	
+
     	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
     	//en attente...
     	//appel du endpoint notification pour renseigner sur l etat reussi du paiement
-    	
+
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
-    
-    
+
+
     @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
     public ResponseEntity<String> reconcilierPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												  , @PathVariable String codeVersement
     												  , @PathVariable double montant) {
-    	
+
     	String resultat = "RECONCILED Succes";
-    	
-    	//Validation 
+
+    	//Validation
     	if (paymentDTO.getId() == null || paymentDTO.getCode() == null) return new ResponseEntity<>(resultat = "Paiement Not Exist", HttpStatus.BAD_REQUEST);
-    	
+
     	//au cas où le paiement est dejà reconcilié
     	if (paymentDTO.getStatut().toString() == "RECONCILED") return new ResponseEntity<>(resultat = "Paiement Already RECONCILED", HttpStatus.CONFLICT);
-    	
-    	//appel du service verifier detail versement 
+
+    	//appel du service verifier detail versement
     	DetailVersementIntermediaireDTO det = detailVersementIntermediaireService.findByCode(codeVersement);
-    	
+
     	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
-    	
+
     	if (det.getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
-    	
+
     	String status = Statut.RECONCILED.toString();
-    	
+
     	//mettre a jour le statut du paiement en cours de reconciliation
     	paymentService.update(paymentDTO.getId(), status);
-    	
+
     	//historiser le paiement
     	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
-    	
+
     	//appel du service de comparaisons des données des paiements des deux cotés
     	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different
     		status = Statut.CANCEL.toString();
@@ -223,15 +224,15 @@ public class PaymentResource {
         	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
-    	
+
     	//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
     	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
     	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
-    	
+
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
-    
-    
+
+
     @GetMapping("/literPaymentByStatut/{statut}")
     public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
 
@@ -239,23 +240,23 @@ public class PaymentResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
         return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
     }
-    
-    
+
+
     @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
     public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
     	Map<String, String> resultData = new LinkedHashMap<String, String>();
     	TransactionDTO transaction = transactionService.findByCodeTransaction(codeTransaction);
     	PaymentDTO payment = paymentService.findByIdTransactionId(transaction.getId());
-    	
+
     	resultData.put("statusPaie", payment.getStatut().toString());
     	resultData.put("codePaie", payment.getCode());
     	resultData.put("datePaie", transaction.getDate().toString());
     	return new ResponseEntity<>(resultData, HttpStatus.OK);
     }
-    
-    
-    
-    
+
+
+
+
 
     /**
      * {@code PUT  /payments} : Updates an existing payment.
@@ -317,5 +318,5 @@ public class PaymentResource {
         paymentService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
-    
+
 }
