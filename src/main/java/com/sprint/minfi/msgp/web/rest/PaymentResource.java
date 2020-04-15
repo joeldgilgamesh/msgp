@@ -35,9 +35,11 @@ import com.sprint.minfi.msgp.service.HistoriquePaymentService;
 import com.sprint.minfi.msgp.service.PaymentService;
 import com.sprint.minfi.msgp.service.PaymentSpecialServices;
 import com.sprint.minfi.msgp.service.RESTClientEmissionService;
+import com.sprint.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprint.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
 import com.sprint.minfi.msgp.web.rest.errors.BadRequestAlertException;
@@ -66,6 +68,7 @@ public class PaymentResource {
     private final DetailVersementIntermediaireService detailVersementIntermediaireService;
     private final RESTClientTransactionService restClientTransactionService;
     private final RESTClientEmissionService restClientEmissionService;
+    private final RESTClientQuittanceService restClientQuittanceService;
     private final PaymentSpecialServices paymentSpecialServices;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
@@ -73,7 +76,8 @@ public class PaymentResource {
     					   , DetailVersementIntermediaireService detailVersementIntermediaireService
     					   , RESTClientTransactionService restClientTransactionService
     					   , RESTClientEmissionService restClientEmissionService
-    					   , PaymentSpecialServices paymentSpecialServices) {
+    					   , PaymentSpecialServices paymentSpecialServices
+    					   , RESTClientQuittanceService restClientQuittanceService) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.transactionService = transactionService;
@@ -81,6 +85,7 @@ public class PaymentResource {
         this.restClientTransactionService = restClientTransactionService;
         this.restClientEmissionService = restClientEmissionService;
         this.paymentSpecialServices = paymentSpecialServices;
+        this.restClientQuittanceService = restClientQuittanceService; 
     }
 
     /**
@@ -179,10 +184,19 @@ public class PaymentResource {
 
     	paymentService.update(paymentDTO.getId(), status);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
-    	restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
+    	
+    	//ici on teste s il s agit du paiement d une emission
+    	if (paymentDTO.getIdEmission() != null) restClientEmissionService.historiserEmission(status, paymentDTO.getIdEmission());
 
     	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
-    	//en attente...
+    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+    	justificatifPaiementDTO.setReferencePaiement(paymentDTO.getCode());
+    	justificatifPaiementDTO.setIdPaiement(paymentDTO.getId());
+    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate()); 
+    	justificatifPaiementDTO.setMontant(paymentDTO.getAmount());
+    	//...
+    	restClientQuittanceService.createJustificatifPaiement(justificatifPaiementDTO);
+    	
     	//appel du endpoint notification pour renseigner sur l etat reussi du paiement
 
     	return new ResponseEntity<>(resultat, HttpStatus.OK);

@@ -1,0 +1,30 @@
+// entités du micro service MS Emission et Declaration
+
+entity JustificatifPaiement {
+    idPaiement Long,
+    dateCreation LocalDate,
+    referencePaiement String,
+	typePaiement String,
+	natureRecette String,
+	montant Double,
+	nui String,
+	nomPrenomClient String,
+	idOrganisation Long,
+	codeOrganisation String,
+	nomOrganisation String,
+	exercise String,
+	mois String,
+	libelleCentre String,
+	libelleCourtCentre String,
+	ifu String,
+	raisonSociale String,
+    sigle String,
+    codePoste Long,
+	code String,
+	numero Long
+}
+
+dto * with mapstruct
+microservice * with spminfimsgp
+
+

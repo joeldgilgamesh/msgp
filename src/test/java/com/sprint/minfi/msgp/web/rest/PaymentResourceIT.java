@@ -45,6 +45,7 @@ import com.sprint.minfi.msgp.service.HistoriquePaymentService;
 import com.sprint.minfi.msgp.service.PaymentService;
 import com.sprint.minfi.msgp.service.PaymentSpecialServices;
 import com.sprint.minfi.msgp.service.RESTClientEmissionService;
+import com.sprint.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
@@ -115,6 +116,9 @@ public class PaymentResourceIT {
     private RESTClientEmissionService restClientEmissionService; 
     
     @MockBean
+    private RESTClientQuittanceService restClientQuittanceService;
+    
+    @MockBean
     private PaymentSpecialServices paymentSpecialServices;
 
     @Autowired
@@ -145,7 +149,7 @@ public class PaymentResourceIT {
         MockitoAnnotations.initMocks(this);
         final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService, transactionService, 
         															detailVersementIntermediaireService, restClientTransactionService, 
-        															restClientEmissionService, paymentSpecialServices);
+        															restClientEmissionService, paymentSpecialServices, restClientQuittanceService);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

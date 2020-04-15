@@ -18,6 +18,7 @@
     <include file="config/liquibase/changelog/20200219155800_added_entity_HistoriquePayment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200219155900_added_entity_Transaction.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200219160000_added_entity_DetailVersementIntermediaire.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200414230400_added_entity_JustificatifPaiement.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20200219155700_added_entity_constraints_Payment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20200219155800_added_entity_constraints_HistoriquePayment.xml" relativeToChangelogFile="false"/>
