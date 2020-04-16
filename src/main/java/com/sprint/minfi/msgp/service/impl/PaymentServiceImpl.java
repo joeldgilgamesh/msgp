@@ -95,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
      * @param2 the state to set to update Payment.
      */
 	@Override
-	public PaymentDTO update(Long idPaymeLong, String state) {
+	public Payment update(Long idPaymeLong, String state) {
 		// TODO Auto-generated method stub
 		return paymentRepository.updatePayment(idPaymeLong, state);
 	}

@@ -29,7 +29,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	Payment findByIdTransaction(@Param("idT") Long idT);
 
 	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
-	PaymentDTO updatePayment(@Param("idPaymeLong") Long idP, @Param("state") String state);
+	Payment updatePayment(@Param("idPaymeLong") Long idP, @Param("state") String state);
 
 	Payment findByCode(String code);
 
