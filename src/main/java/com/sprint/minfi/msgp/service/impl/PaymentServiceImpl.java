@@ -101,13 +101,13 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public PaymentDTO findByIdTransation(Long Id) {
+	public Payment findByIdTransation(Long Id) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdTransaction(Id);
 	}
 
 	@Override
-	public PaymentDTO findByCode(String code) {
+	public Payment findByCode(String code) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByCode(code);
 	}

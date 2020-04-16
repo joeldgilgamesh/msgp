@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.sprint.minfi.msgp.domain.Payment;
 import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprint.minfi.msgp.service.HistoriquePaymentService;
@@ -126,7 +127,9 @@ public class PaymentResource {
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
 
     	//Validation
-		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null || debitInfo.isEmpty()) {
+		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null 
+				|| debitInfo.isEmpty() || paymentDTO.getAmount() == 0 || 
+				(paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0))  {
 			result.put("Reject", "Demande de paiement rejetté");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
@@ -178,7 +181,7 @@ public class PaymentResource {
 
     	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
     	//doit elles etre exécuté simultanément ou sequentiellement ????
-    	PaymentDTO paymentDTO = paymentService.findByCode(codePaiement);
+    	Payment paymentDTO = paymentService.findByCode(codePaiement);
 
     	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
 

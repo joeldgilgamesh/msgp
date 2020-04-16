@@ -1,5 +1,6 @@
 package com.sprint.minfi.msgp.service;
 
+import com.sprint.minfi.msgp.domain.Payment;
 import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 
@@ -62,14 +63,14 @@ public interface PaymentService {
      * @param Id
      * @return PaymentDTO
      */
-	PaymentDTO findByIdTransation(Long Id);
+	Payment findByIdTransation(Long Id);
 
 	/**
 	 * 
 	 * @param code
 	 * @return
 	 */
-	PaymentDTO findByCode(String code);
+	Payment findByCode(String code);
 
 	/**
 	 * 

@@ -26,12 +26,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	 * @return idPayment 
 	 */
 	@Query("SELECT code FROM Payment p WHERE p.idTransaction = :idT")
-	PaymentDTO findByIdTransaction(@Param("idT") Long idT);
+	Payment findByIdTransaction(@Param("idT") Long idT);
 
 	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
 	PaymentDTO updatePayment(@Param("idPaymeLong") Long idP, @Param("state") String state);
 
-	PaymentDTO findByCode(String code);
+	Payment findByCode(String code);
 
 	@Query(value = "SELECT COUNT(id) FROM Payment")
 	Long countLine();
