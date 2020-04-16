@@ -19,7 +19,7 @@
             <column name="id_paiement" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="date_creation" type="date">
+            <column name="date_creation" type="timestamp">
                 <constraints nullable="true" />
             </column>
             <column name="reference_paiement" type="varchar(255)">
@@ -103,7 +103,7 @@
                   tableName="justificatif_paiement">
             <column name="id" type="numeric"/>
             <column name="id_paiement" type="numeric"/>
-            <column name="date_creation" type="date"/>
+            <column name="date_creation" type="timestamp"/>
             <column name="reference_paiement" type="string"/>
             <column name="type_paiement" type="string"/>
             <column name="nature_recette" type="string"/>
