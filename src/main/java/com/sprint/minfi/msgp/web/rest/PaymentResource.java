@@ -188,8 +188,8 @@ public class PaymentResource {
     	paymentService.update(paymentDTO.getId(), Statut.VALIDATED);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	
-    	//ici on teste s il s agit du paiement d une emission
-    	if (paymentDTO.getIdEmission() != null) restClientEmissionService.historiserEmission(Statut.VALIDATED.toString(), paymentDTO.getIdEmission());
+    	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
+    	if (paymentDTO.getIdEmission() != null) restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), Statut.VALIDATED);
 
     	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
     	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
