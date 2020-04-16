@@ -185,7 +185,7 @@ public class PaymentResource {
 
     	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
 
-    	paymentService.update(paymentDTO.getId(), status);
+    	paymentService.update(paymentDTO.getId(), Statut.VALIDATED);
     	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
     	
     	//ici on teste s il s agit du paiement d une emission
@@ -229,7 +229,7 @@ public class PaymentResource {
     	String status = Statut.RECONCILED.toString();
 
     	//mettre a jour le statut du paiement en cours de reconciliation
-    	paymentService.update(paymentDTO.getId(), status);
+    	paymentService.update(paymentDTO.getId(), Statut.RECONCILED);
 
     	//historiser le paiement
     	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
@@ -237,7 +237,7 @@ public class PaymentResource {
     	//appel du service de comparaisons des données des paiements des deux cotés
     	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different
     		status = Statut.CANCEL.toString();
-        	paymentService.update(paymentDTO.getId(), status);
+        	paymentService.update(paymentDTO.getId(), Statut.RECONCILED);
         	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}

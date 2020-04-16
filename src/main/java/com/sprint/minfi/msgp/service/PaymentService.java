@@ -56,7 +56,7 @@ public interface PaymentService {
      * @param state
      * @return
      */
-    Payment update(Long idPaymeLong, String state);
+    Payment update(Long idPaymeLong, Statut state);
 
     /**
      * 
