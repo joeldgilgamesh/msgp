@@ -1,0 +1,42 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.sprint.minfi.msgp",
+      "nativeLanguage": "fr"
+    },
+    "jhipsterVersion": "6.7.1",
+    "applicationType": "microservice",
+    "baseName": "spminfimsgp",
+    "packageName": "com.sprint.minfi.msgp",
+    "packageFolder": "com/sprint/minfi/msgp",
+    "serverPort": "8081",
+    "authenticationType": "uaa",
+    "uaaBaseName": "spminfimsuaa",
+    "cacheProvider": "hazelcast",
+    "enableHibernateCache": false,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "prodDatabaseType": "mysql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": "eureka",
+    "buildTool": "maven",
+    "enableSwaggerCodegen": true,
+    "jwtSecretKey": "N2RkZjhmZWVlMjU2MmE3YzZiZTA3ZThmNTI3ZjFjZWJmNTYwYWE0MmUzZmNlODFmN2FkY2NiYjRmM2I2MDAwN2Q0ODMyNDQxNGZlNDEzZmQwYjI3ZmFhNGYxNDkxOGI4MTVjODE0MDIxNGRkMGYyYWI0ZTIxNGQ3ODU4MjAxZWU=",
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1581954966007,
+    "testFrameworks": ["gatling", "cucumber"],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": true,
+    "clientPackageManager": "npm",
+    "nativeLanguage": "fr",
+    "languages": ["fr", "en"],
+    "blueprints": [],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

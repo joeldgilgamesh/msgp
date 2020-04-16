@@ -1,0 +1,101 @@
+{
+    "name": "JustificatifPaiement",
+    "fields": [
+        {
+            "fieldName": "idPaiement",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "dateCreation",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "referencePaiement",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "typePaiement",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "natureRecette",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "montant",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "nui",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "nomPrenomClient",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "idOrganisation",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "codeOrganisation",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "nomOrganisation",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "exercise",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "mois",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "libelleCentre",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "libelleCourtCentre",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "ifu",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "raisonSociale",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "sigle",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "codePoste",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "code",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "numero",
+            "fieldType": "Long"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20200414230400",
+    "entityTableName": "justificatif_paiement",
+    "dto": "mapstruct",
+    "pagination": "no",
+    "service": "serviceClass",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}
