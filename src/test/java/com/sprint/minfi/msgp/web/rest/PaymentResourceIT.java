@@ -149,7 +149,8 @@ public class PaymentResourceIT {
         MockitoAnnotations.initMocks(this);
         final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService, transactionService, 
         															detailVersementIntermediaireService, restClientTransactionService, 
-        															restClientEmissionService, paymentSpecialServices, restClientQuittanceService);
+        															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
+        															paymentMapper);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

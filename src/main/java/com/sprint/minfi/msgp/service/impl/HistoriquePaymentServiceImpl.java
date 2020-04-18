@@ -2,6 +2,7 @@ package com.sprint.minfi.msgp.service.impl;
 
 import com.sprint.minfi.msgp.service.HistoriquePaymentService;
 import com.sprint.minfi.msgp.domain.HistoriquePayment;
+import com.sprint.minfi.msgp.domain.Payment;
 import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
 import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
 import com.sprint.minfi.msgp.service.mapper.HistoriquePaymentMapper;
@@ -88,11 +89,12 @@ public class HistoriquePaymentServiceImpl implements HistoriquePaymentService {
     }
 
 	@Override
-	public HistoriquePaymentDTO saveHistPay(String status, LocalDateTime datenow) {
+	public HistoriquePaymentDTO saveHistPay(String status, LocalDateTime datenow, Payment payment) {
 		
         HistoriquePayment historiquePayment = historiquePaymentMapper.toEntity(new HistoriquePaymentDTO());
         historiquePayment.setStatus(status);
         historiquePayment.setDateStatus(LocalDateTime.now());
+        historiquePayment.setPayment(payment);
         historiquePayment = historiquePaymentRepository.save(historiquePayment);
         return historiquePaymentMapper.toDto(historiquePayment);
 	}

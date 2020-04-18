@@ -43,6 +43,7 @@ import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprint.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
+import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprint.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -71,6 +72,7 @@ public class PaymentResource {
     private final RESTClientEmissionService restClientEmissionService;
     private final RESTClientQuittanceService restClientQuittanceService;
     private final PaymentSpecialServices paymentSpecialServices;
+    private final PaymentMapper paymentMapper;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
     					   , TransactionService transactionService
@@ -78,7 +80,8 @@ public class PaymentResource {
     					   , RESTClientTransactionService restClientTransactionService
     					   , RESTClientEmissionService restClientEmissionService
     					   , PaymentSpecialServices paymentSpecialServices
-    					   , RESTClientQuittanceService restClientQuittanceService) {
+    					   , RESTClientQuittanceService restClientQuittanceService
+    					   , PaymentMapper paymentMapper) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.transactionService = transactionService;
@@ -87,6 +90,7 @@ public class PaymentResource {
         this.restClientEmissionService = restClientEmissionService;
         this.paymentSpecialServices = paymentSpecialServices;
         this.restClientQuittanceService = restClientQuittanceService; 
+        this.paymentMapper = paymentMapper;
     }
 
     /**
@@ -143,7 +147,7 @@ public class PaymentResource {
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
 
     	//gestion historiquePaymentDTO, valider, historiser le paiement
-    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now());
+    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
     	//appel du service -> demande transaction
 
@@ -186,7 +190,7 @@ public class PaymentResource {
     	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
 
     	paymentService.update(paymentDTO.getId(), Statut.VALIDATED);
-    	historiquePaymentService.saveHistPay(status, transactionDTO.getDate());
+    	historiquePaymentService.saveHistPay(status, transactionDTO.getDate(), paymentDTO);
     	
     	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
     	if (paymentDTO.getIdEmission() != null) restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), Statut.VALIDATED);
@@ -232,13 +236,13 @@ public class PaymentResource {
     	paymentService.update(paymentDTO.getId(), Statut.RECONCILED);
 
     	//historiser le paiement
-    	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
+    	historiquePaymentService.saveHistPay(status, LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
 
     	//appel du service de comparaisons des données des paiements des deux cotés
     	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different
     		status = Statut.CANCEL.toString();
         	paymentService.update(paymentDTO.getId(), Statut.RECONCILED);
-        	historiquePaymentService.saveHistPay(status, LocalDateTime.now());
+        	historiquePaymentService.saveHistPay(status, LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
 

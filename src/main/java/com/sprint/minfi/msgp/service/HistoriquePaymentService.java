@@ -1,5 +1,6 @@
 package com.sprint.minfi.msgp.service;
 
+import com.sprint.minfi.msgp.domain.Payment;
 import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
 
 import org.springframework.data.domain.Page;
@@ -44,5 +45,5 @@ public interface HistoriquePaymentService {
      */
     void delete(Long id);
 
-	HistoriquePaymentDTO saveHistPay(String string, LocalDateTime datenow);
+	HistoriquePaymentDTO saveHistPay(String string, LocalDateTime datenow, Payment payment);
 }
