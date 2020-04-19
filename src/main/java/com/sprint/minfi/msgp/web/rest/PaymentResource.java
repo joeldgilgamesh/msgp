@@ -269,7 +269,7 @@ public class PaymentResource {
     public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
     	Map<String, String> resultData = new LinkedHashMap<String, String>();
     	TransactionDTO transaction = transactionService.findByCodeTransaction(codeTransaction);
-    	PaymentDTO payment = paymentService.findByIdTransactionId(transaction.getId());
+    	Payment payment = paymentService.findByIdTransactionId(transaction.getId());
 
     	resultData.put("statusPaie", payment.getStatut().toString());
     	resultData.put("codePaie", payment.getCode());
