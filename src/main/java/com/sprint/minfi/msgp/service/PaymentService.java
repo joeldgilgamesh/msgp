@@ -85,5 +85,5 @@ public interface PaymentService {
 	 * @param id
 	 * @return
 	 */
-	PaymentDTO findByIdTransactionId(Long id);
+	Payment findByIdTransactionId(Long id);
 }

@@ -119,15 +119,16 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public PaymentDTO findByIdTransactionId(Long id) {
+	public Payment findByIdTransactionId(Long id) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdTransactionId(id);
 	}
 	
-	@Scheduled(fixedDelay = 60000)
-	public void testFind(){
-		
-		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
-	}
+//	@Scheduled(fixedDelay = 60000)
+//	public void testFind(){
+//		
+//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
+//		System.out.println(paymentRepository.findByIdTransactionId(8L));
+//	}
 	
 }
