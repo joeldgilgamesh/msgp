@@ -166,7 +166,7 @@ public class PaymentResource {
 
     	//gestion historiquePaymentDTO, valider, historiser le paiement
     	//on va d abord recuperer les infos de l emission dans emissionTemp
-    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+//    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
     	
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
