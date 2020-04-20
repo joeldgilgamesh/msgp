@@ -129,15 +129,15 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.findByIdTransactionId(id);
 	}
 	
-	@Scheduled(fixedDelay = 60000)
-	public void testFind(){
-		EmissionDTO emissionDTO = new EmissionDTO();
-    	emissionDTO.setStatus(Statut.DRAFT);
-    	emissionDTO.setAmount((double) 1);
-    	emissionDTO.setRefEmi("21671");
-    	emissionDTO.setCodeContribuable("Grenada red");
-    	restClientEmissionService.createEmission(emissionDTO);
-		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
-	}
+//	@Scheduled(fixedDelay = 60000)
+//	public void testFind(){
+//		EmissionDTO emissionDTO = new EmissionDTO();
+//    	emissionDTO.setStatus(Statut.DRAFT);
+//    	emissionDTO.setAmount((double) 1);
+//    	emissionDTO.setRefEmi("21671");
+//    	emissionDTO.setCodeContribuable("Grenada red");
+//    	restClientEmissionService.createEmission(emissionDTO);
+//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
+//	}
 	
 }
