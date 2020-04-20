@@ -15,6 +15,8 @@ import com.sprint.minfi.msgp.domain.Payment;
 import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.repository.PaymentRepository;
 import com.sprint.minfi.msgp.service.PaymentService;
+import com.sprint.minfi.msgp.service.RESTClientEmissionService;
+import com.sprint.minfi.msgp.service.dto.EmissionDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
 
@@ -30,10 +32,13 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
 
     private final PaymentMapper paymentMapper;
+    
+    private final RESTClientEmissionService restClientEmissionService;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, RESTClientEmissionService restClientEmissionService) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
+        this.restClientEmissionService = restClientEmissionService;
     }
 
     /**
@@ -124,11 +129,15 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.findByIdTransactionId(id);
 	}
 	
-//	@Scheduled(fixedDelay = 60000)
-//	public void testFind(){
-//		
-//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
-//		System.out.println(paymentRepository.findByIdTransactionId(8L));
-//	}
+	@Scheduled(fixedDelay = 60000)
+	public void testFind(){
+		EmissionDTO emissionDTO = new EmissionDTO();
+    	emissionDTO.setStatus(Statut.DRAFT);
+    	emissionDTO.setAmount((double) 1);
+    	emissionDTO.setRefEmi("21671");
+    	emissionDTO.setCodeContribuable("Grenada red");
+    	restClientEmissionService.createEmission(emissionDTO);
+		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
+	}
 	
 }

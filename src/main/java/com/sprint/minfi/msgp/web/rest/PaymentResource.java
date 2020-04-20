@@ -158,7 +158,7 @@ public class PaymentResource {
     	resultEmission = restClientEmissionService.findRefEmission(paymentDTO2.getIdEmission());
     	EmissionDTO emissionDTO = new EmissionDTO();
     	emissionDTO.setStatus(Statut.DRAFT);
-    	emissionDTO.setAmount(paymentDTO2.getAmount());
+    	emissionDTO.setAmount(paymentDTO.getAmount());
     	emissionDTO.setRefEmi(resultEmission.get("refEmi"));
     	emissionDTO.setCodeContribuable(resultEmission.get("niu"));
     	restClientEmissionService.createEmission(emissionDTO);
