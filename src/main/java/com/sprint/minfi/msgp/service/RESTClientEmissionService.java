@@ -26,7 +26,7 @@ public interface RESTClientEmissionService {
 //	public ResponseEntity<EmissionDTO> createEmission(@RequestBody EmissionDTO emissionDTO);
 	
 	@PostMapping("/api/emissions")
-	public void createEmission(@RequestBody EmissionDTO emissionDTO);
+	public EmissionDTO createEmission(@RequestBody EmissionDTO emissionDTO);
 	
 	@GetMapping("/api/emission-temp/{id}")
 	public Map<String, String> findRefEmission(@PathVariable ("id") Long id);

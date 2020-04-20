@@ -124,9 +124,11 @@ public class PaymentResource {
 //    }
 
 
-	@PostMapping("/effectuerPaiement/{debitInfo}")
+	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
-    												, @PathVariable String debitInfo) {
+    												, @PathVariable String debitInfo
+    												, @PathVariable String niu
+    												, @PathVariable String refEmi) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
@@ -151,17 +153,21 @@ public class PaymentResource {
     	paymentDTO.setStatut(Statut.DRAFT);
     	// paymentDTO.setCode(paymentSpecialServices.codeNext());
         paymentDTO.setCode(UUID.randomUUID().toString());
+        
+        EmissionDTO emissionDTO = new EmissionDTO();
+    	emissionDTO.setStatus(Statut.DRAFT);
+    	emissionDTO.setAmount(paymentDTO.getAmount());
+    	emissionDTO.setRefEmi(refEmi);
+    	emissionDTO.setCodeContribuable(niu);
+    	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+        
+    	paymentDTO.setIdEmission(emissionDTO2.getId());
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
 
     	//gestion historiquePaymentDTO, valider, historiser le paiement
     	//on va d abord recuperer les infos de l emission dans emissionTemp
-    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO2.getIdEmission());
-    	EmissionDTO emissionDTO = new EmissionDTO();
-    	emissionDTO.setStatus(Statut.DRAFT);
-    	emissionDTO.setAmount(paymentDTO.getAmount());
-    	emissionDTO.setRefEmi(resultEmission.get("refEmi"));
-    	emissionDTO.setCodeContribuable(resultEmission.get("niu"));
-    	restClientEmissionService.createEmission(emissionDTO);
+    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+    	
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
     	//appel du service demande transaction
