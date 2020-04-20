@@ -141,7 +141,7 @@ public class PaymentResource {
 		//si id du paiement est non null, il est probable que le paiement existe
 		if (paymentDTO.getId() != null) {
 			result.put("denied", "paiement denied because probably exist");
-			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
     	//enregistrer le payment avec le statut initial -> DRAFT
