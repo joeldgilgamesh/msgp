@@ -40,6 +40,7 @@ import com.sprint.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprint.minfi.msgp.service.dto.EmissionDTO;
 import com.sprint.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
@@ -129,6 +130,8 @@ public class PaymentResource {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
+    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+    	
 
     	//Validation
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null 
@@ -151,6 +154,14 @@ public class PaymentResource {
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
 
     	//gestion historiquePaymentDTO, valider, historiser le paiement
+    	//on va d abord recuperer les infos de l emission dans emissionTemp
+    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO2.getIdEmission());
+    	EmissionDTO emissionDTO = new EmissionDTO();
+    	emissionDTO.setStatus(Statut.DRAFT);
+    	emissionDTO.setAmount(paymentDTO2.getAmount());
+    	emissionDTO.setRefEmi(resultEmission.get("refEmi"));
+    	emissionDTO.setCodeContribuable(resultEmission.get("niu"));
+    	restClientEmissionService.createEmission(emissionDTO);
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
     	//appel du service demande transaction

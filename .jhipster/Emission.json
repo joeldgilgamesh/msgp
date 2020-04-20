@@ -1,0 +1,42 @@
+{
+    "name": "Emission",
+    "fields": [
+        {
+            "fieldName": "refEmi",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "amount",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "codeContribuable",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "Statut",
+            "fieldValues": "DRAFT,PENDING,VALIDATED,RECONCILED,CANCEL"
+        },
+        {
+            "fieldName": "idOrganisation",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "idTypeEmisId",
+            "fieldType": "Long"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20200420121200",
+    "entityTableName": "emission",
+    "dto": "mapstruct",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}

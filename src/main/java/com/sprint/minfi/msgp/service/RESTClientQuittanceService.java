@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.sprint.minfi.msgp.client.AuthorizedFeignClient;
 import com.sprint.minfi.msgp.service.dto.JustificatifPaiementDTO;
 
-@AuthorizedFeignClient(name = "spminfimsxxxx")
+@AuthorizedFeignClient(name = "spminfimsgq")
 public interface RESTClientQuittanceService {
 	
 	@PostMapping("/api/justificatif-paiements")
