@@ -1,0 +1,15 @@
+// entités du micro service MS Emission et Declaration
+
+entity EmissionHistorique {
+    status String,
+    idEmi Long,
+    dateStatus LocalDate
+}
+
+paginate EmissionHistorique with pagination
+dto * with mapstruct
+service * with serviceClass
+service * with serviceImpl
+microservice * with spminfimsgp
+
+

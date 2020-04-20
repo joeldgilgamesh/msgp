@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.sprint.minfi.msgp.client.AuthorizedFeignClient;
 import com.sprint.minfi.msgp.domain.enumeration.Statut;
 import com.sprint.minfi.msgp.service.dto.EmissionDTO;
+import com.sprint.minfi.msgp.service.dto.EmissionHistoriqueDTO;
 
 @AuthorizedFeignClient(name = "spminfimsged")
 public interface RESTClientEmissionService {
@@ -22,8 +23,9 @@ public interface RESTClientEmissionService {
 	@PostMapping("/api/updateEmission/{idEmis}/{status}")
 	public void updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 	
-//	@PostMapping("/api/emissions")
-//	public ResponseEntity<EmissionDTO> createEmission(@RequestBody EmissionDTO emissionDTO);
+	@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
+	public ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
+									@PathVariable String status, @PathVariable Long idEmis);
 	
 	@PostMapping("/api/emissions")
 	public EmissionDTO createEmission(@RequestBody EmissionDTO emissionDTO);

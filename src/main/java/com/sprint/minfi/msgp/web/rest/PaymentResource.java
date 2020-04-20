@@ -41,6 +41,7 @@ import com.sprint.minfi.msgp.service.RESTClientTransactionService;
 import com.sprint.minfi.msgp.service.TransactionService;
 import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprint.minfi.msgp.service.dto.EmissionDTO;
+import com.sprint.minfi.msgp.service.dto.EmissionHistoriqueDTO;
 import com.sprint.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprint.minfi.msgp.service.dto.PaymentDTO;
 import com.sprint.minfi.msgp.service.dto.TransactionDTO;
@@ -160,7 +161,8 @@ public class PaymentResource {
     	emissionDTO.setRefEmi(refEmi);
     	emissionDTO.setCodeContribuable(niu);
     	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-        
+        restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.DRAFT.toString(), emissionDTO2.getId());
+    	
     	paymentDTO.setIdEmission(emissionDTO2.getId());
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
 
@@ -210,7 +212,14 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), paymentDTO);
     	
     	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
-    	if (paymentDTO.getIdEmission() != null) restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
+    	if (paymentDTO.getIdEmission() != null) {
+    		//mise a jour de emission
+    		restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
+    		
+    		//creation de historique emission
+    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.DRAFT.toString(), paymentDTO.getIdEmission());
+    		
+    	}
 
     	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
     	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();

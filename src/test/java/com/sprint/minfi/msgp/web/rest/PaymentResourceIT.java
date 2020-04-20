@@ -427,7 +427,7 @@ public class PaymentResourceIT {
         // effectuer Payment en mode test
         PaymentDTO paymentDTO = paymentMapper.toDto(payment);
         paymentDTO.setCode(DEFAULT_CODE);
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}", transaction.getTelephone())
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", transaction.getTelephone(), "niu01", "refEmi01")
         .contentType(TestUtil.APPLICATION_JSON)
         .content(TestUtil.convertObjectToJsonBytes(paymentDTO)))
         .andExpect(status().isOk());

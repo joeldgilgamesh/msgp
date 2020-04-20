@@ -1,0 +1,29 @@
+{
+    "name": "EmissionHistorique",
+    "fields": [
+        {
+            "fieldName": "status",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "idEmi",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "dateStatus",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20200420195100",
+    "entityTableName": "emission_historique",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}
