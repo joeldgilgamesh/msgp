@@ -23,7 +23,7 @@ public interface RESTClientEmissionService {
 	public void updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 	
 	@PostMapping("/api/emissions")
-	public void createEmission(@RequestBody EmissionDTO emissionDTO);
+	public ResponseEntity<EmissionDTO> createEmission(@RequestBody EmissionDTO emissionDTO);
 	
 	@GetMapping("/api/emission-temps/{id}")
 	public Map<String, String> findRefEmission(@PathVariable ("id") Long id);
