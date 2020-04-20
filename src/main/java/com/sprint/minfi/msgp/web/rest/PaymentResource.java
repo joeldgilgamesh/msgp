@@ -161,7 +161,7 @@ public class PaymentResource {
     	emissionDTO.setRefEmi(refEmi);
     	emissionDTO.setCodeContribuable(niu);
     	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-        restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.DRAFT.toString(), emissionDTO2.getId());
+        //restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.DRAFT.toString(), emissionDTO2.getId());
     	
     	paymentDTO.setIdEmission(emissionDTO2.getId());
     	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
@@ -217,7 +217,7 @@ public class PaymentResource {
     		restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
     		
     		//creation de historique emission
-    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.DRAFT.toString(), paymentDTO.getIdEmission());
+    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), paymentDTO.getIdEmission());
     		
     	}
 
@@ -264,6 +264,7 @@ public class PaymentResource {
     		
         	paymentService.update(paymentDTO.getId(), status);
         	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
+        	//creer historique a etat reconcilied
         	
     		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
