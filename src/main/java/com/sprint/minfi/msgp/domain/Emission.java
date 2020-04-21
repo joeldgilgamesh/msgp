@@ -12,7 +12,7 @@ import com.sprint.minfi.msgp.domain.enumeration.Statut;
  */
 @Entity
 @Table(name = "emission")
-public class Emission implements Serializable {
+public class Emission extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

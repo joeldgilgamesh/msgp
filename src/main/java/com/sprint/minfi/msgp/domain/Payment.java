@@ -26,7 +26,7 @@ import com.sprint.minfi.msgp.domain.enumeration.Statut;
  */
 @Entity
 @Table(name = "payment")
-public class Payment implements Serializable {
+public class Payment extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

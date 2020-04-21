@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "justificatif_paiement")
-public class JustificatifPaiement implements Serializable {
+public class JustificatifPaiement extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

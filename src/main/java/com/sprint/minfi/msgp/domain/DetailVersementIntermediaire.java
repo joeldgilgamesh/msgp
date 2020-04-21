@@ -16,7 +16,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "detail_versement_intermediaire")
-public class DetailVersementIntermediaire implements Serializable {
+public class DetailVersementIntermediaire extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

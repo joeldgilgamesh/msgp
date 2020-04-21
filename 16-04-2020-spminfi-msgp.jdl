@@ -1,0 +1,115 @@
+application {
+  config {
+    databaseType sql
+    devDatabaseType mysql
+    enableHibernateCache false
+    enableSwaggerCodegen true
+    enableTranslation true
+    jhiPrefix jhi
+    languages [fr, en]
+    messageBroker false
+    nativeLanguage fr
+    packageName com.sprint.minfi.msgp
+    prodDatabaseType mysql
+    searchEngine false
+    serviceDiscoveryType eureka
+    skipClient true
+    testFrameworks [gatling, cucumber]
+    websocket false
+    jhipsterVersion "6.7.1"
+    applicationType microservice
+    baseName spminfimsgp
+    serverPort 8081
+    authenticationType uaa
+    uaaBaseName spminfimsuaa
+    cacheProvider hazelcast
+    buildTool maven
+    jwtSecretKey "N2RkZjhmZWVlMjU2MmE3YzZiZTA3ZThmNTI3ZjFjZWJmNTYwYWE0MmUzZmNlODFmN2FkY2NiYjRmM2I2MDAwN2Q0ODMyNDQxNGZlNDEzZmQwYjI3ZmFhNGYxNDkxOGI4MTVjODE0MDIxNGRkMGYyYWI0ZTIxNGQ3ODU4MjAxZWU="
+    embeddableLaunchScript false
+    creationTimestamp 1581954966007
+    dtoSuffix DTO
+    otherModules []
+    clientPackageManager npm
+    skipUserManagement true
+  }
+
+  entities DetailVersementIntermediaire, HistoriquePayment, JustificatifPaiement, Payment, Transaction
+}
+
+entity DetailVersementIntermediaire {
+  numeroVersment String,
+  date LocalDate,
+  montant Double
+}
+entity HistoriquePayment {
+  status String,
+  dateStatus LocalDate
+}
+entity JustificatifPaiement {
+  idPaiement Long,
+  dateCreation LocalDate,
+  referencePaiement String,
+  typePaiement String,
+  natureRecette String,
+  montant Double,
+  nui String,
+  nomPrenomClient String,
+  idOrganisation Long,
+  codeOrganisation String,
+  nomOrganisation String,
+  exercise String,
+  mois String,
+  libelleCentre String,
+  libelleCourtCentre String,
+  ifu String,
+  raisonSociale String,
+  sigle String,
+  codePoste Long,
+  code String,
+  numero Long
+}
+entity Payment {
+  code String required,
+  meansOfPayment MeansOfPayment,
+  statut Statut,
+  amount Double,
+  idEmission Long,
+  idRecette Long,
+  idOrganisation Long
+}
+entity Transaction {
+  codeTransaction String,
+  telephone String,
+  msg String required,
+  date LocalDate required
+}
+enum MeansOfPayment {
+  MOBILE_MONEY,
+  ORANGE_MONEY,
+  YUP,
+  EXPRESS_UNION,
+  VISA,
+  MASTER_CARD
+}
+enum Statut {
+  DRAFT,
+  PENDING,
+  VALIDATED,
+  RECONCILED,
+  CANCEL
+}
+
+relationship OneToMany {
+  Payment{idHistPay} to HistoriquePayment{payment}
+}
+relationship ManyToOne {
+  Payment{idTransaction} to Transaction,
+  Payment{idDetVers} to DetailVersementIntermediaire
+}
+
+dto DetailVersementIntermediaire, HistoriquePayment, JustificatifPaiement, Payment, Transaction with mapstruct
+paginate DetailVersementIntermediaire, HistoriquePayment, Payment, Transaction with pagination
+service DetailVersementIntermediaire, HistoriquePayment, Payment, Transaction with serviceImpl
+service JustificatifPaiement with serviceClass
+microservice DetailVersementIntermediaire, HistoriquePayment, JustificatifPaiement, Payment, Transaction with spminfimsgp
+clientRootFolder DetailVersementIntermediaire, HistoriquePayment, JustificatifPaiement, Payment, Transaction with spminfimsgp

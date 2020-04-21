@@ -35,7 +35,7 @@ public class SecurityConfiguration extends ResourceServerConfigurerAdapter {
             .disable()
             .headers()
             .frameOptions()
-            .disable()
+            .sameOrigin()
         .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
