@@ -131,13 +131,7 @@ public class PaymentServiceImpl implements PaymentService {
 	
 //	@Scheduled(fixedDelay = 60000)
 //	public void testFind(){
-//		EmissionDTO emissionDTO = new EmissionDTO();
-//    	emissionDTO.setStatus(Statut.DRAFT);
-//    	emissionDTO.setAmount((double) 1);
-//    	emissionDTO.setRefEmi("21671");
-//    	emissionDTO.setCodeContribuable("Grenada red");
-//    	restClientEmissionService.createEmission(emissionDTO);
-//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests");
+//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + paymentRepository.findAll().get(0));
 //	}
 	
 }
