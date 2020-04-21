@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @Entity
 @Table(name = "historique_payment")
-public class HistoriquePayment implements Serializable {
+public class HistoriquePayment extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -11,7 +11,7 @@ import java.time.LocalDate;
  */
 @Entity
 @Table(name = "emission_historique")
-public class EmissionHistorique implements Serializable {
+public class EmissionHistorique extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

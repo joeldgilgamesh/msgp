@@ -154,3 +154,10 @@ oauth2:
 # ===================================================================
 
 # application:
+
+kafka:
+  servers:
+    config: 82.165.202.48:9092
+    group: group-sprintpay-2
+    topic:
+      database: evenement_database
