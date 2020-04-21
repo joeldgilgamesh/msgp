@@ -187,9 +187,10 @@ public class PaymentResource {
 
     }
 
-    @PostMapping("/callbackTransaction/{codePaiement}")
+    @PostMapping("/callbackTransaction/{codePaiement}/{status_code}")
     public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
-    													@PathVariable String codePaiement) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
+    													@PathVariable String codePaiement,
+    													@PathVariable String status_code) {//cette methode sera executé automatiquement lorsque le flux qui contient sa donnée d entré est chargé
 
     	String resultat = "Success";
 
@@ -201,39 +202,66 @@ public class PaymentResource {
 			//appeler le service de notification pour renseigner de l echec du paiement
 			return new ResponseEntity<>(resultat = "Failed", HttpStatus.EXPECTATION_FAILED);
 		}
+		
+		if (status_code == "01") {//ici on va annuler le paiement
+			Statut status = Statut.VALIDATED;
 
-    	Statut status = Statut.VALIDATED;
+	    	//gestion transactionDTO, appel du service -> save transaction (il faut bien spécifier l objet Transaction)
+	    	transactionService.save(transactionDTO);
 
-    	//gestion transactionDTO, appel du service -> save transaction (il faut bien spécifier l objet Transaction)
-    	transactionService.save(transactionDTO);
+	    	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
+	    	//doit elles etre exécuté simultanément ou sequentiellement ????
+	    	Payment paymentDTO = paymentService.findByCode(codePaiement);
 
-    	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
-    	//doit elles etre exécuté simultanément ou sequentiellement ????
-    	Payment paymentDTO = paymentService.findByCode(codePaiement);
+	    	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
 
-    	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+	    	paymentService.update(paymentDTO.getId(), status);
+	    	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), paymentDTO);
+	    	
+	    	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
+	    	if (paymentDTO.getIdEmission() != null) {
+	    		//mise a jour de emission
+	    		restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
+	    		
+	    		//creation de historique emission
+	    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), paymentDTO.getIdEmission());
+	    		
+	    	}
+	    	
+	    	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
+	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+	    	justificatifPaiementDTO.setReferencePaiement(paymentDTO.getCode());
+	    	justificatifPaiementDTO.setIdPaiement(paymentDTO.getId());
+	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate()); 
+	    	justificatifPaiementDTO.setMontant(paymentDTO.getAmount());
+	    	//...
+	    	restClientQuittanceService.createJustificatifPaiement(justificatifPaiementDTO);
+		}
+		else {
+			Statut status = Statut.CANCEL;
 
-    	paymentService.update(paymentDTO.getId(), status);
-    	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), paymentDTO);
-    	
-    	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
-    	if (paymentDTO.getIdEmission() != null) {
-    		//mise a jour de emission
-    		restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
-    		
-    		//creation de historique emission
-    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), paymentDTO.getIdEmission());
-    		
-    	}
+	    	//gestion transactionDTO, appel du service -> save transaction (il faut bien spécifier l objet Transaction)
+	    	transactionService.save(transactionDTO);
 
-    	//appel du endpoint generer recu de payment (micro service quittance pas encore pret)
-    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
-    	justificatifPaiementDTO.setReferencePaiement(paymentDTO.getCode());
-    	justificatifPaiementDTO.setIdPaiement(paymentDTO.getId());
-    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate()); 
-    	justificatifPaiementDTO.setMontant(paymentDTO.getAmount());
-    	//...
-    	restClientQuittanceService.createJustificatifPaiement(justificatifPaiementDTO);
+	    	//appel du service mise a jour du statut du payment, historiser le paiement et l emission
+	    	//doit elles etre exécuté simultanément ou sequentiellement ????
+	    	Payment paymentDTO = paymentService.findByCode(codePaiement);
+
+	    	if (paymentDTO == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+
+	    	paymentService.update(paymentDTO.getId(), status);
+	    	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), paymentDTO);
+	    	
+	    	//ici on teste s il s agit du paiement d une emission, on ira mettre a jour le statut de cette emission
+	    	if (paymentDTO.getIdEmission() != null) {
+	    		//mise a jour de emission
+	    		restClientEmissionService.updateEmission(paymentDTO.getIdEmission(), status);
+	    		
+	    		//creation de historique emission
+	    		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), paymentDTO.getIdEmission());
+	    		
+	    	}
+		}
     	
     	//appel du endpoint notification pour renseigner sur l etat reussi du paiement
 
