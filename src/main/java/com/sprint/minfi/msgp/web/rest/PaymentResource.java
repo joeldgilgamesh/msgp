@@ -172,10 +172,15 @@ public class PaymentResource {
     	
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
-    	//appel du service demande transaction
-    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
-            			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
-    	result.put("paymentDTO", paymentDTO2);
+    	
+			
+			//appel du service demande transaction
+	    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
+	            			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
+			
+
+		
+		result.put("paymentDTO", paymentDTO2);
 		result.put("resultTransaction", resultTransaction);
 		
 		return new ResponseEntity<>(result, HttpStatus.OK);
