@@ -1,0 +1,160 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="hpuser (generated)" id="1587492138830-2">
+        <addColumn tableName="detail_versement_intermediaire">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-3">
+        <addColumn tableName="emission">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-4">
+        <addColumn tableName="emission_historique">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-5">
+        <addColumn tableName="historique_payment">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-6">
+        <addColumn tableName="justificatif_paiement">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-7">
+        <addColumn tableName="payment">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-8">
+        <addColumn tableName="transaction">
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-9">
+        <addColumn tableName="detail_versement_intermediaire">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-10">
+        <addColumn tableName="emission">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-11">
+        <addColumn tableName="emission_historique">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-12">
+        <addColumn tableName="historique_payment">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-13">
+        <addColumn tableName="justificatif_paiement">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-14">
+        <addColumn tableName="payment">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-15">
+        <addColumn tableName="transaction">
+            <column name="created_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-16">
+        <addColumn tableName="detail_versement_intermediaire">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-17">
+        <addColumn tableName="emission">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-18">
+        <addColumn tableName="emission_historique">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-19">
+        <addColumn tableName="historique_payment">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-20">
+        <addColumn tableName="justificatif_paiement">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-21">
+        <addColumn tableName="payment">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-22">
+        <addColumn tableName="transaction">
+            <column name="last_modified_by" type="varchar(50)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-23">
+        <addColumn tableName="detail_versement_intermediaire">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-24">
+        <addColumn tableName="emission">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-25">
+        <addColumn tableName="emission_historique">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-26">
+        <addColumn tableName="historique_payment">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-27">
+        <addColumn tableName="justificatif_paiement">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-28">
+        <addColumn tableName="payment">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-29">
+        <addColumn tableName="transaction">
+            <column name="last_modified_date" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="hpuser (generated)" id="1587492138830-1">
+        <addDefaultValue columnDataType="varchar(32)" columnName="statut" defaultValue="DRAFT" tableName="payment"/>
+    </changeSet>
+</databaseChangeLog>
