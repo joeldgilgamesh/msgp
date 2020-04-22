@@ -186,12 +186,10 @@ public class PaymentResource {
     													@PathVariable String status_code) {//cette methode sera démarrer par un client feign configuré dans mstransaction
 
     	String resultat = "Success";
-    	Statut status;
+    	Statut status = Statut.VALIDATED;
 		Payment payment;
 		
-		if (status_code == "01") status = Statut.VALIDATED;
-		
-		else status = Statut.CANCEL;
+		if (status_code == "400") status = Statut.CANCEL;
 		
 		//create transaction
     	transactionService.save(transactionDTO);
