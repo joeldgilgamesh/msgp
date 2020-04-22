@@ -168,7 +168,7 @@ public class PaymentResource {
         	paymentDTO.setIdEmission(emissionDTO2.getId());
         	paymentDTO2 =  paymentService.save(paymentDTO);
 		}
-        else {//case recette non fiscale
+        else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
         	paymentDTO2 =  paymentService.save(paymentDTO);
         }
 
