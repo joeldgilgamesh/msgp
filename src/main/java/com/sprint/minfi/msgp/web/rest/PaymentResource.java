@@ -148,22 +148,29 @@ public class PaymentResource {
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
+		PaymentDTO paymentDTO2;
+		
     	//complete datas payment
     	paymentDTO.setStatut(Statut.DRAFT);
     	// paymentDTO.setCode(paymentSpecialServices.codeNext());
         paymentDTO.setCode(UUID.randomUUID().toString());
         
-        //create emission before save payment
-        EmissionDTO emissionDTO = new EmissionDTO();
-    	emissionDTO.setStatus(Statut.DRAFT);
-    	emissionDTO.setAmount(paymentDTO.getAmount());
-    	emissionDTO.setRefEmi(refEmi);
-    	emissionDTO.setCodeContribuable(niu);
-    	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-    	
-    	//complete datas payment with idEmission create, and save payment
-    	paymentDTO.setIdEmission(emissionDTO2.getId());
-    	PaymentDTO paymentDTO2 =  paymentService.save(paymentDTO);
+        if (niu != null && refEmi != null) {//case emission
+        	//create emission before save payment
+            EmissionDTO emissionDTO = new EmissionDTO();
+        	emissionDTO.setStatus(Statut.DRAFT);
+        	emissionDTO.setAmount(paymentDTO.getAmount());
+        	emissionDTO.setRefEmi(refEmi);
+        	emissionDTO.setCodeContribuable(niu);
+        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+        	
+        	//complete datas payment with idEmission create, and save payment
+        	paymentDTO.setIdEmission(emissionDTO2.getId());
+        	paymentDTO2 =  paymentService.save(paymentDTO);
+		}
+        else {//case recette non fiscale
+        	paymentDTO2 =  paymentService.save(paymentDTO);
+        }
 
     	//create historique payment
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
@@ -212,7 +219,7 @@ public class PaymentResource {
     		
     	}
     	
-    	if (status_code == "01") {//ici on génère le reçu en cas de paiement réussi
+    	if (status_code == "100") {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
