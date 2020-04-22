@@ -155,7 +155,7 @@ public class PaymentResource {
     	// paymentDTO.setCode(paymentSpecialServices.codeNext());
         paymentDTO.setCode(UUID.randomUUID().toString());
         
-        if (niu != null && refEmi != null) {//case emission
+        if (refEmi != null) {//case emission
         	//create emission before save payment
             EmissionDTO emissionDTO = new EmissionDTO();
         	emissionDTO.setStatus(Statut.DRAFT);
