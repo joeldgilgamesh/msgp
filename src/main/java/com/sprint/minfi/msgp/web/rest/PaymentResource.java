@@ -133,6 +133,7 @@ public class PaymentResource {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
+    	String ref = null;
 
     	//controle des données du paiement
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null 
@@ -156,7 +157,8 @@ public class PaymentResource {
         paymentDTO.setCode(UUID.randomUUID().toString());
         
         //case emission and controle existance emission in msged
-        if ((refEmi != null) && (Long.parseLong(refEmi) > 0) && (restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi") != null)) {
+        if (refEmi != null) ref = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi");
+        if (ref != null) {
         	//create emission before save payment
             EmissionDTO emissionDTO = new EmissionDTO();
         	emissionDTO.setStatus(Statut.DRAFT);
