@@ -46,8 +46,8 @@ feign:
   client:
        config:
            default:
-               connectTimeout: 60000
-               readTimeout: 60000
+               connectTimeout: 180000
+               readTimeout: 180000
 
 # See https://github.com/Netflix/Hystrix/wiki/Configuration
 hystrix:
@@ -58,7 +58,7 @@ hystrix:
           strategy: SEMAPHORE
           # See https://github.com/spring-cloud/spring-cloud-netflix/issues/1330
           thread:
-               timeoutInMilliseconds: 120000
+               timeoutInMilliseconds: 360000
   shareSecurityContext: true
 
 management:
