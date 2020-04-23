@@ -129,7 +129,7 @@ public class PaymentResource {
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@Valid @RequestBody PaymentDTO paymentDTO
     												, @PathVariable String debitInfo
     												, @PathVariable String niu
-    												, @PathVariable String refEmi) {
+    												, @PathVariable Long refEmi) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
@@ -163,7 +163,7 @@ public class PaymentResource {
             EmissionDTO emissionDTO = new EmissionDTO();
         	emissionDTO.setStatus(Statut.DRAFT);
         	emissionDTO.setAmount(paymentDTO.getAmount());
-        	emissionDTO.setRefEmi(refEmi);
+        	emissionDTO.setRefEmi(refEmi.toString());
         	emissionDTO.setCodeContribuable(niu);
         	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
         	
@@ -171,6 +171,8 @@ public class PaymentResource {
         	paymentDTO.setIdEmission(emissionDTO2.getId());
         	paymentDTO2 =  paymentService.save(paymentDTO);
 		}
+        
+//        if (refEmi != null) paymentDTO2 =  paymentService.save(paymentDTO);
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
         	paymentDTO2 =  paymentService.save(paymentDTO);
         }
