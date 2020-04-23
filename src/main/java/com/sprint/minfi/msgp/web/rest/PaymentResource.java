@@ -149,7 +149,7 @@ public class PaymentResource {
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
-		PaymentDTO paymentDTO2;
+		PaymentDTO paymentDTO2 = new PaymentDTO();
 		
     	//complete datas payment
     	paymentDTO.setStatut(Statut.DRAFT);
@@ -157,22 +157,25 @@ public class PaymentResource {
         paymentDTO.setCode(UUID.randomUUID().toString());
         
         //case emission and controle existance emission in msged
-        if (refEmi != null) ref = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi");
-        if (ref != null) {
-        	//create emission before save payment
-            EmissionDTO emissionDTO = new EmissionDTO();
-        	emissionDTO.setStatus(Statut.DRAFT);
-        	emissionDTO.setAmount(paymentDTO.getAmount());
-        	emissionDTO.setRefEmi(refEmi.toString());
-        	emissionDTO.setCodeContribuable(niu);
-        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-        	
-        	//complete datas payment with idEmission create, and save payment
-        	paymentDTO.setIdEmission(emissionDTO2.getId());
-        	paymentDTO2 =  paymentService.save(paymentDTO);
-		}
-        
-//        if (refEmi != null) paymentDTO2 =  paymentService.save(paymentDTO);
+        if (refEmi != 0) {
+        	ref = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi");
+            if (ref != null) {
+            	//create emission before save payment
+                EmissionDTO emissionDTO = new EmissionDTO();
+            	emissionDTO.setStatus(Statut.DRAFT);
+            	emissionDTO.setAmount(paymentDTO.getAmount());
+            	emissionDTO.setRefEmi(refEmi.toString());
+            	emissionDTO.setCodeContribuable(niu);
+            	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+            	
+            	//complete datas payment with idEmission create, and save payment
+            	paymentDTO.setIdEmission(emissionDTO2.getId());
+            	paymentDTO2 =  paymentService.save(paymentDTO);
+    		}
+            else {
+            	System.out.println("ici je vais sortir du programme");
+            }
+        }
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
         	paymentDTO2 =  paymentService.save(paymentDTO);
         }
