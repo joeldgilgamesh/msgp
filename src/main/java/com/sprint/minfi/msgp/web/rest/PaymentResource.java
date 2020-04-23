@@ -202,8 +202,9 @@ public class PaymentResource {
 
     	String resultat = "Success";
     	Statut status = Statut.VALIDATED;
-		Payment payment;
+		Payment payment = new Payment();
 		
+//		if (status_code == "100") status = Statut.VALIDATED;
 		if (status_code == "400") status = Statut.CANCEL;
 		
 		//create transaction
