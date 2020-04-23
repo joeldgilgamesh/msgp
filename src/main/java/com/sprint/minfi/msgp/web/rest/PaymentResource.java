@@ -156,7 +156,7 @@ public class PaymentResource {
         paymentDTO.setCode(UUID.randomUUID().toString());
         
         //case emission and controle existance emission in msged
-        if ((Long.parseLong(refEmi) > 0) && (restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi") != null)) {
+        if ((refEmi != null) && (Long.parseLong(refEmi) > 0) && (restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi") != null)) {
         	//create emission before save payment
             EmissionDTO emissionDTO = new EmissionDTO();
         	emissionDTO.setStatus(Statut.DRAFT);
