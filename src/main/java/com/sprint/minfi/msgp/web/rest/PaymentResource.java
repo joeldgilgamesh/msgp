@@ -209,11 +209,11 @@ public class PaymentResource {
 		
 //		if (status_code == "100") status = Statut.VALIDATED;
 //		if (status_code == "400") status = Statut.CANCEL;
-		if (status_code == "100") {
+		if (status_code.equals("100")) {
 			System.out.println("--------------------- je suis dans le code status 100");
 			status = Statut.VALIDATED;
 		}
-		else if (status_code == "400") {
+		else if (status_code.equals("400")) {
 			System.out.println("--------------------- je suis dans le code status 400");
 			status = Statut.CANCEL;
 		}
