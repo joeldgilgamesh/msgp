@@ -203,7 +203,7 @@ public class PaymentResource {
     	String resultat = "Success";
     	Statut status = Statut.VALIDATED;
 		Payment payment = new Payment();
-		
+		System.out.println("--------------------------- status code --> " + status_code);
 //		if (status_code == "100") status = Statut.VALIDATED;
 		if (status_code == "400") status = Statut.CANCEL;
 		
