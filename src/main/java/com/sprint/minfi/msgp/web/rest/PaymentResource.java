@@ -205,10 +205,20 @@ public class PaymentResource {
     	Statut status = null;
 		Payment payment = new Payment();
 		System.out.println("--------------------------- status code --> " + status_code);
-		if (status_code != "400" && status_code == "100") return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
+		//if (status_code != "400" && status_code == "100") return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
 		
-		if (status_code == "100") status = Statut.VALIDATED;
-		if (status_code == "400") status = Statut.CANCEL;
+//		if (status_code == "100") status = Statut.VALIDATED;
+//		if (status_code == "400") status = Statut.CANCEL;
+		if (status_code == "100") {
+			System.out.println("--------------------- je suis dans le code status 100");
+			status = Statut.VALIDATED;
+		}
+		else if (status_code == "400") {
+			System.out.println("--------------------- je suis dans le code status 400");
+			status = Statut.CANCEL;
+		}
+		
+		System.out.println("--------------------------- status code --> " + status);
 		
 		//create transaction
     	transactionService.save(transactionDTO);
