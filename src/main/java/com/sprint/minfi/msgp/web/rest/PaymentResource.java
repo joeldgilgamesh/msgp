@@ -133,18 +133,19 @@ public class PaymentResource {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
-    	String ref = null;
+    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
     	//controle des données du paiement
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null 
-				|| debitInfo.isEmpty() || paymentDTO.getAmount() == 0 || 
-				(paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0))  {
+				|| debitInfo.isEmpty() 
+				|| (paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0))  {
 			result.put("Reject", "Demande de paiement rejetté");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
 		//si id du paiement est non null, il est probable que le paiement existe
-		if (paymentDTO.getId() != null) {
+		if (paymentDTO.getId() != null || (Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0 || paymentDTO.getAmount() == 0) {
 			result.put("Reject", "paiement reject because probably exist");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -158,8 +159,8 @@ public class PaymentResource {
         
         //case emission 
         if (refEmi != 0) {
-        	ref = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission()).get("refEmi");
-            if (ref != null) {//controle existance emission in msged
+        	
+            if (resultEmission.get("refEmi") != null) {//controle existance emission in msged
             	//create emission before save payment
                 EmissionDTO emissionDTO = new EmissionDTO();
             	emissionDTO.setStatus(Statut.DRAFT);
@@ -204,21 +205,14 @@ public class PaymentResource {
     	String resultat = "Success";
     	Statut status = null;
 		Payment payment = new Payment();
-		System.out.println("--------------------------- status code --> " + status_code);
 		if (!status_code.equals("400") && !status_code.equals("100")) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
-		
-//		if (status_code == "100") status = Statut.VALIDATED;
-//		if (status_code == "400") status = Statut.CANCEL;
+
 		if (status_code.equals("100")) {
-			System.out.println("--------------------- je suis dans le code status 100");
 			status = Statut.VALIDATED;
 		}
 		else if (status_code.equals("400")) {
-			System.out.println("--------------------- je suis dans le code status 400");
 			status = Statut.CANCEL;
 		}
-		
-		System.out.println("--------------------------- status code --> " + status);
 		
 		//create transaction
     	transactionService.save(transactionDTO);
@@ -241,7 +235,7 @@ public class PaymentResource {
     		
     	}
     	
-    	if (status_code == "100") {//ici on génère le reçu en cas de paiement réussi
+    	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
