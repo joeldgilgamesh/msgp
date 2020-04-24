@@ -205,7 +205,7 @@ public class PaymentResource {
     	Statut status = null;
 		Payment payment = new Payment();
 		System.out.println("--------------------------- status code --> " + status_code);
-		//if (status_code != "400" && status_code == "100") return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
+		if (!status_code.equals("400") && !status_code.equals("100")) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
 		
 //		if (status_code == "100") status = Statut.VALIDATED;
 //		if (status_code == "400") status = Statut.CANCEL;
