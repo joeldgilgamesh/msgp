@@ -200,10 +200,13 @@ public class PaymentResource {
     													@PathVariable String codePaiement,
     													@PathVariable String status_code) {//cette methode sera démarrer par un client feign configuré dans mstransaction
 
+    	
     	String resultat = "Success";
     	Statut status = null;
 		Payment payment = new Payment();
 		System.out.println("--------------------------- status code --> " + status_code);
+		if (status_code != "400" && status_code == "100") return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
+		
 		if (status_code == "100") status = Statut.VALIDATED;
 		if (status_code == "400") status = Statut.CANCEL;
 		
