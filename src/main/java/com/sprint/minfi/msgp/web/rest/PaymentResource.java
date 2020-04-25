@@ -140,13 +140,13 @@ public class PaymentResource {
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null 
 				|| debitInfo.isEmpty() 
 				|| (paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0))  {
-			result.put("Reject", "Demande de paiement rejetté");
+			result.put("Reject", "Bad Entry");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
 		//si id du paiement est non null, il est probable que le paiement existe
 		if (paymentDTO.getId() != null || (Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0 || paymentDTO.getAmount() == 0) {
-			result.put("Reject", "paiement reject because probably exist");
+			result.put("Reject", "Paiement Reject");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
@@ -175,6 +175,8 @@ public class PaymentResource {
     		}
             else {
             	System.out.println("ici je vais sortir du programme");
+            	result.put("Reject", "Emission Not Found");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
             }
         }
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
@@ -205,22 +207,27 @@ public class PaymentResource {
     	String resultat = "Success";
     	Statut status = null;
 		Payment payment = new Payment();
-		if (!status_code.equals("400") && !status_code.equals("100")) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_ACCEPTABLE);
+//		TransactionDTO transaction = new TransactionDTO();
+		
+		//we accept status code equal <100> or <400>
+		if (!status_code.equals("400") && !status_code.equals("100")) return new ResponseEntity<>(resultat = "status code Reject", HttpStatus.NOT_ACCEPTABLE);
 
-		if (status_code.equals("100")) {
+		if (status_code.equals("100")) {//Payment Sucessfull
 			status = Statut.VALIDATED;
 		}
-		else if (status_code.equals("400")) {
+		else if (status_code.equals("400")) {//Payment Failed
 			status = Statut.CANCEL;
 		}
 		
 		//create transaction
     	transactionService.save(transactionDTO);
+//    	transaction = transactionService.save(transactionDTO);
+    	
 
     	//find payment by codePaiement and update status
     	payment = paymentService.findByCode(codePaiement);
 
-    	if (payment == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+    	if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 
     	paymentService.update(payment.getId(), status);
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
@@ -232,7 +239,6 @@ public class PaymentResource {
     		
     		//create historique emission
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
-    		
     	}
     	
     	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
@@ -251,48 +257,51 @@ public class PaymentResource {
 
 
     @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
-    public ResponseEntity<String> reconcilierPaiement(@Valid @RequestBody PaymentDTO paymentDTO
+    public ResponseEntity<String> reconcilierPaiement(@RequestBody List<PaymentDTO> paymentDTOList
     												  , @PathVariable String codeVersement
     												  , @PathVariable double montant) {
 
     	String resultat = "RECONCILED Succes";
+    	double reelmontant = 0;
+    	
+    	//calcul du montant des paiements a reconcilier
+    	for (PaymentDTO paymentDTO2 : paymentDTOList) {
+			reelmontant += paymentDTO2.getAmount();
+		}
 
-    	//Validation
-    	if (paymentDTO.getId() == null || paymentDTO.getCode() == null) return new ResponseEntity<>(resultat = "Paiement Not Exist", HttpStatus.BAD_REQUEST);
-
-    	//au cas où le paiement est dejà reconcilié
-    	if (paymentDTO.getStatut().toString() == "RECONCILED") return new ResponseEntity<>(resultat = "Paiement Already RECONCILED", HttpStatus.CONFLICT);
-
+    	if (codeVersement == null || montant == 0 || paymentDTOList == null || (reelmontant - montant) > 0) return new ResponseEntity<>(resultat = "Bad Entry", HttpStatus.BAD_REQUEST);
+    	
     	//appel du service verifier detail versement
     	DetailVersementIntermediaireDTO det = detailVersementIntermediaireService.findByCode(codeVersement);
 
-    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.BAD_REQUEST);
+    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_FOUND);
 
     	if (det.getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
 
-    	Statut status = Statut.RECONCILED;
+    	Statut status = null;
 
     	//appel du service de comparaisons des données des paiements des deux cotés
-    	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si different, echec reconciliation
+    	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {//si montant different, echec reconciliation
     		status = Statut.CANCEL;
-    		
-        	paymentService.update(paymentDTO.getId(), status);
-        	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
+    		resultat = "Failed RECONCILED, Amount not mapping";
         	//creer historique a etat reconcilied
         	
-    		return new ResponseEntity<>(resultat = "Failed RECONCILED, Amount not mapping", HttpStatus.EXPECTATION_FAILED);
 		}
-    	else {//si les montant sont égaux, alors il ya reconciliation
-    		
-        	paymentService.update(paymentDTO.getId(), status);
+    	
+    	else status = Statut.RECONCILED;  //si montant egaux, alors succès reconciliation
+    	
+    	for (PaymentDTO paymentDTO : paymentDTOList) {
+    		paymentService.update(paymentDTO.getId(), status);
         	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
-
-        	//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
+		}
+    	
+    	if (detailVersementIntermediaireService.comparerDonnReconcil(det.getMontant(), montant)) {
+    		//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
         	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
         	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
-
-        	return new ResponseEntity<>(resultat, HttpStatus.OK);
     	}
+    	
+    	return new ResponseEntity<>(resultat, HttpStatus.OK);
     	
     }
 
