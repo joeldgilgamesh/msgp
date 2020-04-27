@@ -2,9 +2,9 @@ package com.sprint.minfi.msgp.service.mapper.impl;
 
 import java.util.List;
 
-import com.sprint.minfi.msgp.domain.Payment;
-import com.sprint.minfi.msgp.service.dto.PaymentDTO;
-import com.sprint.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
+import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 
 public class PaymentMapperImpl implements PaymentMapper {
 

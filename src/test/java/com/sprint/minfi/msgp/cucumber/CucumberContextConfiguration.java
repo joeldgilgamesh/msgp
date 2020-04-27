@@ -1,10 +1,11 @@
 package com.sprint.minfi.msgp.cucumber;
 
-import com.sprint.minfi.msgp.SpminfimsgpApp;
 import io.cucumber.java.Before;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import com.sprintpay.minfi.msgp.SpminfimsgpApp;
 
 @SpringBootTest
 @WebAppConfiguration

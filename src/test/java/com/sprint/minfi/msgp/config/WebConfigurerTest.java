@@ -10,6 +10,8 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.sprintpay.minfi.msgp.config.WebConfigurer;
+
 import javax.servlet.*;
 import java.util.*;
 

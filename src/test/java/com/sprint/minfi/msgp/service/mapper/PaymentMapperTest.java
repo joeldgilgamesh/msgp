@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sprint.minfi.msgp.service.mapper.impl.PaymentMapperImpl;
+import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

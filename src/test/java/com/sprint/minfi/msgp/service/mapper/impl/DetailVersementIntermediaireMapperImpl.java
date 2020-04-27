@@ -2,9 +2,9 @@ package com.sprint.minfi.msgp.service.mapper.impl;
 
 import java.util.List;
 
-import com.sprint.minfi.msgp.domain.DetailVersementIntermediaire;
-import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
-import com.sprint.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
+import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
 
 public class DetailVersementIntermediaireMapperImpl implements DetailVersementIntermediaireMapper {
 

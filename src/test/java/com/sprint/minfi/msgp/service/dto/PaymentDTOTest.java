@@ -3,6 +3,7 @@ package com.sprint.minfi.msgp.service.dto;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.sprint.minfi.msgp.web.rest.TestUtil;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 
 public class PaymentDTOTest {
 

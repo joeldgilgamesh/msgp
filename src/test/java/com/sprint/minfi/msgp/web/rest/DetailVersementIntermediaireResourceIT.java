@@ -31,14 +31,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import com.sprint.minfi.msgp.SpminfimsgpApp;
 import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
-import com.sprint.minfi.msgp.domain.DetailVersementIntermediaire;
-import com.sprint.minfi.msgp.repository.DetailVersementIntermediaireRepository;
-import com.sprint.minfi.msgp.service.DetailVersementIntermediaireService;
-import com.sprint.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
-import com.sprint.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
-import com.sprint.minfi.msgp.web.rest.errors.ExceptionTranslator;
+import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
+import com.sprintpay.minfi.msgp.repository.DetailVersementIntermediaireRepository;
+import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
+import com.sprintpay.minfi.msgp.web.rest.DetailVersementIntermediaireResource;
+import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
 /**
  * Integration tests for the {@link DetailVersementIntermediaireResource} REST controller.

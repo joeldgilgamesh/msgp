@@ -1,9 +1,10 @@
 package com.sprint.minfi.msgp.config.timezone;
 
-import com.sprint.minfi.msgp.SpminfimsgpApp;
 import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprint.minfi.msgp.repository.timezone.DateTimeWrapper;
 import com.sprint.minfi.msgp.repository.timezone.DateTimeWrapperRepository;
+import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

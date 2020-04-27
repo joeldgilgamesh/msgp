@@ -31,14 +31,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import com.sprint.minfi.msgp.SpminfimsgpApp;
 import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
-import com.sprint.minfi.msgp.domain.HistoriquePayment;
-import com.sprint.minfi.msgp.repository.HistoriquePaymentRepository;
-import com.sprint.minfi.msgp.service.HistoriquePaymentService;
-import com.sprint.minfi.msgp.service.dto.HistoriquePaymentDTO;
-import com.sprint.minfi.msgp.service.mapper.HistoriquePaymentMapper;
-import com.sprint.minfi.msgp.web.rest.errors.ExceptionTranslator;
+import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
+import com.sprintpay.minfi.msgp.repository.HistoriquePaymentRepository;
+import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
+import com.sprintpay.minfi.msgp.service.dto.HistoriquePaymentDTO;
+import com.sprintpay.minfi.msgp.service.mapper.HistoriquePaymentMapper;
+import com.sprintpay.minfi.msgp.web.rest.HistoriquePaymentResource;
+import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
 /**
  * Integration tests for the {@link HistoriquePaymentResource} REST controller.
