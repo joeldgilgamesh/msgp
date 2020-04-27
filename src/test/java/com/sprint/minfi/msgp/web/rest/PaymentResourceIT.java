@@ -428,7 +428,9 @@ public class PaymentResourceIT {
         PaymentDTO paymentDTO = paymentMapper.toDto(payment);
         paymentDTO.setCode(DEFAULT_CODE);
         paymentDTO.setId(null);
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", transaction.getTelephone(), "niu01", "refEmi01")
+        paymentDTO.setIdTransactionId(null);
+        paymentDTO.setIdDetVersId(null);
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", transaction.getTelephone(), "niu01", 10)
         .contentType(TestUtil.APPLICATION_JSON)
         .content(TestUtil.convertObjectToJsonBytes(paymentDTO)));
 //        .andExpect(status().isOk());

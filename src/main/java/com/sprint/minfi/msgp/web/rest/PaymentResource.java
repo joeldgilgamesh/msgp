@@ -241,13 +241,18 @@ public class PaymentResource {
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
     	}
     	
-    	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
+    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+    	
+    	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate()); 
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
-	    	//...
+	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
+	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
+	    	
 	    	restClientQuittanceService.createJustificatifPaiement(justificatifPaiementDTO);
 		}
     	

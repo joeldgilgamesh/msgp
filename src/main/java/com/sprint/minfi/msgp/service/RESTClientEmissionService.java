@@ -32,4 +32,7 @@ public interface RESTClientEmissionService {
 	
 	@GetMapping("/api/emission-temp/{id}")
 	public Map<String, String> findRefEmission(@PathVariable ("id") Long id);
+	
+	@GetMapping("/api/emissions/{id}")
+    public EmissionDTO getEmission(@PathVariable ("id") Long id);
 }
