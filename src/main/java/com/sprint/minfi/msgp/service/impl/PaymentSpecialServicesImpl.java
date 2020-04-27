@@ -62,6 +62,22 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	    	request.put("ipAddress", "");
 		}
 		
+		if (provider == "AFRILAND") {
+			
+		}
+		
+		return request;
+	}
+	
+	public Map<String, String> buildRequestBank(String niu, String libelleEmision, Double amount, String referenceEmission) {
+		Map<String, String> request = new HashMap<String, String>();
+		
+		request.put("contribuableId", niu);
+		request.put("libelle", libelleEmision);
+		request.put("montant", amount.toString());
+		request.put("moyenPaiementId", "afrilandcmr");
+		request.put("referenceEmission", referenceEmission);
+		
 		return request;
 	}
 
