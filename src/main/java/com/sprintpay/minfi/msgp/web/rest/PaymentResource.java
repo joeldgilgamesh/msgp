@@ -237,7 +237,6 @@ public class PaymentResource {
     													@PathVariable String codePaiement,
     													@PathVariable String status_code) {//cette methode sera démarrer par un client feign configuré dans mstransaction
 
-
     	String resultat = "Success";
     	Statut status = null;
 		Payment payment = new Payment();
