@@ -133,7 +133,7 @@ public class PaymentResource {
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
     	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
-    	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+
 
     	//controle des données du paiement
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null
@@ -144,7 +144,7 @@ public class PaymentResource {
 		}
 
 		//si id du paiement est non null, il est probable que le paiement existe
-		if (paymentDTO.getId() != null || (Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0 || paymentDTO.getAmount() == 0) {
+		if (paymentDTO.getId() != null || paymentDTO.getAmount() == 0) {
 			result.put("Reject", "Paiement Reject");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -158,6 +158,14 @@ public class PaymentResource {
 
         //case emission
         if (refEmi != 0) {
+
+
+        	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+
+        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {
+    			result.put("Reject", "Paiement Reject");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
 
             if (resultEmission.get("refEmi") != null) {//controle existance emission in msged
             	//create emission before save payment
@@ -336,7 +344,7 @@ public class PaymentResource {
     	//Get All Payment where Id_Emission equals Id in emissionIdList
     	if (emissionIdList != null) {
     		for (String idEmis : emissionIdList) {
-    			paymentList.add(paymentService.findByIdEmission(idEmis));
+    			paymentList.add(paymentService.findByIdEmission(Long.parseLong(idEmis)));
     		}
 		}
 

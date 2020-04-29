@@ -52,7 +52,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 	Payment findByRefTransaction(String refTransaction);
 	
-	Payment findByIdEmission(String idEmis);
+	Payment findByIdEmission(Long idEmis);
 	
 //	@Query("SELECT p FROM Payment p INNER JOIN Emission e ON e.id = p.emission WHERE e.codeContribuable = :niu")
 //	Page<Object> findPaymentEmissionContrib(@Param("niu") String niu, Pageable pageable);

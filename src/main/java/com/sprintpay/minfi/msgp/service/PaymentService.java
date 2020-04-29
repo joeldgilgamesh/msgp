@@ -108,6 +108,6 @@ public interface PaymentService {
 	 * @param idEmis
 	 * @return
 	 */
-	Payment findByIdEmission(String idEmis);
+	Payment findByIdEmission(Long idEmis);
 
 }
