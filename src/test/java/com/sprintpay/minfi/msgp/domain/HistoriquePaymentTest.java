@@ -1,9 +1,8 @@
-package com.sprint.minfi.msgp.domain;
+package com.sprintpay.minfi.msgp.domain;
 
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
-import com.sprint.minfi.msgp.web.rest.TestUtil;
-import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
+import com.sprintpay.minfi.msgp.web.rest.TestUtil;
 
 public class HistoriquePaymentTest {
 

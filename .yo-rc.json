@@ -1,13 +1,13 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "com.sprint.minfi.msgp",
+      "packageName": "com.sprintpay.minfi.msgp",
       "nativeLanguage": "fr"
     },
     "jhipsterVersion": "6.7.1",
     "applicationType": "microservice",
     "baseName": "spminfimsgp",
-    "packageName": "com.sprint.minfi.msgp",
+    "packageName": "com.sprintpay.minfi.msgp",
     "packageFolder": "com/sprint/minfi/msgp",
     "serverPort": "8081",
     "authenticationType": "uaa",

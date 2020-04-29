@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.security;
+package com.sprintpay.minfi.msgp.security;
 
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletRequest;

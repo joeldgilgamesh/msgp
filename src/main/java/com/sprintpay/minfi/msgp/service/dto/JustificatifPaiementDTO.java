@@ -5,12 +5,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.sprint.minfi.msgp.domain.JustificatifPaiement} entity.
+ * A DTO for the {@link com.sprintpay.minfi.msgp.domain.JustificatifPaiement} entity.
  */
 public class JustificatifPaiementDTO implements Serializable {
 
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1361861848970611798L;
 

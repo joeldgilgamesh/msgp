@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.config;
+package com.sprintpay.minfi.msgp.config;
 
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;

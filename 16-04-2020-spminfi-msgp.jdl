@@ -9,7 +9,7 @@ application {
     languages [fr, en]
     messageBroker false
     nativeLanguage fr
-    packageName com.sprint.minfi.msgp
+    packageName com.sprintpay.minfi.msgp
     prodDatabaseType mysql
     searchEngine false
     serviceDiscoveryType eureka

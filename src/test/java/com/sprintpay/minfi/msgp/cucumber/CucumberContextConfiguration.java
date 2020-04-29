@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.cucumber;
+package com.sprintpay.minfi.msgp.cucumber;
 
 import io.cucumber.java.Before;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.service.mapper.impl;
+package com.sprintpay.minfi.msgp.service.mapper.impl;
 
 import java.util.List;
 

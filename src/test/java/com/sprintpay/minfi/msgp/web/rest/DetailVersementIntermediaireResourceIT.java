@@ -1,6 +1,5 @@
-package com.sprint.minfi.msgp.web.rest;
+package com.sprintpay.minfi.msgp.web.rest;
 
-import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -31,14 +31,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.repository.DetailVersementIntermediaireRepository;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
-import com.sprintpay.minfi.msgp.web.rest.DetailVersementIntermediaireResource;
 import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
 /**
@@ -91,7 +89,7 @@ public class DetailVersementIntermediaireResourceIT {
         this.restDetailVersementIntermediaireMockMvc = MockMvcBuilders.standaloneSetup(detailVersementIntermediaireResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
+            .setConversionService(TestUtil.createFormattingConversionService())
             .setMessageConverters(jacksonMessageConverter)
             .setValidator(validator).build();
     }
@@ -185,7 +183,7 @@ public class DetailVersementIntermediaireResourceIT {
 //            .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())))
             .andExpect(jsonPath("$.[*].montant").value(hasItem(DEFAULT_MONTANT.doubleValue())));
     }
-    
+
     @Test
     @Transactional
     public void getDetailVersementIntermediaire() throws Exception {

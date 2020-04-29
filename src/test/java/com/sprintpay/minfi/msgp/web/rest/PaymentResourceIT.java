@@ -1,6 +1,5 @@
-package com.sprint.minfi.msgp.web.rest;
+package com.sprintpay.minfi.msgp.web.rest;
 
-import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -16,6 +15,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
 import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 import com.sprintpay.minfi.msgp.domain.Payment;
@@ -47,7 +46,6 @@ import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
-import com.sprintpay.minfi.msgp.web.rest.PaymentResource;
 import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link PaymentResource} REST controller.
@@ -75,39 +73,39 @@ public class PaymentResourceIT {
 
     private static final Long DEFAULT_ID_ORGANISATION = 1L;
     private static final Long UPDATED_ID_ORGANISATION = 2L;
-    
+
     private static final String DEFAULT_DEBIT_INFO = "657826658";
-    
+
     private static final String REF_TRANSACTION="";
 
     @Autowired
     private PaymentRepository paymentRepository;
-    
+
     @Autowired
     private HistoriquePaymentRepository historiquePaymentRepo;
-    
+
     @Autowired
     private PaymentMapper paymentMapper;
-    
+
 
     @Autowired
     private PaymentService paymentService;
-    
+
     @Autowired
     private HistoriquePaymentService historiquePaymentService;
-        
+
     @Autowired
     private DetailVersementIntermediaireService detailVersementIntermediaireService;
-    
+
     @MockBean
     private RESTClientTransactionService restClientTransactionService;
-    
+
     @MockBean
-    private RESTClientEmissionService restClientEmissionService; 
-    
+    private RESTClientEmissionService restClientEmissionService;
+
     @MockBean
     private RESTClientQuittanceService restClientQuittanceService;
-    
+
     @MockBean
     private PaymentSpecialServices paymentSpecialServices;
 
@@ -129,20 +127,20 @@ public class PaymentResourceIT {
     private MockMvc restPaymentMockMvc;
 
     private Payment payment;
-    
+
     private HistoriquePayment historique;
-    
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService, 
-        															detailVersementIntermediaireService, restClientTransactionService, 
+        final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService,
+        															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
         															paymentMapper);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
+            .setConversionService(TestUtil.createFormattingConversionService())
             .setMessageConverters(jacksonMessageConverter)
             .setValidator(validator).build();
     }
@@ -164,7 +162,7 @@ public class PaymentResourceIT {
             .idOrganisation(DEFAULT_ID_ORGANISATION);
         return payment;
     }
-    
+
     /**
      * create entity historique for test.
      * @param em
@@ -176,8 +174,8 @@ public class PaymentResourceIT {
     			.status(DEFAULT_STATUT.toString());
     	return historique;
     }
-    
-    
+
+
     /**
      * Create an updated entity for this test.
      *
@@ -286,7 +284,7 @@ public class PaymentResourceIT {
             .andExpect(jsonPath("$.[*].idRecette").value(hasItem(DEFAULT_ID_RECETTE.intValue())))
             .andExpect(jsonPath("$.[*].idOrganisation").value(hasItem(DEFAULT_ID_ORGANISATION.intValue())));
     }
-    
+
     @Test
     @Transactional
     public void getPayment() throws Exception {
@@ -391,13 +389,13 @@ public class PaymentResourceIT {
         List<Payment> paymentList = paymentRepository.findAll();
         assertThat(paymentList).hasSize(databaseSizeBeforeDelete - 1);
     }
-    
+
     @Test
     @Transactional
     public void effectuerPayment() throws Exception {
     	//initialize database
     	paymentRepository.saveAndFlush(payment);
-    	
+
         // effectuer Payment en mode test
         PaymentDTO paymentDTO = paymentMapper.toDto(payment);
         paymentDTO.setCode(DEFAULT_CODE);
@@ -411,32 +409,32 @@ public class PaymentResourceIT {
 
 
     }
-    
+
     /*@Test
     @Transactional
     public void callbackTransaction() throws Exception {
     	//initialize database
-    	
+
         restPaymentMockMvc.perform(post("/api/callbackTransaction/{codePaiement}/{status_code}", DEFAULT_CODE, "01")
         		.contentType(TestUtil.APPLICATION_JSON)
                 .content(TestUtil.convertObjectToJsonBytes(transactionDTO)));
 //         	    .andExpect(status().isBadRequest());
 
     }*/
-    
+
 //    @Test
 //    @Transactional
 //    public void reconcilierPaiement() throws Exception {
 //    	//initialize database
 //    	paymentRepository.saveAndFlush(payment);
-//    	
+//
 //    	//reconcilier Paiement en mode test
 //    	PaymentDTO paymentDTO = paymentMapper.toDto(payment);
 //    	restPaymentMockMvc.perform(post("/api/reconcilierPaiement/{codeVersement}/{montant}", DEFAULT_CODE, DEFAULT_AMOUNT)
 //    			.contentType(TestUtil.APPLICATION_JSON)
 //                .content(TestUtil.convertObjectToJsonBytes(paymentDTO)))
 //    			.andExpect(status().isBadRequest());
-//    	
+//
 //    }
-    
+
 }

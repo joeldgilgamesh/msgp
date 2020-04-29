@@ -1,6 +1,5 @@
-package com.sprint.minfi.msgp.web.rest;
+package com.sprintpay.minfi.msgp.web.rest;
 
-import static com.sprint.minfi.msgp.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -31,14 +31,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
 import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 import com.sprintpay.minfi.msgp.repository.HistoriquePaymentRepository;
 import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
 import com.sprintpay.minfi.msgp.service.dto.HistoriquePaymentDTO;
 import com.sprintpay.minfi.msgp.service.mapper.HistoriquePaymentMapper;
-import com.sprintpay.minfi.msgp.web.rest.HistoriquePaymentResource;
 import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
 /**
@@ -88,7 +86,7 @@ public class HistoriquePaymentResourceIT {
         this.restHistoriquePaymentMockMvc = MockMvcBuilders.standaloneSetup(historiquePaymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
+            .setConversionService(TestUtil.createFormattingConversionService())
             .setMessageConverters(jacksonMessageConverter)
             .setValidator(validator).build();
     }
@@ -178,7 +176,7 @@ public class HistoriquePaymentResourceIT {
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)));
 //            .andExpect(jsonPath("$.[*].dateStatus").value(hasItem(DEFAULT_DATE_STATUS.toString())));
     }
-    
+
     @Test
     @Transactional
     public void getHistoriquePayment() throws Exception {

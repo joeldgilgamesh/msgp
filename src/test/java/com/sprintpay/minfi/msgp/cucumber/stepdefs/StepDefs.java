@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.cucumber.stepdefs;
+package com.sprintpay.minfi.msgp.cucumber.stepdefs;
 
 import org.springframework.test.web.servlet.ResultActions;
 

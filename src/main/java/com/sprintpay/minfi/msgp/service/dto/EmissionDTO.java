@@ -6,7 +6,7 @@ import java.util.Objects;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 
 /**
- * A DTO for the {@link com.sprint.minfi.msgp.domain.Emission} entity.
+ * A DTO for the {@link com.sprintpay.minfi.msgp.domain.Emission} entity.
  */
 public class EmissionDTO implements Serializable {
 

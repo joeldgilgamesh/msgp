@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.web.rest.errors;
+package com.sprintpay.minfi.msgp.web.rest.errors;
 
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;

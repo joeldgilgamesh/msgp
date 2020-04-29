@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.repository.timezone;
+package com.sprintpay.minfi.msgp.repository.timezone;
 
 import javax.persistence.*;
 import java.io.Serializable;

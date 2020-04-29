@@ -44,9 +44,9 @@ public class LoggingAspect {
     /**
      * Pointcut that matches all Spring beans in the application's main packages.
      */
-    @Pointcut("within(com.sprint.minfi.msgp.repository..*)"+
-        " || within(com.sprint.minfi.msgp.service..*)"+
-        " || within(com.sprint.minfi.msgp.web.rest..*)")
+    @Pointcut("within(com.sprintpay.minfi.msgp.repository..*)"+
+        " || within(com.sprintpay.minfi.msgp.service..*)"+
+        " || within(com.sprintpay.minfi.msgp.web.rest..*)")
     public void applicationPackagePointcut() {
         // Method is empty as this is just a Pointcut, the implementations are in the advices.
     }

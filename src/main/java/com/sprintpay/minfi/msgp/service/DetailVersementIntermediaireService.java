@@ -42,19 +42,19 @@ public interface DetailVersementIntermediaireService {
      * @param id the id of the entity.
      */
     void delete(Long id);
-    
+
     /**
-     * 
+     *
      * @param montant1
      * @param montant2
      * @return booléen qui represente l'etat de la comparaison, s'il ya egalité ou pas
      */
     boolean comparerDonnReconcil(double montant1, double montant2);
-    
+
     /**
-     * 
+     *
      * @param codeVersement
      * @return
      */
-	public DetailVersementIntermediaireDTO findByCode(String codeVersement);
+	Optional<DetailVersementIntermediaireDTO> findByCode(String codeVersement);
 }

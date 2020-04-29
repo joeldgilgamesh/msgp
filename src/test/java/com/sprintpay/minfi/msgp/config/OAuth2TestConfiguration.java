@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.config;
+package com.sprintpay.minfi.msgp.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

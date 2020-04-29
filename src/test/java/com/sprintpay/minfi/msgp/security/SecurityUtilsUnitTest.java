@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.security;
+package com.sprintpay.minfi.msgp.security;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

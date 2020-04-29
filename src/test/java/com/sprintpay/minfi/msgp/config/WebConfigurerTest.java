@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.config;
+package com.sprintpay.minfi.msgp.config;
 
 import io.github.jhipster.config.JHipsterConstants;
 import io.github.jhipster.config.JHipsterProperties;
@@ -9,8 +9,6 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import com.sprintpay.minfi.msgp.config.WebConfigurer;
 
 import javax.servlet.*;
 import java.util.*;

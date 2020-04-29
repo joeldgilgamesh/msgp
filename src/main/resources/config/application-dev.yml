@@ -17,7 +17,7 @@ logging:
   level:
     ROOT: DEBUG
     io.github.jhipster: DEBUG
-    com.sprint.minfi.msgp: DEBUG
+    com.sprintpay.minfi.msgp: DEBUG
 
 eureka:
   instance:
@@ -46,7 +46,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://localhost:3308/spminfimsgp?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
-    password: 
+    password: root
     hikari:
       poolName: Hikari
       auto-commit: false

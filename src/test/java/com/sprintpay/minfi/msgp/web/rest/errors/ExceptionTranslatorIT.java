@@ -1,9 +1,7 @@
-package com.sprint.minfi.msgp.web.rest.errors;
+package com.sprintpay.minfi.msgp.web.rest.errors;
 
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
-import com.sprintpay.minfi.msgp.web.rest.errors.ErrorConstants;
-import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

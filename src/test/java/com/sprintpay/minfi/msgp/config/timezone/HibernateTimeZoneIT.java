@@ -1,8 +1,8 @@
-package com.sprint.minfi.msgp.config.timezone;
+package com.sprintpay.minfi.msgp.config.timezone;
 
-import com.sprint.minfi.msgp.config.SecurityBeanOverrideConfiguration;
-import com.sprint.minfi.msgp.repository.timezone.DateTimeWrapper;
-import com.sprint.minfi.msgp.repository.timezone.DateTimeWrapperRepository;
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
+import com.sprintpay.minfi.msgp.repository.timezone.DateTimeWrapper;
+import com.sprintpay.minfi.msgp.repository.timezone.DateTimeWrapperRepository;
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
 
 import org.junit.jupiter.api.BeforeEach;

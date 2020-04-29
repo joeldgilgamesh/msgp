@@ -3,6 +3,7 @@ package com.sprintpay.minfi.msgp.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,9 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 
     private final DetailVersementIntermediaireMapper detailVersementIntermediaireMapper;
 
-    public DetailVersementIntermediaireServiceImpl(DetailVersementIntermediaireRepository detailVersementIntermediaireRepository, DetailVersementIntermediaireMapper detailVersementIntermediaireMapper) {
+    public DetailVersementIntermediaireServiceImpl(DetailVersementIntermediaireRepository detailVersementIntermediaireRepository,
+                                                   DetailVersementIntermediaireMapper detailVersementIntermediaireMapper
+                                                   ) {
         this.detailVersementIntermediaireRepository = detailVersementIntermediaireRepository;
         this.detailVersementIntermediaireMapper = detailVersementIntermediaireMapper;
     }
@@ -94,11 +97,11 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 	}
 
 	@Override
-	public DetailVersementIntermediaireDTO findByCode(String codeVersement) {
+	public Optional<DetailVersementIntermediaireDTO> findByCode(String codeVersement) {
 		// TODO Auto-generated method stub
-		return detailVersementIntermediaireRepository.findByNumeroVersment(codeVersement);
+		return detailVersementIntermediaireRepository.findByNumeroVersment(codeVersement).map(detailVersementIntermediaireMapper::toDto);
 	}
-	
-	
+
+
 
 }

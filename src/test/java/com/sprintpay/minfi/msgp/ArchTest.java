@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp;
+package com.sprintpay.minfi.msgp;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -14,15 +14,15 @@ class ArchTest {
 
         JavaClasses importedClasses = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-            .importPackages("com.sprint.minfi.msgp");
+            .importPackages("com.sprintpay.minfi.msgp");
 
         noClasses()
             .that()
-                .resideInAnyPackage("com.sprint.minfi.msgp.service..")
+                .resideInAnyPackage("com.sprintpay.minfi.msgp.service..")
             .or()
-                .resideInAnyPackage("com.sprint.minfi.msgp.repository..")
+                .resideInAnyPackage("com.sprintpay.minfi.msgp.repository..")
             .should().dependOnClassesThat()
-                .resideInAnyPackage("..com.sprint.minfi.msgp.web..")
+                .resideInAnyPackage("..com.sprintpay.minfi.msgp.web..")
         .because("Services and repositories should not depend on web layer")
         .check(importedClasses);
     }

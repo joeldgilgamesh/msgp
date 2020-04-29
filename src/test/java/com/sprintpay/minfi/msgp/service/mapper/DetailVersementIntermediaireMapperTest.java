@@ -1,11 +1,10 @@
-package com.sprint.minfi.msgp.service.mapper;
+package com.sprintpay.minfi.msgp.service.mapper;
 
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sprint.minfi.msgp.service.mapper.impl.DetailVersementIntermediaireMapperImpl;
-import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
+import com.sprintpay.minfi.msgp.service.mapper.impl.DetailVersementIntermediaireMapperImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

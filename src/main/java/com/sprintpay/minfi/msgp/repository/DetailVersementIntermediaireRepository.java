@@ -4,7 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
-import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+
+import java.util.Optional;
 
 /**
  * Spring Data  repository for the DetailVersementIntermediaire entity.
@@ -13,5 +14,5 @@ import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 @Repository
 public interface DetailVersementIntermediaireRepository extends JpaRepository<DetailVersementIntermediaire, Long> {
 
-	DetailVersementIntermediaireDTO findByNumeroVersment(String numeroVersment);
+    Optional<DetailVersementIntermediaire> findByNumeroVersment(String numeroVersment);
 }

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A DTO for the {@link com.sprint.minfi.msgp.domain.EmissionHistorique} entity.
+ * A DTO for the {@link com.sprintpay.minfi.msgp.domain.EmissionHistorique} entity.
  */
 public class EmissionHistoriqueDTO implements Serializable {
 

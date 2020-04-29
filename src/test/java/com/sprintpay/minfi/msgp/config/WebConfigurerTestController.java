@@ -1,4 +1,4 @@
-package com.sprint.minfi.msgp.config;
+package com.sprintpay.minfi.msgp.config;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
