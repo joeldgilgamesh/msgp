@@ -335,7 +335,7 @@ public class PaymentResource {
     	//Get All Payment where Id_Emission equals Id in emissionIdList
     	if (emissionIdList != null) {
     		for (String idEmis : emissionIdList) {
-    			paymentList.add(paymentService.findByIdEmission(idEmis));
+    			paymentList.add(paymentService.findByIdEmission(Long.parseLong(idEmis)));
     		}
 		}
     	

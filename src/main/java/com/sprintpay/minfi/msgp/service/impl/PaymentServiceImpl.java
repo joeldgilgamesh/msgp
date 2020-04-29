@@ -147,7 +147,7 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 	
 	@Override
-	public Payment findByIdEmission(String idEmis) {
+	public Payment findByIdEmission(Long idEmis) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdEmission(idEmis);
 	}
