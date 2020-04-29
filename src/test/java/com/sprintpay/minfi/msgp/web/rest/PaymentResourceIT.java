@@ -15,7 +15,6 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -31,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
@@ -44,6 +44,7 @@ import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
@@ -105,6 +106,9 @@ public class PaymentResourceIT {
 
     @MockBean
     private RESTClientQuittanceService restClientQuittanceService;
+    
+    @MockBean
+    private RESTClientUAAService restClientUAAService;
 
     @MockBean
     private PaymentSpecialServices paymentSpecialServices;
@@ -136,7 +140,7 @@ public class PaymentResourceIT {
         final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService,
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
-        															paymentMapper);
+        															paymentMapper, restClientUAAService);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
