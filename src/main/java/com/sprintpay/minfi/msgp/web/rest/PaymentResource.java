@@ -3,18 +3,19 @@ package com.sprintpay.minfi.msgp.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -130,6 +131,7 @@ public class PaymentResource {
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+    	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
     	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
     	//controle des données du paiement
@@ -182,16 +184,18 @@ public class PaymentResource {
     	//create historique payment
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
-		//call transaction service to debit account
+    	//build request to send to transaction
     	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("AFRILAND")) {
-    		resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
-        			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
+    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
 		}
     	else {
-    		resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
-        			paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode()));
+    		requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
     	}
-			
+    	
+    	//call transaction service to debit account
+    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
+    			requestBuild);
+    	
 	    //build response body to send at front
 		result.put("paymentDTO", paymentDTO2);
 		result.put("resultTransaction", resultTransaction);
@@ -221,6 +225,8 @@ public class PaymentResource {
 			status = Statut.CANCEL;
 		}
 		
+		//create transaction
+//    	transactionService.save(transactionDTO);
 //    	transaction = transactionService.save(transactionDTO);
     	
 
@@ -229,7 +235,7 @@ public class PaymentResource {
 
     	if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 
-    	paymentService.update(payment.getId(), status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
+    	paymentService.update(payment.getId(), status);
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
     	
     	//en cas de paiement d une emission on met a jour le statut de l emission
@@ -319,18 +325,39 @@ public class PaymentResource {
         return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
     }
 
+	@GetMapping("/literPaymentEmissionContrib/{niu}")
+    public ResponseEntity<List<Payment>> literPaymentEmissionContrib(@PathVariable String niu) {
 
-    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
-    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
-    	Map<String, String> resultData = new LinkedHashMap<String, String>();
+    	//Get All Id of Emission already payed
+    	List<String> emissionIdList = restClientEmissionService.getEmissionsContri(niu);
+    	List<Payment> paymentList = new ArrayList<>();
     	
-    	Payment payment = paymentService.findByRefTransaction(codeTransaction);
-
-    	resultData.put("statusPaie", payment.getStatut().toString());
-    	resultData.put("codePaie", payment.getCode());
-    	resultData.put("datePaie", payment.getLastModifiedBy().toString());
-    	return new ResponseEntity<>(resultData, HttpStatus.OK);
+    	//Get All Payment where Id_Emission equals Id in emissionIdList
+    	if (emissionIdList != null) {
+    		for (String idEmis : emissionIdList) {
+    			paymentList.add(paymentService.findByIdEmission(idEmis));
+    		}
+		}
+    	
+//    	Page<Object> pageresult = paymentService.findPaymentEmissionContrib(niu, pageable);
+//        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
+        return new ResponseEntity<>(paymentList, HttpStatus.OK);
     }
+
+//    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
+//    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
+//    	Map<String, String> resultData = new LinkedHashMap<String, String>();
+//    	TransactionDTO transaction = transactionService.findByCodeTransaction(codeTransaction);
+//    	Payment payment = paymentService.findByIdTransactionId(transaction.getId());
+//
+//    	resultData.put("statusPaie", payment.getStatut().toString());
+//    	resultData.put("codePaie", payment.getCode());
+//    	resultData.put("datePaie", transaction.getDate().toString());
+//    	return new ResponseEntity<>(resultData, HttpStatus.OK);
+//    }
+
+
+
 
 
     /**

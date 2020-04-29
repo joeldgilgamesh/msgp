@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="yan (generated)" id="1588086322926-1">
+        <dropTable tableName="detail_versement_intermediaire"/>
+    </changeSet>
+    <changeSet author="yan (generated)" id="1588086322926-2">
+        <dropTable tableName="historique_payment"/>
+    </changeSet>
+    <changeSet author="yan (generated)" id="1588086322926-3">
+        <dropTable tableName="jhi_persistent_audit_event"/>
+    </changeSet>
+    <changeSet author="yan (generated)" id="1588086322926-4">
+        <dropTable tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+    <changeSet author="yan (generated)" id="1588086322926-5">
+        <dropTable tableName="payment"/>
+    </changeSet>
+    <changeSet author="yan (generated)" id="1588086322926-6">
+        <dropTable tableName="transaction"/>
+    </changeSet>
+</databaseChangeLog>

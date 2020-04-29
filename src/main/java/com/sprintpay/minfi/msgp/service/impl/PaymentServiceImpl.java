@@ -146,9 +146,15 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.findByRefTransaction(refTransaction);
 	}
 	
+	@Override
+	public Payment findByIdEmission(String idEmis) {
+		// TODO Auto-generated method stub
+		return paymentRepository.findByIdEmission(idEmis);
+	}
+	
 //	@Scheduled(fixedDelay = 60000)
 //	public void testFind(){
-//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + paymentRepository.findAll().get(0));
+//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + restClientEmissionService.getEmissionsContri("Car", PageRequest.of(0, 5)).getBody());
 //	}
 	
 }

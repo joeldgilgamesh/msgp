@@ -23,4 +23,16 @@ public interface PaymentSpecialServices {
 	 * 
 	 */
 	public String codeNext();
+	
+	/**
+	 * 
+	 * @param debitInfo
+	 * @param code
+	 * @param niu
+	 * @param libelleEmision
+	 * @param amount
+	 * @param referenceEmission
+	 * @return
+	 */
+	public Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
 }

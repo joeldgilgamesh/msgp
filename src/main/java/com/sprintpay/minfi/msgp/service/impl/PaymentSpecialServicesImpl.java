@@ -69,7 +69,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		return request;
 	}
 	
-	public Map<String, String> buildRequestBank(String niu, String libelleEmision, Double amount, String referenceEmission) {
+	public Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission) {
 		Map<String, String> request = new HashMap<String, String>();
 		
 		request.put("contribuableId", niu);
@@ -77,6 +77,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		request.put("montant", amount.toString());
 		request.put("moyenPaiementId", "afrilandcmr");
 		request.put("referenceEmission", referenceEmission);
+		request.put("clientId", "");
+    	request.put("clientToken", "");
+    	request.put("phone", debitInfo);
+    	request.put("orderId", code);
 		
 		return request;
 	}

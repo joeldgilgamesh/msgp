@@ -102,4 +102,12 @@ public interface PaymentService {
 	 * @return
 	 */
 	Payment findByRefTransaction(String refTransaction);
+	
+	/**
+	 * 
+	 * @param idEmis
+	 * @return
+	 */
+	Payment findByIdEmission(String idEmis);
+
 }
