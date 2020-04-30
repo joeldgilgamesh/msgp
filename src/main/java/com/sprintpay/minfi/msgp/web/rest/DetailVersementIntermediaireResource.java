@@ -128,9 +128,9 @@ public class DetailVersementIntermediaireResource {
                 if (transactionSSDTO.getBody().getMontant().compareTo(globalPaymentsAmount) != 0 ){
                     throw new BadRequestAlertException("The global payments amount is different to the SYSTAC/SYGMA transaction", "Global Amount is: "+globalPaymentsAmount+" SYSTAC/SYGMA Amount is: "+transactionSSDTO.getBody().getMontant(), "AmountsNotMatch");
                 }
-                if (detailVersementIntermediaireDTO.getMontant().compareTo(globalPaymentsAmount) != 0 ){
+                /*if (detailVersementIntermediaireDTO.getMontant().compareTo(globalPaymentsAmount) != 0 ){
                     throw new BadRequestAlertException("The global payments amount is different to detailVersementIntermediaire Amount", "Global Amount is: "+globalPaymentsAmount+" detailVersementIntermediaireDTO Amount is: "+detailVersementIntermediaireDTO.getMontant(), "AmountsNotMatch");
-                }
+                }*/
             break;
             }catch (HystrixRuntimeException ex){
                 if(retryCount > MAX_RETRY_COUNT){
