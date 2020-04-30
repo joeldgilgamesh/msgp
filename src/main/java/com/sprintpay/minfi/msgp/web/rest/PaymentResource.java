@@ -9,14 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
 import javax.validation.Valid;
 
-import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,6 +39,7 @@ import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
@@ -75,6 +75,7 @@ public class PaymentResource {
     private final RESTClientQuittanceService restClientQuittanceService;
     private final PaymentSpecialServices paymentSpecialServices;
     private final PaymentMapper paymentMapper;
+    private final RESTClientUAAService restClientUAAService;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
     					   , DetailVersementIntermediaireService detailVersementIntermediaireService
@@ -82,7 +83,8 @@ public class PaymentResource {
     					   , RESTClientEmissionService restClientEmissionService
     					   , PaymentSpecialServices paymentSpecialServices
     					   , RESTClientQuittanceService restClientQuittanceService
-    					   , PaymentMapper paymentMapper) {
+    					   , PaymentMapper paymentMapper
+    					   , RESTClientUAAService restClientUAAService) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.detailVersementIntermediaireService = detailVersementIntermediaireService;
@@ -91,6 +93,7 @@ public class PaymentResource {
         this.paymentSpecialServices = paymentSpecialServices;
         this.restClientQuittanceService = restClientQuittanceService;
         this.paymentMapper = paymentMapper;
+        this.restClientUAAService = restClientUAAService;
     }
 
     /**
@@ -133,18 +136,36 @@ public class PaymentResource {
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
     	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
+    	String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
+    	
+    	//controle du niu en cas des emissions
+    	if (refEmi != 0) {
+    		
+    		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
+        	
+        	if (niuVerif == null) {
+        		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
+        	
+        	//controle du depassement du montant a payer
+        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() == 0)) {
+        		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
+		}
 
 
     	//controle des données du paiement
 		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null
 				|| debitInfo.isEmpty()
-				|| (paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0))  {
+				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0)))  {
 			result.put("Reject", "Bad Entry");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
 		//si id du paiement est non null, il est probable que le paiement existe
-		if (paymentDTO.getId() != null || paymentDTO.getAmount() == 0) {
+		if (paymentDTO.getId() != null) {
 			result.put("Reject", "Paiement Reject");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
@@ -159,32 +180,34 @@ public class PaymentResource {
         //case emission
         if (refEmi != 0) {
 
-
         	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
-        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {
+        	if(resultEmission == null) {//si l emission a payer n existe pas dans la liste des emission
+        		result.put("Reject", "Emission Not Exist");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        	}
+        	
+        	if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
+        		result.put("Reject", "Emission Not Have Reference");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        	}
+        	
+        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {//si les montant ne matche pas
     			result.put("Reject", "Paiement Reject");
     			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
     		}
+        	
+        	//create emission before save payment
+            EmissionDTO emissionDTO = new EmissionDTO();
+        	emissionDTO.setStatus(Statut.DRAFT);
+        	emissionDTO.setAmount(paymentDTO.getAmount());
+        	emissionDTO.setRefEmi(refEmi.toString());
+        	emissionDTO.setCodeContribuable(niu);
+        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
 
-            if (resultEmission.get("refEmi") != null) {//controle existance emission in msged
-            	//create emission before save payment
-                EmissionDTO emissionDTO = new EmissionDTO();
-            	emissionDTO.setStatus(Statut.DRAFT);
-            	emissionDTO.setAmount(paymentDTO.getAmount());
-            	emissionDTO.setRefEmi(refEmi.toString());
-            	emissionDTO.setCodeContribuable(niu);
-            	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-
-            	//complete datas payment with idEmission create, and save payment
-            	paymentDTO.setIdEmission(emissionDTO2.getId());
-            	paymentDTO2 =  paymentService.save(paymentDTO);
-    		}
-            else {
-            	System.out.println("ici je vais sortir du programme");
-            	result.put("Reject", "Emission Not Found");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-            }
+        	//complete datas payment with idEmission create, and save payment
+        	paymentDTO.setIdEmission(emissionDTO2.getId());
+        	paymentDTO2 =  paymentService.save(paymentDTO);
         }
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
         	paymentDTO2 =  paymentService.save(paymentDTO);
@@ -217,7 +240,6 @@ public class PaymentResource {
     public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
     													@PathVariable String codePaiement,
     													@PathVariable String status_code) {//cette methode sera démarrer par un client feign configuré dans mstransaction
-
 
     	String resultat = "Success";
     	Statut status = null;
@@ -256,7 +278,7 @@ public class PaymentResource {
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
     	}
 
-    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission()).getBody();
 
     	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
@@ -348,10 +370,9 @@ public class PaymentResource {
     		}
 		}
 
-//    	Page<Object> pageresult = paymentService.findPaymentEmissionContrib(niu, pageable);
-//        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
         return new ResponseEntity<>(paymentList, HttpStatus.OK);
     }
+
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
 //    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){

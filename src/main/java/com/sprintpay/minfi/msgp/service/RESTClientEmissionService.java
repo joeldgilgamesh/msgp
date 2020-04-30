@@ -38,7 +38,7 @@ public interface RESTClientEmissionService {
 		public Map<String, String> findRefEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/emissions/{id}")
-	    public EmissionDTO getEmission(@PathVariable ("id") Long id);
+	    public ResponseEntity<EmissionDTO> getEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/emissionsContri/{niu}")
 		public List<String> getEmissionsContri(@PathVariable ("niu") String niu);
