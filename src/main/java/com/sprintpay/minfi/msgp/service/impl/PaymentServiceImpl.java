@@ -1,6 +1,8 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
 
     private final PaymentMapper paymentMapper;
-    
+
     private final RESTClientEmissionService restClientEmissionService;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, RESTClientEmissionService restClientEmissionService) {
@@ -104,7 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		paymentRepository.updatePayment(idPaymeLong, state);
 	}
-	
+
 	/**
      * Update the payment by id and state.
      * @param1 id the id of the entity.
@@ -139,22 +141,31 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdTransaction(id);
 	}
-	
+
 	@Override
 	public Payment findByRefTransaction(String refTransaction) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByRefTransaction(refTransaction);
 	}
-	
+
 	@Override
 	public Payment findByIdEmission(Long idEmis) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByIdEmission(idEmis);
 	}
-	
+
+	@Override
+    public List<Payment> findByRefTransactionInAndStatut(Set<String> refs, Statut statut){
+	    return paymentRepository.findByRefTransactionInAndStatut(refs, statut);
+    }
+
+    @Override
+    public void updateAllPayments(Set<String> refs, Statut statut){
+        paymentRepository.updateAllPayments(refs, statut);
+    }
 //	@Scheduled(fixedDelay = 60000)
 //	public void testFind(){
 //		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + restClientEmissionService.getEmissionsContri("Car"));
 //	}
-	
+
 }

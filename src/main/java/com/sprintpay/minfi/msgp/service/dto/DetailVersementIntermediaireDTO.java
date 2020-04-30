@@ -1,8 +1,11 @@
 package com.sprintpay.minfi.msgp.service.dto;
 
+import com.sprintpay.minfi.msgp.domain.Payment;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A DTO for the {@link com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire} entity.
@@ -10,7 +13,7 @@ import java.util.Objects;
 public class DetailVersementIntermediaireDTO implements Serializable {
 
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1142468912269715875L;
 
@@ -22,6 +25,7 @@ public class DetailVersementIntermediaireDTO implements Serializable {
 
     private Double montant;
 
+    private Set<String> paymentRefs;
 
     public Long getId() {
         return id;
@@ -55,6 +59,10 @@ public class DetailVersementIntermediaireDTO implements Serializable {
         this.montant = montant;
     }
 
+    public Set<String> getPaymentRefs() { return paymentRefs; }
+
+    public void setPaymentRefs(Set<String> paymentRefs) { this.paymentRefs = paymentRefs; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -79,10 +87,11 @@ public class DetailVersementIntermediaireDTO implements Serializable {
     @Override
     public String toString() {
         return "DetailVersementIntermediaireDTO{" +
-            "id=" + getId() +
-            ", numeroVersment='" + getNumeroVersment() + "'" +
-            ", date='" + getDate() + "'" +
-            ", montant=" + getMontant() +
-            "}";
+            "id=" + id +
+            ", numeroVersment='" + numeroVersment + '\'' +
+            ", date=" + date +
+            ", montant=" + montant +
+            ", paymentRefs=" + paymentRefs +
+            '}';
     }
 }

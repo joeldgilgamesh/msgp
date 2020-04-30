@@ -97,7 +97,7 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 	}
 
 	@Override
-	public Optional<DetailVersementIntermediaireDTO> findByCode(String codeVersement) {
+	public Optional<DetailVersementIntermediaireDTO> findByNumeroVersment(String codeVersement) {
 		// TODO Auto-generated method stub
 		return detailVersementIntermediaireRepository.findByNumeroVersment(codeVersement).map(detailVersementIntermediaireMapper::toDto);
 	}

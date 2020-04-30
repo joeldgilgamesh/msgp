@@ -77,7 +77,7 @@ public class PaymentResourceIT {
 
     private static final String DEFAULT_DEBIT_INFO = "657826658";
 
-    private static final String REF_TRANSACTION="";
+    private static final String REF_TRANSACTION="123456789";
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -163,7 +163,8 @@ public class PaymentResourceIT {
             .amount(DEFAULT_AMOUNT)
             .idEmission(DEFAULT_ID_EMISSION)
             .idRecette(DEFAULT_ID_RECETTE)
-            .idOrganisation(DEFAULT_ID_ORGANISATION);
+            .idOrganisation(DEFAULT_ID_ORGANISATION)
+            .refTransaction(REF_TRANSACTION);
         return payment;
     }
 

@@ -1,6 +1,7 @@
 package com.sprintpay.minfi.msgp.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,12 +21,6 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-	/**
-	 * 
-	 * @param idT
-	 * @return idPayment 
-	 */
-	
 	@Modifying
 	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
 	void updatePayment(@Param("idPaymeLong") Long idPaymeLong, @Param("state") Statut state);
@@ -38,22 +33,28 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 	@Query(value = "SELECT COUNT(id) FROM Payment")
 	Long countLine();
-	
+
 	@Query("SELECT id FROM Payment p WHERE p.id = :idLast")
 	Long getLastId(@Param("idLast") Long idLast);
 
 //	@Query("SELECT p FROM Payment p WHERE p.statut = 'VALIDATED'")
 //	Page<Object> findByPaymentValidated(Pageable pageable);
-	
+
 	@Query("SELECT p FROM Payment p WHERE p.statut = :stat")
 	Page<Object> findByPaymentValidated(@Param("stat") Statut status, Pageable pageable);
 
 	Payment findByIdTransaction(Long idTransaction);
 
 	Payment findByRefTransaction(String refTransaction);
-	
+
 	Payment findByIdEmission(Long idEmis);
-	
+
+	List<Payment> findByRefTransactionInAndStatut(Set<String> refs, Statut statut);
+
+    @Modifying
+    @Query("update Payment p set p.statut = :state where p.refTransaction in :refs")
+    void updateAllPayments(@Param("refs") Set<String> refs, @Param("state") Statut state);
+
 //	@Query("SELECT p FROM Payment p INNER JOIN Emission e ON e.id = p.emission WHERE e.codeContribuable = :niu")
 //	Page<Object> findPaymentEmissionContrib(@Param("niu") String niu, Pageable pageable);
 

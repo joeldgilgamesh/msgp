@@ -56,5 +56,5 @@ public interface DetailVersementIntermediaireService {
      * @param codeVersement
      * @return
      */
-	Optional<DetailVersementIntermediaireDTO> findByCode(String codeVersement);
+	Optional<DetailVersementIntermediaireDTO> findByNumeroVersment(String codeVersement);
 }
