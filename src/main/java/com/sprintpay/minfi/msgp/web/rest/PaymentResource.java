@@ -292,7 +292,7 @@ public class PaymentResource {
     	if (codeVersement == null || montant == 0 || paymentDTOList == null || (reelmontant - montant) > 0) return new ResponseEntity<>(resultat = "Bad Entry", HttpStatus.BAD_REQUEST);
 
     	//appel du service verifier detail versement
-        Optional<DetailVersementIntermediaireDTO> det = detailVersementIntermediaireService.findByCode(codeVersement);
+        Optional<DetailVersementIntermediaireDTO> det = detailVersementIntermediaireService.findByNumeroVersment(codeVersement);
 
     	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_FOUND);
 

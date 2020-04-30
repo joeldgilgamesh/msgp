@@ -9,6 +9,7 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service Interface for managing {@link com.sprintpay.minfi.msgp.domain.Payment}.
@@ -110,4 +111,7 @@ public interface PaymentService {
 	 */
 	Payment findByIdEmission(Long idEmis);
 
+    List<Payment> findByRefTransactionInAndStatut(Set<String> refs, Statut statut);
+
+    void updateAllPayments(Set<String> refs, Statut statut);
 }

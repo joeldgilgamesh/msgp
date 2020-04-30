@@ -1,15 +1,26 @@
 package com.sprintpay.minfi.msgp.web.rest;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import com.sprintpay.minfi.msgp.config.ApplicationProperties;
+import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
+import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
+import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
+import com.sprintpay.minfi.msgp.service.dto.TransactionSSDTO;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
@@ -21,8 +32,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire}.
@@ -35,13 +50,31 @@ public class DetailVersementIntermediaireResource {
 
     private static final String ENTITY_NAME = "spminfimsgpDetailVersementIntermediaire";
 
+    private final static int MAX_RETRY_COUNT = 5;
+
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final DetailVersementIntermediaireService detailVersementIntermediaireService;
 
-    public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService) {
+    private final PaymentService paymentService;
+
+    private final RESTClientSystacSygmaService restClientSystacSygmaService;
+
+    private final ApplicationProperties applicationProperties;
+
+    private final RESTClientQuittanceService restClientQuittanceService;
+
+    public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
+                                                PaymentService paymentService,
+                                                RESTClientSystacSygmaService restClientSystacSygmaService,
+                                                ApplicationProperties applicationProperties,
+                                                RESTClientQuittanceService restClientQuittanceService) {
         this.detailVersementIntermediaireService = detailVersementIntermediaireService;
+        this.paymentService = paymentService;
+        this.restClientSystacSygmaService = restClientSystacSygmaService;
+        this.applicationProperties = applicationProperties;
+        this.restClientQuittanceService = restClientQuittanceService;
     }
 
     /**
@@ -55,12 +88,99 @@ public class DetailVersementIntermediaireResource {
     public ResponseEntity<DetailVersementIntermediaireDTO> createDetailVersementIntermediaire(@RequestBody DetailVersementIntermediaireDTO detailVersementIntermediaireDTO) throws URISyntaxException {
         log.debug("REST request to save DetailVersementIntermediaire : {}", detailVersementIntermediaireDTO);
         if (detailVersementIntermediaireDTO.getId() != null) {
-            throw new BadRequestAlertException("A new detailVersementIntermediaire cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new detailVersementIntermediaire cannot already have an ID", ENTITY_NAME, "idExists");
         }
+        if (detailVersementIntermediaireDTO.getPaymentRefs() == null || detailVersementIntermediaireDTO.getPaymentRefs().isEmpty()) {
+            throw new BadRequestAlertException("A new detailVersementIntermediaire cannot be save without payments references", ENTITY_NAME, "paymentRefsRequired");
+        }
+
+        // Check if there is no previous data with same NumeroVersment
+        Optional<DetailVersementIntermediaireDTO> oldNumeroVersment = detailVersementIntermediaireService.findByNumeroVersment(detailVersementIntermediaireDTO.getNumeroVersment());
+        if (oldNumeroVersment.isPresent()){
+            throw new BadRequestAlertException("A detailVersementIntermediaire already exist", ENTITY_NAME, "NumeroVersmentExists");
+        }
+
+        // Check if payments are already reconciled
+        // TODO
+
+        // Check if all provided payments exists and if they are in VALIDATE statut
+        List<Payment> paymentsToReconciled = paymentService.findByRefTransactionInAndStatut(detailVersementIntermediaireDTO.getPaymentRefs(), Statut.VALIDATED);
+        if (paymentsToReconciled == null) {
+            throw new BadRequestAlertException("None of the payments references provided are found in the system", ENTITY_NAME, "paymentRefsNotFound");
+        }
+        if (paymentsToReconciled.size() != detailVersementIntermediaireDTO.getPaymentRefs().size()) {
+            List<String> different = new ArrayList<String>( detailVersementIntermediaireDTO.getPaymentRefs() );
+            different.removeAll( paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toList()) );
+            throw new BadRequestAlertException("Theses payments references are not found or validated in the system", different.toString(), "paymentRefsNotFound");
+        }
+
+        System.out.println("******************************** "+detailVersementIntermediaireDTO+" *******************************************");
+        // Check if the numeroVersment exist on SYSTAC SYGMA transactions
+        int retryCount = 0;
+        while(true){
+            try {
+                ResponseEntity<TransactionSSDTO> transactionSSDTO = restClientSystacSygmaService.searchTransaction(detailVersementIntermediaireDTO.getNumeroVersment(), applicationProperties.getSpMinfiMsssToken());
+                if (transactionSSDTO == null || transactionSSDTO.getBody() == null) {
+                    throw new BadRequestAlertException("No detailVersementIntermediaire found in system now, try again later", ENTITY_NAME, "NumeroVersmentNotAvailable");
+                }
+                // Check if the global amount of payments provided matches with the amount of SYSTAC SYGMA transaction
+                Double globalPaymentsAmount = paymentsToReconciled.stream().mapToDouble(Payment::getAmount).sum();
+                if (transactionSSDTO.getBody().getMontant().compareTo(globalPaymentsAmount) != 0 ){
+                    throw new BadRequestAlertException("The global payments amount is different to the SYSTAC/SYGMA transaction", "Global Amount is: "+globalPaymentsAmount+" SYSTAC/SYGMA Amount is: "+transactionSSDTO.getBody().getMontant(), "AmountsNotMatch");
+                }
+                if (detailVersementIntermediaireDTO.getMontant().compareTo(globalPaymentsAmount) != 0 ){
+                    throw new BadRequestAlertException("The global payments amount is different to detailVersementIntermediaire Amount", "Global Amount is: "+globalPaymentsAmount+" detailVersementIntermediaireDTO Amount is: "+detailVersementIntermediaireDTO.getMontant(), "AmountsNotMatch");
+                }
+            break;
+            }catch (HystrixRuntimeException ex){
+                if(retryCount > MAX_RETRY_COUNT){
+                    throw(ex);
+                }
+                retryCount++;
+                continue;
+            }
+        }
+
+        // Save detailVersementIntermediaire
         DetailVersementIntermediaireDTO result = detailVersementIntermediaireService.save(detailVersementIntermediaireDTO);
+
+        // Update detailVersementIntermediaire.payments
+        paymentService.updateAllPayments(paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toSet()), Statut.RECONCILED);
+
+        // Try to Generate Quittances
+        List<JustificatifPaiementDTO> justificatifPaiementDTOs = prepareJustificatifsPayment(paymentsToReconciled);
+        retryCount = 0;
+        while(true){
+            try {
+                restClientQuittanceService.createManyJustificatifPaiement(justificatifPaiementDTOs);
+                break;
+            }catch (HystrixRuntimeException ex){
+                if(retryCount > MAX_RETRY_COUNT){
+                    throw(ex);
+                }
+                retryCount++;
+                continue;
+            }
+        }
         return ResponseEntity.created(new URI("/api/detail-versement-intermediaires/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    private List<JustificatifPaiementDTO> prepareJustificatifsPayment(List<Payment> paymentsToReconciled) {
+        List<JustificatifPaiementDTO> justificatifPaiementDTOs = new ArrayList<JustificatifPaiementDTO>();
+        for (Payment payment: paymentsToReconciled ) {
+            JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+            justificatifPaiementDTO.setReferencePaiement(payment.getCode());
+            justificatifPaiementDTO.setIdPaiement(payment.getId());
+            justificatifPaiementDTO.setDateCreation(LocalDateTime.now());
+            justificatifPaiementDTO.setMontant(payment.getAmount());
+            justificatifPaiementDTO.setReferencePaiement(payment.getRefTransaction());
+            justificatifPaiementDTO.setNui("");
+            justificatifPaiementDTO.setNumero(0L);
+            justificatifPaiementDTOs.add(justificatifPaiementDTO);
+        }
+        return justificatifPaiementDTOs;
     }
 
     /**
@@ -72,7 +192,7 @@ public class DetailVersementIntermediaireResource {
      * or with status {@code 500 (Internal Server Error)} if the detailVersementIntermediaireDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/detail-versement-intermediaires")
+    //@PutMapping("/detail-versement-intermediaires")
     public ResponseEntity<DetailVersementIntermediaireDTO> updateDetailVersementIntermediaire(@RequestBody DetailVersementIntermediaireDTO detailVersementIntermediaireDTO) throws URISyntaxException {
         log.debug("REST request to update DetailVersementIntermediaire : {}", detailVersementIntermediaireDTO);
         if (detailVersementIntermediaireDTO.getId() == null) {
@@ -117,7 +237,7 @@ public class DetailVersementIntermediaireResource {
      * @param id the id of the detailVersementIntermediaireDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/detail-versement-intermediaires/{id}")
+    //@DeleteMapping("/detail-versement-intermediaires/{id}")
     public ResponseEntity<Void> deleteDetailVersementIntermediaire(@PathVariable Long id) {
         log.debug("REST request to delete DetailVersementIntermediaire : {}", id);
         detailVersementIntermediaireService.delete(id);

@@ -33,7 +33,7 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @NotNull(message = "rajouter le code du paiement")
     @Column(name = "code", nullable = false)
     private String code;
@@ -62,14 +62,14 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
 
     @OneToMany(mappedBy = "payment")
     private Set<HistoriquePayment> idHistPays = new HashSet<>();
-    
+
     @Column(name = "id_transaction")
     private Long idTransaction;
 
     @ManyToOne
     @JsonIgnoreProperties("payments")
     private DetailVersementIntermediaire idDetVers;
-    
+
     @Column(name = "ref_transaction")
     private String refTransaction;
 
@@ -223,8 +223,8 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
     public void setIdDetVers(DetailVersementIntermediaire detailVersementIntermediaire) {
         this.idDetVers = detailVersementIntermediaire;
     }
-    
-        public String getRefTransaction() {
+
+    public String getRefTransaction() {
 		return refTransaction;
 	}
 
@@ -232,7 +232,11 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
 		this.refTransaction = refTransaction;
 	}
 
-    
+	public Payment refTransaction(String refTransaction) {
+        this.refTransaction = refTransaction;
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
 

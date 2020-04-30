@@ -1,15 +1,14 @@
 package com.sprintpay.minfi.msgp.domain;
 
 
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * A DetailVersementIntermediaire.
@@ -32,6 +31,10 @@ public class DetailVersementIntermediaire extends AbstractAuditingEntity impleme
 
     @Column(name = "montant")
     private Double montant;
+
+    @OneToMany(mappedBy = "idDetVers")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    private Set<Payment> payments = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -80,6 +83,20 @@ public class DetailVersementIntermediaire extends AbstractAuditingEntity impleme
     public void setMontant(Double montant) {
         this.montant = montant;
     }
+
+    public Set<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(Set<Payment> payments) {
+        this.payments = payments;
+    }
+
+    public DetailVersementIntermediaire payments(Set<Payment> payments) {
+        this.payments = payments;
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
