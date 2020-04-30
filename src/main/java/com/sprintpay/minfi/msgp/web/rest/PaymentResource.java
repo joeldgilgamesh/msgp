@@ -290,7 +290,7 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
 
-//	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
+	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
 
     	return new ResponseEntity<>(resultat, HttpStatus.OK);

@@ -23,4 +23,6 @@ public interface RESTClientQuittanceService {
     @Async
     public void createManyJustificatifPaiement(@RequestBody List<JustificatifPaiementDTO> justificatifPaiementDTOs);
 
+    @PostMapping("/api/justificatif-paiements/genererRecuOuQuittance")
+    public ResponseEntity<byte []> genererRecuOuQuittance(@RequestBody  JustificatifPaiementDTO justificatifPaiementDTO);
 }
