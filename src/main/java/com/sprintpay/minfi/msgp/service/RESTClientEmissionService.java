@@ -25,7 +25,7 @@ public interface RESTClientEmissionService {
 		public ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/updateEmission/{idEmis}/{status}")
-		public void updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
+		public ResponseEntity<String> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
 		public ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
