@@ -278,7 +278,7 @@ public class PaymentResource {
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
     	}
 
-    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission()).getBody();
+    	Optional<Object> emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
 
     	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
@@ -287,7 +287,8 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
-	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+//	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+	    	justificatifPaiementDTO.setNui("default niu");
 	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
