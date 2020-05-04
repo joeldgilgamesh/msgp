@@ -164,15 +164,16 @@ public class PaymentServiceImpl implements PaymentService {
     public void updateAllPayments(Set<String> refs, Statut statut){
         paymentRepository.updateAllPayments(refs, statut);
     }
-//	@Scheduled(fixedDelay = 60000)
-//	public void testFind(){
-//		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + restClientEmissionService.getEmissionsContri("Car"));
-//	}
 
 	@Override
 	public void update(Long id, Statut status, TransactionDTO transactionDTO) {
 		// TODO Auto-generated method stub
 		paymentRepository.updatePaymentWithTransaction(id, status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
 	}
+	
+//	@Scheduled(fixedDelay = 60000)
+//	public void testFind(){
+//		System.out.println("------------------ get emission by code " + restClientEmissionService.getEmission(10L));
+//	}
 
 }
