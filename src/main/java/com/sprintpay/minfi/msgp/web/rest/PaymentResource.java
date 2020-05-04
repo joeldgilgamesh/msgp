@@ -298,54 +298,54 @@ public class PaymentResource {
     }
 
 
-    @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
-    public ResponseEntity<String> reconcilierPaiement(@RequestBody List<PaymentDTO> paymentDTOList
-    												  , @PathVariable String codeVersement
-    												  , @PathVariable double montant) {
-
-    	String resultat = "RECONCILED Succes";
-    	double reelmontant = 0;
-
-    	//calcul du montant des paiements a reconcilier
-    	for (PaymentDTO paymentDTO2 : paymentDTOList) {
-			reelmontant += paymentDTO2.getAmount();
-		}
-
-    	if (codeVersement == null || montant == 0 || paymentDTOList == null || (reelmontant - montant) > 0) return new ResponseEntity<>(resultat = "Bad Entry", HttpStatus.BAD_REQUEST);
-
-    	//appel du service verifier detail versement
-        Optional<DetailVersementIntermediaireDTO> det = detailVersementIntermediaireService.findByNumeroVersment(codeVersement);
-
-    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_FOUND);
-
-    	if (det.get().getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
-
-    	Statut status = null;
-
-    	//appel du service de comparaisons des données des paiements des deux cotés
-    	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {//si montant different, echec reconciliation
-    		status = Statut.CANCEL;
-    		resultat = "Failed RECONCILED, Amount not mapping";
-        	//creer historique a etat reconcilied
-
-		}
-
-    	else status = Statut.RECONCILED;  //si montant egaux, alors succès reconciliation
-
-    	for (PaymentDTO paymentDTO : paymentDTOList) {
-    		paymentService.update(paymentDTO.getId(), status);
-        	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
-		}
-
-    	if (detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {
-    		//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
-        	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
-        	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
-    	}
-
-    	return new ResponseEntity<>(resultat, HttpStatus.OK);
-
-    }
+//    @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
+//    public ResponseEntity<String> reconcilierPaiement(@RequestBody List<PaymentDTO> paymentDTOList
+//    												  , @PathVariable String codeVersement
+//    												  , @PathVariable double montant) {
+//
+//    	String resultat = "RECONCILED Succes";
+//    	double reelmontant = 0;
+//
+//    	//calcul du montant des paiements a reconcilier
+//    	for (PaymentDTO paymentDTO2 : paymentDTOList) {
+//			reelmontant += paymentDTO2.getAmount();
+//		}
+//
+//    	if (codeVersement == null || montant == 0 || paymentDTOList == null || (reelmontant - montant) > 0) return new ResponseEntity<>(resultat = "Bad Entry", HttpStatus.BAD_REQUEST);
+//
+//    	//appel du service verifier detail versement
+//        Optional<DetailVersementIntermediaireDTO> det = detailVersementIntermediaireService.findByNumeroVersment(codeVersement);
+//
+//    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_FOUND);
+//
+//    	if (det.get().getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
+//
+//    	Statut status = null;
+//
+//    	//appel du service de comparaisons des données des paiements des deux cotés
+//    	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {//si montant different, echec reconciliation
+//    		status = Statut.CANCEL;
+//    		resultat = "Failed RECONCILED, Amount not mapping";
+//        	//creer historique a etat reconcilied
+//
+//		}
+//
+//    	else status = Statut.RECONCILED;  //si montant egaux, alors succès reconciliation
+//
+//    	for (PaymentDTO paymentDTO : paymentDTOList) {
+//    		paymentService.update(paymentDTO.getId(), status);
+//        	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
+//		}
+//
+//    	if (detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {
+//    		//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
+//        	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
+//        	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
+//    	}
+//
+//    	return new ResponseEntity<>(resultat, HttpStatus.OK);
+//
+//    }
 
 
     @GetMapping("/literPaymentByStatut/{statut}")
