@@ -117,7 +117,7 @@ public class DetailVersementIntermediaireResource {
         System.out.println("******************************** "+detailVersementIntermediaireDTO+" *******************************************");
         // Check if the numeroVersment exist on SYSTAC SYGMA transactions
         int retryCount = 0;
-        while(true){
+        while(retryCount < MAX_RETRY_COUNT){
             try {
                 ResponseEntity<TransactionSSDTO> transactionSSDTO = restClientSystacSygmaService.searchTransaction(detailVersementIntermediaireDTO.getNumeroVersment(), applicationProperties.getSpMinfiMsssToken());
                 if (transactionSSDTO == null || transactionSSDTO.getBody() == null) {
@@ -131,7 +131,8 @@ public class DetailVersementIntermediaireResource {
                 /*if (detailVersementIntermediaireDTO.getMontant().compareTo(globalPaymentsAmount) != 0 ){
                     throw new BadRequestAlertException("The global payments amount is different to detailVersementIntermediaire Amount", "Global Amount is: "+globalPaymentsAmount+" detailVersementIntermediaireDTO Amount is: "+detailVersementIntermediaireDTO.getMontant(), "AmountsNotMatch");
                 }*/
-            break;
+                retryCount = MAX_RETRY_COUNT;
+                break;
             }catch (HystrixRuntimeException ex){
                 if(retryCount > MAX_RETRY_COUNT){
                     throw(ex);
