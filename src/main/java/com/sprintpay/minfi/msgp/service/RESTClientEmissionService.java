@@ -2,6 +2,7 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public interface RESTClientEmissionService {
 		public ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/updateEmission/{idEmis}/{status}")
-		public void updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
+		public ResponseEntity<String> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
 		public ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
@@ -38,7 +39,7 @@ public interface RESTClientEmissionService {
 		public Map<String, String> findRefEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/emissions/{id}")
-	    public ResponseEntity<EmissionDTO> getEmission(@PathVariable ("id") Long id);
+	    public Optional<Object> getEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/emissionsContri/{niu}")
 		public List<String> getEmissionsContri(@PathVariable ("niu") String niu);

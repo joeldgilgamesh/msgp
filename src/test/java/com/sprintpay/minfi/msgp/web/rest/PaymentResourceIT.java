@@ -405,7 +405,7 @@ public class PaymentResourceIT {
         PaymentDTO paymentDTO = paymentMapper.toDto(payment);
         paymentDTO.setCode(DEFAULT_CODE);
         paymentDTO.setId(null);
-        paymentDTO.setIdTransactionId(null);
+        paymentDTO.setIdTransaction(null);
         paymentDTO.setIdDetVersId(null);
         restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", 10)
         .contentType(TestUtil.APPLICATION_JSON)
