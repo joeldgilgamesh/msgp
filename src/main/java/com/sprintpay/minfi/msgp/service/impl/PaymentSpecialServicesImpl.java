@@ -25,7 +25,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		
 		Map<String, String> request = new HashMap<String, String>();
 		
-		if (provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP") {
+		if (provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION") {
 			request.put("clientId", "");
 	    	request.put("clientToken", "");
 	    	request.put("phone", debitInfo);
