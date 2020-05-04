@@ -278,9 +278,10 @@ public class PaymentResource {
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
     	}
 
-    	Optional<Object> emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+//    	Optional<Object> emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
 
-    	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
+//    	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
+    		if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
