@@ -157,7 +157,7 @@ public class PaymentResource {
 
 
     	//controle des données du paiement
-		if((paymentDTO.getIdTransactionId() != null) || paymentDTO.getIdDetVersId() != null
+		if((paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
 				|| debitInfo.isEmpty()
 				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0)))  {
 			result.put("Reject", "Bad Entry");
@@ -176,6 +176,7 @@ public class PaymentResource {
     	paymentDTO.setStatut(Statut.DRAFT);
     	// paymentDTO.setCode(paymentSpecialServices.codeNext());
         paymentDTO.setCode(UUID.randomUUID().toString());
+        
 
         //case emission
         if (refEmi != 0) {
@@ -266,7 +267,7 @@ public class PaymentResource {
 
     	if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 
-    	paymentService.update(payment.getId(), status);
+    	paymentService.update(payment.getId(), status, transactionDTO);
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 
     	//en cas de paiement d une emission on met a jour le statut de l emission

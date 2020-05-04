@@ -55,6 +55,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("update Payment p set p.statut = :state where p.refTransaction in :refs")
     void updateAllPayments(@Param("refs") Set<String> refs, @Param("state") Statut state);
 
+    @Modifying
+    @Query("update Payment p set p.statut = :status, p.idTransaction = :idTransaction, p.refTransaction = :refTransaction  where p.id = :id")
+	void updatePaymentWithTransaction(@Param("id") Long id, @Param("status") Statut status, @Param("idTransaction") Long idTransaction, @Param("refTransaction") String refTransaction);
+
 //	@Query("SELECT p FROM Payment p INNER JOIN Emission e ON e.id = p.emission WHERE e.codeContribuable = :niu")
 //	Page<Object> findPaymentEmissionContrib(@Param("niu") String niu, Pageable pageable);
 

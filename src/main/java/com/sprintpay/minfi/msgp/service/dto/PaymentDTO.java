@@ -31,9 +31,11 @@ public class PaymentDTO implements Serializable {
     private Long idOrganisation;
 
 
-    private Long idTransactionId;
+    private Long idTransaction;
 
     private Long idDetVersId;
+    
+    private String refTransaction;
 
     public Long getId() {
         return id;
@@ -99,12 +101,12 @@ public class PaymentDTO implements Serializable {
         this.idOrganisation = idOrganisation;
     }
 
-    public Long getIdTransactionId() {
-        return idTransactionId;
+    public Long getIdTransaction() {
+        return idTransaction;
     }
 
-    public void setIdTransactionId(Long transactionId) {
-        this.idTransactionId = transactionId;
+    public void setIdTransaction(Long transactionId) {
+        this.idTransaction = transactionId;
     }
 
     public Long getIdDetVersId() {
@@ -114,8 +116,16 @@ public class PaymentDTO implements Serializable {
     public void setIdDetVersId(Long detailVersementIntermediaireId) {
         this.idDetVersId = detailVersementIntermediaireId;
     }
+    
+    public String getRefTransaction() {
+		return refTransaction;
+	}
 
-    @Override
+	public void setRefTransaction(String refTransaction) {
+		this.refTransaction = refTransaction;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -147,7 +157,7 @@ public class PaymentDTO implements Serializable {
             ", idEmission=" + getIdEmission() +
             ", idRecette=" + getIdRecette() +
             ", idOrganisation=" + getIdOrganisation() +
-            ", idTransactionId=" + getIdTransactionId() +
+            ", idTransaction=" + getIdTransaction() +
             ", idDetVersId=" + getIdDetVersId() +
             "}";
     }

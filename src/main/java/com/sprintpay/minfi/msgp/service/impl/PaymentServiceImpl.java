@@ -20,6 +20,7 @@ import com.sprintpay.minfi.msgp.service.PaymentService;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 
 /**
@@ -167,5 +168,11 @@ public class PaymentServiceImpl implements PaymentService {
 //	public void testFind(){
 //		System.out.println("------------------ cecic est le service de test ouvert a tous les tests " + restClientEmissionService.getEmissionsContri("Car"));
 //	}
+
+	@Override
+	public void update(Long id, Statut status, TransactionDTO transactionDTO) {
+		// TODO Auto-generated method stub
+		paymentRepository.updatePaymentWithTransaction(id, status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
+	}
 
 }
