@@ -283,7 +283,7 @@ public class PaymentResource {
 //    	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
     		if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
-	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
+	    	justificatifPaiementDTO.setReferencePaiement(payment.getId().toString());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
@@ -291,6 +291,8 @@ public class PaymentResource {
 //	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    	justificatifPaiementDTO.setNui("default niu");
 //	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
+	    	justificatifPaiementDTO.setTypePaiement("RECU");
+	    	justificatifPaiementDTO.setCode(payment.getCode());
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
