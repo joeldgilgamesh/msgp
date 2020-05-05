@@ -306,6 +306,7 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setCode(payment.getCode());
 	    	justificatifPaiementDTO.setImputations(listImput);
 	    	justificatifPaiementDTO.setIdOrganisation(1L);
+	    	justificatifPaiementDTO.setTypeJustificatifPaiement("default");
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
