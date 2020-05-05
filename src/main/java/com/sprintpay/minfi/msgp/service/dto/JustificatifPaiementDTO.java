@@ -2,7 +2,9 @@ package com.sprintpay.minfi.msgp.service.dto;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A DTO for the {@link com.sprintpay.minfi.msgp.domain.JustificatifPaiement} entity.
@@ -57,6 +59,10 @@ public class JustificatifPaiementDTO implements Serializable {
     private String code;
 
     private Long numero;
+
+    private String typeJustificatifPaiement;
+
+    private Set<ImputationDTO> imputations = new HashSet<>();
 
 
     public Long getId() {
@@ -234,8 +240,26 @@ public class JustificatifPaiementDTO implements Serializable {
     public void setNumero(Long numero) {
         this.numero = numero;
     }
+    
+    
 
-    @Override
+    public String getTypeJustificatifPaiement() {
+		return typeJustificatifPaiement;
+	}
+
+	public void setTypeJustificatifPaiement(String typeJustificatifPaiement) {
+		this.typeJustificatifPaiement = typeJustificatifPaiement;
+	}
+
+	public Set<ImputationDTO> getImputations() {
+		return imputations;
+	}
+
+	public void setImputations(Set<ImputationDTO> imputations) {
+		this.imputations = imputations;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -281,6 +305,8 @@ public class JustificatifPaiementDTO implements Serializable {
             ", codePoste=" + getCodePoste() +
             ", code='" + getCode() + "'" +
             ", numero=" + getNumero() +
+            ", typeJustificatifPaiement=" + getTypeJustificatifPaiement() + 
+            ", imputations=" + getImputations()  + 
             "}";
     }
 }

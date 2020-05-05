@@ -4,10 +4,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -43,6 +45,7 @@ import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
+import com.sprintpay.minfi.msgp.service.dto.ImputationDTO;
 import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
@@ -284,6 +287,13 @@ public class PaymentResource {
     	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
     	
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+	    	ImputationDTO imputationDTO = new ImputationDTO();
+	    	imputationDTO.setId(1L);
+	    	imputationDTO.setMontant(emissionDTO.getAmount());
+	    	imputationDTO.setNumDeclarationImputation(1L);
+	    	Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
+	    	listImput.add(imputationDTO);
+	    	
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getId().toString());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
@@ -294,6 +304,8 @@ public class PaymentResource {
 //	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
 	    	justificatifPaiementDTO.setTypePaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
+	    	justificatifPaiementDTO.setImputations(listImput);
+	    	justificatifPaiementDTO.setIdOrganisation(1L);
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
