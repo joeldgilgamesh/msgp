@@ -141,7 +141,10 @@ public class PaymentResource {
 		
 
 		System.out.println("--------------------------------- body request -> " + body);
-
+		paymentDTO = (PaymentDTO) body.get("paymentDTO");
+		addedParamsPaymentDTO = (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTO);
+		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTO);
 //		Map<String, Object> result = new LinkedHashMap<String, Object>();
 //    	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
 //    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
