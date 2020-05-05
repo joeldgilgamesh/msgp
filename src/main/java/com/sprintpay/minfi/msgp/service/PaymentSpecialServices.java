@@ -35,4 +35,16 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	public Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
+
+	/**
+	 * 
+	 * @param debitInfo
+	 * @param code
+	 * @param amount
+	 * @param email
+	 * @param firstname
+	 * @param lastname
+	 * @return
+	 */
+	public Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
 }

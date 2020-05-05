@@ -40,32 +40,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	    	request.put("ipAddress", "");
 		}
 		
-		if (provider == "UBA") {
-			request.put("clientId", "");
-	    	request.put("clientToken", "");
-	    	request.put("phone", debitInfo);
-	    	request.put("orderId", code);
-	    	request.put("uniqueId", "");
-	    	request.put("amount", amount.toString());
-	    	request.put("email", "");
-	    	request.put("firstname","");
-	    	request.put("lastname","");
-	    	request.put("currency", "");
-	    	request.put("description", "");
-	    	request.put("companyName", "");
-	    	request.put("successUrl", "");
-	    	request.put("failureUrl", "");
-	    	request.put("returnUrl", "");
-	    	request.put("transactionid", "");
-	    	request.put("ref", "");
-	    	request.put("notificationUrl", "");
-	    	request.put("ipAddress", "");
-		}
-		
-		if (provider == "AFRILAND") {
-			
-		}
-		
 		return request;
 	}
 	
@@ -81,6 +55,32 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("clientToken", "");
     	request.put("phone", debitInfo);
     	request.put("orderId", code);
+		
+		return request;
+	}
+	
+	public Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname) {
+		Map<String, String> request = new HashMap<String, String>();
+		
+		request.put("clientId", "");
+    	request.put("clientToken", "");
+    	request.put("phone", debitInfo);
+    	request.put("orderId", code);
+    	request.put("uniqueId", "");
+    	request.put("amount", amount.toString());
+    	request.put("email", email);
+    	request.put("firstname", firstname);
+    	request.put("lastname", lastname);
+    	request.put("currency", "");
+    	request.put("description", "");
+    	request.put("companyName", "");
+    	request.put("successUrl", "");
+    	request.put("failureUrl", "");
+    	request.put("returnUrl", "");
+    	request.put("transactionid", "");
+    	request.put("ref", "");
+    	request.put("notificationUrl", "");
+    	request.put("ipAddress", "");
 		
 		return request;
 	}
