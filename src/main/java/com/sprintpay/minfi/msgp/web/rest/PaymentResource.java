@@ -137,6 +137,10 @@ public class PaymentResource {
     												, @PathVariable String niu
     												, @PathVariable Long refEmi
     												, @RequestBody AddedParamsPaymentDTO addedParamsPaymentDTO) {
+		
+
+		System.out.println("--------------------------------- paymentDTO -> " + paymentDTO);
+		System.out.println("--------------------------------- addedParamsPaymentDTO -> " + addedParamsPaymentDTO);
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
