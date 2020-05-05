@@ -55,6 +55,7 @@ import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
+import liquibase.structure.core.Data;
 
 /**
  * REST controller for managing {@link com.sprintpay.minfi.msgp.domain.Payment}.
@@ -307,6 +308,8 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setImputations(listImput);
 	    	justificatifPaiementDTO.setIdOrganisation(1L);
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
+	    	justificatifPaiementDTO.setNatureRecette("recette");
+	    	justificatifPaiementDTO.setDateCreation(LocalDateTime.now());
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
