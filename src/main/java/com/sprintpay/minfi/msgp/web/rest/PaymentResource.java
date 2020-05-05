@@ -249,6 +249,7 @@ public class PaymentResource {
     	String resultat = "Success";
     	Statut status = null;
 		Payment payment = new Payment();
+		EmissionDTO emissionDTO = null;
 //		TransactionDTO transaction = new TransactionDTO();
 
 		//we accept status code equal <100> or <400>
@@ -281,15 +282,19 @@ public class PaymentResource {
 
     		//create historique emission
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
+    		
+    		emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
     	}
 
-    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+//    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+    	
+    	if (emissionDTO == null && payment.getIdRecette() == null) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
-    	if (status_code.equals("100") && emissionDTO != null) {//ici on génère le reçu en cas de paiement réussi
+    	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
     	
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	ImputationDTO imputationDTO = new ImputationDTO();
-	    	imputationDTO.setMontant(emissionDTO.getAmount());
+	    	imputationDTO.setMontant(payment.getAmount());
 	    	imputationDTO.setNumDeclarationImputation(1L);
 	    	imputationDTO.setOperation("Paiement");
 	    	imputationDTO.setNatrureDesDroits("NDroit01");
@@ -300,13 +305,32 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
-	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+	    	
+	    	if (emissionDTO != null) justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+	    	if (payment.getIdRecette() != null) justificatifPaiementDTO.setNui("default NIU"); //a enlever
+	    	
 	    	justificatifPaiementDTO.setTypePaiement("RECU");
-	    	justificatifPaiementDTO.setCode(payment.getCode());
-	    	justificatifPaiementDTO.setImputations(listImput);
-	    	justificatifPaiementDTO.setIdOrganisation(1L);
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
-	    	justificatifPaiementDTO.setNatureRecette("NRecette01");
+	    	justificatifPaiementDTO.setCode(payment.getCode());
+	    	
+	    	if (emissionDTO != null) justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
+	    	if (payment.getIdRecette() != null) justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
+	    	
+	    	justificatifPaiementDTO.setNatureRecette("NRecette01"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setNomPrenomClient("nomprenom"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setNomOrganisation("nomOrg"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setCodeOrganisation("codeOrg"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setRaisonSociale("raisonsocial"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setSigle("sigle"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setCodePoste(1L); //comment recuperer ceci
+	    	justificatifPaiementDTO.setExercise("exo");
+	    	justificatifPaiementDTO.setMois("01-01-2020");
+	    	justificatifPaiementDTO.setLibelleCentre("libCentre");
+	    	justificatifPaiementDTO.setLibelleCourtCentre("libcourtcent");
+	    	justificatifPaiementDTO.setIfu("ifu");
+	    	
+	    	
+	    	justificatifPaiementDTO.setImputations(listImput);
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
