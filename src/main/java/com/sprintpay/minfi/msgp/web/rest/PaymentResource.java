@@ -289,29 +289,24 @@ public class PaymentResource {
     	
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	ImputationDTO imputationDTO = new ImputationDTO();
-//	    	imputationDTO.setId(1L);
 	    	imputationDTO.setMontant(emissionDTO.getAmount());
 	    	imputationDTO.setNumDeclarationImputation(1L);
-	    	imputationDTO.setOperation("op1");
-	    	imputationDTO.setNatrureDesDroits("droit");
+	    	imputationDTO.setOperation("Paiement");
+	    	imputationDTO.setNatrureDesDroits("NDroit01");
 	    	Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
 	    	listImput.add(imputationDTO);
 	    	
-	    	justificatifPaiementDTO.setReferencePaiement(payment.getId().toString());
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
-	    	justificatifPaiementDTO.setNui("default niu");
-//	    	justificatifPaiementDTO.setNumero(Long.parseLong(transactionDTO.getTelephone()));
 	    	justificatifPaiementDTO.setTypePaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
 	    	justificatifPaiementDTO.setImputations(listImput);
 	    	justificatifPaiementDTO.setIdOrganisation(1L);
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
-	    	justificatifPaiementDTO.setNatureRecette("recette");
-	    	justificatifPaiementDTO.setDateCreation(LocalDateTime.now());
+	    	justificatifPaiementDTO.setNatureRecette("NRecette01");
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		}
