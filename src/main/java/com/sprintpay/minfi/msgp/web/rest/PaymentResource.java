@@ -288,7 +288,7 @@ public class PaymentResource {
     	
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	ImputationDTO imputationDTO = new ImputationDTO();
-	    	imputationDTO.setId(1L);
+//	    	imputationDTO.setId(1L);
 	    	imputationDTO.setMontant(emissionDTO.getAmount());
 	    	imputationDTO.setNumDeclarationImputation(1L);
 	    	Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
