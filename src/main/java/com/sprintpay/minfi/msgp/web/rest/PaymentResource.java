@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -140,18 +141,30 @@ public class PaymentResource {
     												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
 		
 
-		System.out.println("--------------------------------- body request -> " + body);
-		paymentDTO = (PaymentDTO) body.get("paymentDTO");
-		addedParamsPaymentDTO = (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
-		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTO);
-		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTO);
+		//construct paymentDTO and addedParamsPaymentDTO
+		JSONObject bodyJson = new JSONObject(body);
+		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO"));
+		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO"));
+		
+		System.out.println("--------------------------------- body request -> " + bodyJson);
+		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTOJson);
+		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTOJson);
+		
+		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"), 
+				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
+		
+		addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
+				addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
+		
+		//validate paymentDTO and addedParamsPaymentDTO
+		
 //		Map<String, Object> result = new LinkedHashMap<String, Object>();
 //    	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
 //    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
 //    	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 //    	String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 //    	
-//    	//controle du niu en cas des emissions
+////    	//controle du niu en cas des emissions
 //    	if (refEmi != 0) {
 //    		
 //    		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
@@ -249,7 +262,7 @@ public class PaymentResource {
 //	    //build response body to send at front
 //		result.put("paymentDTO", paymentDTO2);
 //		result.put("resultTransaction", resultTransaction);
-
+//
 //		return new ResponseEntity<>(result, HttpStatus.OK);
 		return new ResponseEntity<>(null, HttpStatus.OK);
 

@@ -2,6 +2,11 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.Map;
 
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
+import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
+
 public interface PaymentSpecialServices {
 
 	/**
@@ -47,4 +52,26 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	public Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
+
+	/**
+	 * 
+	 * @param paymentDTO
+	 * @param amount
+	 * @param idEmission
+	 * @param idOrganisation
+	 * @param idRecette
+	 * @param meansOfPayment
+	 * @return
+	 */
+	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette, String meansOfPayment);
+
+	/**
+	 * 
+	 * @param addedParamsPaymentDTO
+	 * @param email
+	 * @param firstname
+	 * @param lastname
+	 * @return
+	 */
+	public AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname);
 }

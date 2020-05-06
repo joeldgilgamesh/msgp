@@ -7,8 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
+import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 
 @Service
 @Transactional
@@ -123,6 +127,27 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		System.out.println("------------------------------ lastcode" + this.paymentRepository.countLine());
 //		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
 		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
+	}
+
+	@Override
+	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette,
+			String meansOfPayment) {
+		// TODO Auto-generated method stub
+		paymentDTO.setAmount(amount);
+		paymentDTO.setIdEmission(idEmission);
+		paymentDTO.setIdOrganisation(idOrganisation);
+		paymentDTO.setIdRecette(idRecette);
+		paymentDTO.setMeansOfPayment(MeansOfPayment.valueOf(meansOfPayment));
+		return paymentDTO;
+	}
+
+	@Override
+	public AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname) {
+		// TODO Auto-generated method stub
+		addedParamsPaymentDTO.setEmail(email);
+		addedParamsPaymentDTO.setFirstname(firstname);
+		addedParamsPaymentDTO.setLastname(lastname);
+		return addedParamsPaymentDTO;
 	}
 
 }
