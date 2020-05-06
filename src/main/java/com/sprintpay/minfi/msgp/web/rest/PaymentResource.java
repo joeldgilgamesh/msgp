@@ -249,15 +249,14 @@ public class PaymentResource {
     		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
 		}
     	
+    	System.out.println("------------------- paymentDTO.getMeansOfPayment() -> "  + paymentDTO.getMeansOfPayment());
     	System.out.println("------------------- paymentDTO.getMeansOfPayment().toString() -> "  + paymentDTO.getMeansOfPayment().toString());
     	System.out.println("------------------------------ addedParamsPaymentDTO -> " + addedParamsPaymentDTO);
-    	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA"));
+    	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()) == ("UBA"));
     	
     	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA")) {
-    		System.out.println("------------------- datas to send to mstransaction avant build "  + requestBuild);
     		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
     				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-    		System.out.println("------------------- datas to send to mstransaction après build "  + requestBuild);
 		}
     	
     	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
