@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
@@ -37,11 +39,13 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     private final RESTClientEmissionService restClientEmissionService;
+    private final PaymentSpecialServices paymentSpecialServices;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, RESTClientEmissionService restClientEmissionService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, RESTClientEmissionService restClientEmissionService, PaymentSpecialServices paymentSpecialServices) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
         this.restClientEmissionService = restClientEmissionService;
+        this.paymentSpecialServices = paymentSpecialServices;
     }
 
     /**
@@ -172,8 +176,15 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 	
 //	@Scheduled(fixedDelay = 60000)
-//	public void testFind(){
-//		System.out.println("------------------ get emission by code " + restClientEmissionService.getEmission(10L));
+//	public void test() {
+//		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));
+//		System.out.println("-------------------------- uba test convert provider -> " + paymentSpecialServices.convertProvider("UBA").equals("uba"));
+//		
+//		System.out.println("-------------------------- afriland convert provider value return -> " + paymentSpecialServices.convertProvider("AFRILAND"));
+//		System.out.println("-------------------------- afriland test convert provider -> " + paymentSpecialServices.convertProvider("AFRILAND").equals("afrilandcmr"));
+//	    
+//		System.out.println("-------------------------- uba valueof convert provider -> " + MeansOfPayment.valueOf("UBA"));
+//		System.out.println("-------------------------- convert provider -> " + MeansOfPayment.valueOf("AFRILAND"));
 //	}
 
 }

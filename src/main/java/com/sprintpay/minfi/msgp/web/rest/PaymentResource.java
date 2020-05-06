@@ -245,7 +245,7 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
     	//build request to send to transaction
-    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("AFRILAND")) {
+    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("afrilandcmr")) {
     		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
 		}
     	
@@ -254,7 +254,7 @@ public class PaymentResource {
     	System.out.println("------------------------------ addedParamsPaymentDTO -> " + addedParamsPaymentDTO);
     	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("UBA").toString()));
     	
-    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("UBA").toString()) && addedParamsPaymentDTO != null) {
+    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("uba")) && addedParamsPaymentDTO != null) {
     		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
     				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
 		}
