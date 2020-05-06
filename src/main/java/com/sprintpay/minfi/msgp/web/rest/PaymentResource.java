@@ -143,8 +143,8 @@ public class PaymentResource {
 
 		//construct paymentDTO and addedParamsPaymentDTO
 		JSONObject bodyJson = new JSONObject(body);
-		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO"));
-		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO"));
+		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 		
 		System.out.println("--------------------------------- bodyJson.get(\"paymentDTO\") request -> " + bodyJson.get("paymentDTO"));
 		System.out.println("--------------------------------- body request -> " + bodyJson);
