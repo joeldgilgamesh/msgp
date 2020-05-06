@@ -252,6 +252,7 @@ public class PaymentResource {
     	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA") && addedParamsPaymentDTO != null) {
     		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
     				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
+    		System.out.println("------------------- datas to send to mstransaction "  + requestBuild);
 		}
     	
     	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
