@@ -252,9 +252,9 @@ public class PaymentResource {
     	System.out.println("------------------- paymentDTO.getMeansOfPayment() -> "  + paymentDTO.getMeansOfPayment());
     	System.out.println("------------------- paymentDTO.getMeansOfPayment().toString() -> "  + paymentDTO.getMeansOfPayment().toString());
     	System.out.println("------------------------------ addedParamsPaymentDTO -> " + addedParamsPaymentDTO);
-    	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()) == ("UBA"));
+    	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("UBA").toString()));
     	
-    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA")) {
+    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("UBA").toString()) && addedParamsPaymentDTO != null) {
     		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
     				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
 		}
