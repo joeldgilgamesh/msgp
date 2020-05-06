@@ -113,6 +113,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		case "YUP":
 			result = "yup";
 			break;
+		
+		case "UBA":
+			result = "uba";
+			break;
 
 		default:
 			result = null;
