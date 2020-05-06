@@ -146,10 +146,10 @@ public class PaymentResource {
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
 		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 		
-		System.out.println("--------------------------------- bodyJson.get(\"paymentDTO\") request -> " + bodyJson.get("paymentDTO"));
-		System.out.println("--------------------------------- body request -> " + bodyJson);
-		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTOJson);
-		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTOJson);
+//		System.out.println("--------------------------------- bodyJson.get(\"paymentDTO\") request -> " + bodyJson.get("paymentDTO"));
+//		System.out.println("--------------------------------- body request -> " + bodyJson);
+//		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTOJson);
+//		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTOJson);
 		
 		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"), 
 				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
@@ -159,113 +159,113 @@ public class PaymentResource {
 		
 		//validate paymentDTO and addedParamsPaymentDTO
 		
-//		Map<String, Object> result = new LinkedHashMap<String, Object>();
-//    	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
-//    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
-//    	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
-//    	String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
-//    	
-////    	//controle du niu en cas des emissions
-//    	if (refEmi != 0) {
-//    		
-//    		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
-//        	
-//        	if (niuVerif == null) {
-//        		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
-//    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//    		}
-//        	
-//        	//controle du depassement du montant a payer
-//        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() == 0)) {
-//        		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
-//    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//    		}
-//		}
-//
-//
-//    	//controle des données du paiement
-//		if((paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
-//				|| debitInfo.isEmpty()
-//				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0)))  {
-//			result.put("Reject", "Bad Entry");
-//			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
-//		}
-//
-//		//si id du paiement est non null, il est probable que le paiement existe
-//		if (paymentDTO.getId() != null) {
-//			result.put("Reject", "Paiement Reject");
-//			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//		}
-//
-//		PaymentDTO paymentDTO2 = new PaymentDTO();
-//
-//    	//complete datas payment
-//    	paymentDTO.setStatut(Statut.DRAFT);
-//    	// paymentDTO.setCode(paymentSpecialServices.codeNext());
-//        paymentDTO.setCode(UUID.randomUUID().toString());
-//        
-//
-//        //case emission
-//        if (refEmi != 0) {
-//
-//        	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
-//
-//        	if(resultEmission == null) {//si l emission a payer n existe pas dans la liste des emission
-//        		result.put("Reject", "Emission Not Exist");
-//    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-//        	}
-//        	
-//        	if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
-//        		result.put("Reject", "Emission Not Have Reference");
-//    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-//        	}
-//        	
-//        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {//si les montant ne matche pas
-//    			result.put("Reject", "Paiement Reject");
-//    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//    		}
-//        	
-//        	//create emission before save payment
-//            EmissionDTO emissionDTO = new EmissionDTO();
-//        	emissionDTO.setStatus(Statut.DRAFT);
-//        	emissionDTO.setAmount(paymentDTO.getAmount());
-//        	emissionDTO.setRefEmi(refEmi.toString());
-//        	emissionDTO.setCodeContribuable(niu);
-//        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
-//
-//        	//complete datas payment with idEmission create, and save payment
-//        	paymentDTO.setIdEmission(emissionDTO2.getId());
-//        	paymentDTO2 =  paymentService.save(paymentDTO);
-//        }
-//        else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
-//        	paymentDTO2 =  paymentService.save(paymentDTO);
-//        }
-//
-//    	//create historique payment
-//    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
-//
-//    	//build request to send to transaction
-//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("AFRILAND")) {
-//    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
-//		}
-//    	
-//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA") && addedParamsPaymentDTO != null) {
-//    		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
-//    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-//		}
-//    	
-//    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-//
-//    	//call transaction service to debit account
-//    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
-//    			requestBuild);
-//
-//	    //build response body to send at front
-//		result.put("paymentDTO", paymentDTO2);
-//		result.put("resultTransaction", resultTransaction);
-//
-//		return new ResponseEntity<>(result, HttpStatus.OK);
-		return new ResponseEntity<>(null, HttpStatus.OK);
+		Map<String, Object> result = new LinkedHashMap<String, Object>();
+    	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
+    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+    	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
+    	String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
+    	
+//    	//controle du niu en cas des emissions
+    	if (refEmi != 0) {
+    		
+    		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
+        	
+        	if (niuVerif == null) {
+        		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
+        	
+        	//controle du depassement du montant a payer
+        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() == 0)) {
+        		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
+		}
+
+
+    	//controle des données du paiement
+		if((paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
+				|| debitInfo.isEmpty()
+				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0)))  {
+			result.put("Reject", "Bad Entry");
+			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+		}
+
+		//si id du paiement est non null, il est probable que le paiement existe
+		if (paymentDTO.getId() != null) {
+			result.put("Reject", "Paiement Reject");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		PaymentDTO paymentDTO2 = new PaymentDTO();
+
+    	//complete datas payment
+    	paymentDTO.setStatut(Statut.DRAFT);
+    	// paymentDTO.setCode(paymentSpecialServices.codeNext());
+        paymentDTO.setCode(UUID.randomUUID().toString());
+        
+
+        //case emission
+        if (refEmi != 0) {
+
+        	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+
+        	if(resultEmission == null) {//si l emission a payer n existe pas dans la liste des emission
+        		result.put("Reject", "Emission Not Exist");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        	}
+        	
+        	if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
+        		result.put("Reject", "Emission Not Have Reference");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        	}
+        	
+        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {//si les montant ne matche pas
+    			result.put("Reject", "Paiement Reject");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    		}
+        	
+        	//create emission before save payment
+            EmissionDTO emissionDTO = new EmissionDTO();
+        	emissionDTO.setStatus(Statut.DRAFT);
+        	emissionDTO.setAmount(paymentDTO.getAmount());
+        	emissionDTO.setRefEmi(refEmi.toString());
+        	emissionDTO.setCodeContribuable(niu);
+        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+
+        	//complete datas payment with idEmission create, and save payment
+        	paymentDTO.setIdEmission(emissionDTO2.getId());
+        	paymentDTO2 =  paymentService.save(paymentDTO);
+        }
+        else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
+        	paymentDTO2 =  paymentService.save(paymentDTO);
+        }
+
+    	//create historique payment
+    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
+
+    	//build request to send to transaction
+    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("AFRILAND")) {
+    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
+		}
+    	
+    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("UBA") && addedParamsPaymentDTO != null) {
+    		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
+    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
+		}
+    	
+    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+
+    	//call transaction service to debit account
+    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
+    			requestBuild);
+
+	    //build response body to send at front
+		result.put("paymentDTO", paymentDTO2);
+		result.put("resultTransaction", resultTransaction);
+
+		return new ResponseEntity<>(result, HttpStatus.OK);
+//		return new ResponseEntity<>(null, HttpStatus.OK);
 
     }
 
