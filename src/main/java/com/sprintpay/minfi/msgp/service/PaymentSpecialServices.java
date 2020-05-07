@@ -2,6 +2,8 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
+
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
@@ -74,4 +76,6 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	public AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname);
+
+	public ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission();
 }

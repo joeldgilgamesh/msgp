@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,6 +158,12 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		addedParamsPaymentDTO.setFirstname(firstname);
 		addedParamsPaymentDTO.setLastname(lastname);
 		return addedParamsPaymentDTO;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

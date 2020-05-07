@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
@@ -140,32 +141,43 @@ public class PaymentResource {
     												, @PathVariable Long refEmi
     												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
 		
-
-		//construct paymentDTO and addedParamsPaymentDTO
-		JSONObject bodyJson = new JSONObject(body);
-		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
-		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
-		
-//		System.out.println("--------------------------------- bodyJson.get(\"paymentDTO\") request -> " + bodyJson.get("paymentDTO"));
-//		System.out.println("--------------------------------- body request -> " + bodyJson);
-//		System.out.println("--------------------------------- paymentDTO request -> " + paymentDTOJson);
-//		System.out.println("--------------------------------- addedParamsPaymentDTO request -> " + addedParamsPaymentDTOJson);
-		
-		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"), 
-				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
-		
-		addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
-				addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
-		
-		//validate paymentDTO and addedParamsPaymentDTO
-		
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
     	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
-    	String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
-    	
-//    	//controle du niu en cas des emissions
+
+		//controle body enter
+		if (body == null) {
+			result.put("Reject", "Enter Datas is Null");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+		
+		JSONObject bodyJson = new JSONObject(body);
+		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		
+		//construct paymentDTO and addedParamsPaymentDTO
+		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"), 
+				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
+		
+		if (paymentDTO == null) {
+			result.put("Reject", "Bad Datas Entry Of Payment");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+		
+		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
+		
+		if (provider.equals("UBA")) {//on lit la clé addedParamsPaymentDTO dans le cas de UBA et ...
+			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
+					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
+			
+			if (addedParamsPaymentDTO == null) {
+				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+		}
+		
+    	//controle du niu en cas des emissions
     	if (refEmi != 0) {
     		
     		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
@@ -182,29 +194,26 @@ public class PaymentResource {
     		}
 		}
 
+    	//controle du numero de telephone, selon le moyen de paiement
+    	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION")) 
+    		&& (debitInfo.isEmpty() || debitInfo == null)) {
+    		result.put("Reject", "Phone Number is Required");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
 
     	//controle des données du paiement
-		if((paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
-				|| debitInfo.isEmpty()
-				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() == 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() == 0)))  {
+		if(paymentDTO.getId() != null || (paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
+			|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() <= 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() <= 0)))  {
 			result.put("Reject", "Bad Entry");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
-		//si id du paiement est non null, il est probable que le paiement existe
-		if (paymentDTO.getId() != null) {
-			result.put("Reject", "Paiement Reject");
-			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-		}
-
-		PaymentDTO paymentDTO2 = new PaymentDTO();
-
-    	//complete datas payment
+    	//complete datas paymentDTO
     	paymentDTO.setStatut(Statut.DRAFT);
-    	// paymentDTO.setCode(paymentSpecialServices.codeNext());
         paymentDTO.setCode(UUID.randomUUID().toString());
         
-
+        PaymentDTO paymentDTO2;
+        
         //case emission
         if (refEmi != 0) {
 
@@ -249,11 +258,6 @@ public class PaymentResource {
     		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
 		}
     	
-    	System.out.println("------------------- paymentDTO.getMeansOfPayment() -> "  + paymentDTO.getMeansOfPayment());
-    	System.out.println("------------------- paymentDTO.getMeansOfPayment().toString() -> "  + paymentDTO.getMeansOfPayment().toString());
-    	System.out.println("------------------------------ addedParamsPaymentDTO -> " + addedParamsPaymentDTO);
-    	System.out.println("-------------------------- convert provider -> " + paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("UBA").toString()));
-    	
     	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("uba")) && addedParamsPaymentDTO != null) {
     		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
     				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
@@ -270,8 +274,6 @@ public class PaymentResource {
 		result.put("resultTransaction", resultTransaction);
 
 		return new ResponseEntity<>(result, HttpStatus.OK);
-//		return new ResponseEntity<>(null, HttpStatus.OK);
-
     }
 
     @PostMapping("/callbackTransaction/{codePaiement}/{status_code}")
