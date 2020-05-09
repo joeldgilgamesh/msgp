@@ -166,15 +166,37 @@ public class PaymentResource {
 		
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 		
+		//ici on va tester le moyen de paiement et lire les propriétés correspondante de addedParamsPaymentDTOJson et 
+		//ensuite construire requestBuild
+		
+		//case uba
 		if (provider.equals("UBA")) {//on lit la clé addedParamsPaymentDTO dans le cas de UBA et ...
 			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
 					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
 			
-			if (addedParamsPaymentDTO == null) {
+			if (addedParamsPaymentDTO != null) {
+				//construct request build
+				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
+	    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
+			}
+			else {
 				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
+		}
+		
+		//case mtn, orange, yup
+		if (provider.equals("ORANGE_MONEY") || provider.equals("MOBILE_MONEY")  || provider.equals("YUP")) {
+			//construct request build
+			requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
+					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+		}
+		
+		//case afriland
+		if (provider.equals("AFRILAND")) {
+			requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
+					niu, "", paymentDTO.getAmount(), refEmi.toString());		
 		}
 		
     	//controle du niu en cas des emissions
@@ -254,16 +276,16 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
 
     	//build request to send to transaction
-    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("afrilandcmr")) {
-    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
-		}
+//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("afrilandcmr")) {
+//    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
+//		}
     	
-    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("uba")) && addedParamsPaymentDTO != null) {
-    		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
-    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-		}
+//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("uba")) && addedParamsPaymentDTO != null) {
+//    		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
+//    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
+//		}
     	
-    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+//    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
 
     	//call transaction service to debit account
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
@@ -341,15 +363,19 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	
-	    	if (emissionDTO != null) justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
-	    	if (payment.getIdRecette() != null) justificatifPaiementDTO.setNui("default NIU"); //a enlever
+	    	if (emissionDTO != null) {
+	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+	    		justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
+	    	}
+	    	
+	    	if (payment.getIdRecette() != null) {//normalement ceci correspond à emissionDTO == null
+	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
+	    		justificatifPaiementDTO.setNui("default NIU"); //a enlever
+	    	}
 	    	
 	    	justificatifPaiementDTO.setTypePaiement("RECU");
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
-	    	
-	    	if (emissionDTO != null) justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
-	    	if (payment.getIdRecette() != null) justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 	    	
 	    	justificatifPaiementDTO.setNatureRecette("NRecette01"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setNomPrenomClient("nomprenom"); //comment recuperer ceci
