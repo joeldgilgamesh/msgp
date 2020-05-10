@@ -210,7 +210,7 @@ public class PaymentResource {
     		}
         	
         	//controle du depassement du montant a payer
-        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() == 0)) {
+        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
         		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
     			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
     		}
