@@ -166,41 +166,6 @@ public class PaymentResource {
 		
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 		
-		//ici on va tester le moyen de paiement et lire les propriétés correspondante de addedParamsPaymentDTOJson et 
-		//ensuite construire requestBuild
-		
-		switch (provider) {
-		
-		case "UBA":
-			{
-				JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
-				addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
-						addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
-				
-				if (addedParamsPaymentDTO != null) {
-					//construct request build
-					requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
-		    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-				}
-				else {
-					result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
-					return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-				}
-			}
-			break;
-			
-		case "ORANGE_MONEY": case "MOBILE_MONEY": case "YUP": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
-				paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-		break;
-		
-		case "AFRILAND": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
-				niu, "", paymentDTO.getAmount(), refEmi.toString());
-		break;
-		
-		default:
-			break;
-		}
-		
     	//controle du niu en cas des emissions
     	if (refEmi != 0) {
     		
@@ -290,6 +255,41 @@ public class PaymentResource {
 //    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
 
     	//call transaction service to debit account
+    	//ici on va tester le moyen de paiement et lire les propriétés correspondante de addedParamsPaymentDTOJson et 
+    	//ensuite construire requestBuild
+    			
+    	switch (provider) {
+    			
+    	case "UBA":
+    		{
+    			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+    			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
+    					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
+    					
+    			if (addedParamsPaymentDTO != null) {
+    				//construct request build
+    				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
+    			    		addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
+    			}
+    			else {
+    				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
+    				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    			}
+    		}
+    		break;
+    				
+    	case "ORANGE_MONEY": case "MOBILE_MONEY": case "YUP": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
+    			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+    	break;
+    			
+    	case "AFRILAND": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
+    			niu, "", paymentDTO.getAmount(), refEmi.toString());
+    	break;
+    			
+    	default:
+    		break;
+    			}
+    	
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
     			requestBuild);
 
