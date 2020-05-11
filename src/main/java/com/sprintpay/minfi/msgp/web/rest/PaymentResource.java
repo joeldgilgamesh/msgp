@@ -260,7 +260,7 @@ public class PaymentResource {
     			
     	switch (provider) {
     			
-    	case "UBA":
+    	case "uba":
     		{
     			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
     			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
@@ -278,11 +278,11 @@ public class PaymentResource {
     		}
     		break;
     				
-    	case "ORANGE_MONEY": case "MOBILE_MONEY": case "YUP": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
+    	case "orangecmr": case "mtncmr": case "YUP": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
     			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
     	break;
     			
-    	case "AFRILAND": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
+    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
     			niu, "", paymentDTO.getAmount(), refEmi.toString());
     	break;
     			
@@ -293,6 +293,7 @@ public class PaymentResource {
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
     			requestBuild);
 
+    	System.out.println("----------------- request -> " + requestBuild);
 	    //build response body to send at front
 		result.put("paymentDTO", paymentDTO2);
 		result.put("resultTransaction", resultTransaction);
