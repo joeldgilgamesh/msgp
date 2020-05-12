@@ -278,7 +278,7 @@ public class PaymentResource {
     		}
     		break;
     				
-    	case "orangecmr": case "mtncmr": case "YUP": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
+    	case "orangecmr": case "mtncmr": case "yup": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
     			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
     	break;
     			
