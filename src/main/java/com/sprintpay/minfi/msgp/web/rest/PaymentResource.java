@@ -350,8 +350,11 @@ public class PaymentResource {
     	
     	if (emissionDTO == null && payment.getIdRecette() == null) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
+    	//TODO UPDATE TJIS SECTION
     	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
-    	
+    		//appel du service de retour paiement pour construire l objet imputation
+    		//url a lancer -> http://teledeclaration-dgi.cm:1020/api/paiement dans le service retour paiement
+    		//et le retour paiement doit me retourner les imputations a envoyer a quittance
 	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 	    	ImputationDTO imputationDTO = new ImputationDTO();
 	    	imputationDTO.setMontant(payment.getAmount());
@@ -376,7 +379,7 @@ public class PaymentResource {
 	    		justificatifPaiementDTO.setNui("default NIU"); //a enlever
 	    	}
 	    	
-	    	justificatifPaiementDTO.setTypePaiement("RECU");
+	    	justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
 	    	
