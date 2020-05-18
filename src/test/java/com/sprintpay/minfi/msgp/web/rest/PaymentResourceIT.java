@@ -43,6 +43,7 @@ import com.sprintpay.minfi.msgp.service.PaymentService;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
@@ -109,6 +110,9 @@ public class PaymentResourceIT {
     
     @MockBean
     private RESTClientUAAService restClientUAAService;
+    
+    @MockBean
+    private RESTClientRNFService restClientRNFService;
 
     @MockBean
     private PaymentSpecialServices paymentSpecialServices;
@@ -140,7 +144,7 @@ public class PaymentResourceIT {
         final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService,
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
-        															paymentMapper, restClientUAAService);
+        															paymentMapper, restClientUAAService, restClientRNFService);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

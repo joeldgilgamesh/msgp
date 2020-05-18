@@ -2,9 +2,7 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +14,7 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
+import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 
 @AuthorizedFeignClient(name = "spminfimsged")
 @Service
@@ -26,7 +25,7 @@ public interface RESTClientEmissionService {
 		public ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/updateEmission/{idEmis}/{status}")
-		public ResponseEntity<String> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
+		public ResponseEntity<RetPaiFiscalis[]> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
 		public ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,

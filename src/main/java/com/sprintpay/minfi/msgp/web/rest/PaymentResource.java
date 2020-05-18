@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ import com.sprintpay.minfi.msgp.service.PaymentService;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
@@ -53,6 +55,7 @@ import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -83,6 +86,7 @@ public class PaymentResource {
     private final PaymentSpecialServices paymentSpecialServices;
     private final PaymentMapper paymentMapper;
     private final RESTClientUAAService restClientUAAService;
+    private final RESTClientRNFService restClientRNFService;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
     					   , DetailVersementIntermediaireService detailVersementIntermediaireService
@@ -91,7 +95,8 @@ public class PaymentResource {
     					   , PaymentSpecialServices paymentSpecialServices
     					   , RESTClientQuittanceService restClientQuittanceService
     					   , PaymentMapper paymentMapper
-    					   , RESTClientUAAService restClientUAAService) {
+    					   , RESTClientUAAService restClientUAAService
+    					   , RESTClientRNFService restClientRNFService) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.detailVersementIntermediaireService = detailVersementIntermediaireService;
@@ -101,6 +106,7 @@ public class PaymentResource {
         this.restClientQuittanceService = restClientQuittanceService;
         this.paymentMapper = paymentMapper;
         this.restClientUAAService = restClientUAAService;
+        this.restClientRNFService = restClientRNFService;
     }
 
     /**
@@ -133,6 +139,7 @@ public class PaymentResource {
 //    }
 
 
+    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
     												, PaymentDTO paymentDTO
@@ -144,6 +151,7 @@ public class PaymentResource {
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+    	Object resultRecette = null;
     	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 
 		//controle body enter
@@ -236,27 +244,17 @@ public class PaymentResource {
         	paymentDTO2 =  paymentService.save(paymentDTO);
         }
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
-        	paymentDTO2 =  paymentService.save(paymentDTO);
+        	
+        	resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
+        	if (resultRecette != null) paymentDTO2 =  paymentService.save(paymentDTO);
+        	else {
+        		result.put("Reject", "Recette Not Found");
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+        	}
         }
 
     	//create historique payment
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
-
-    	//build request to send to transaction
-//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals("afrilandcmr")) {
-//    		requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), niu, "", paymentDTO.getAmount(), refEmi.toString());
-//		}
-    	
-//    	if (paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()).equals(("uba")) && addedParamsPaymentDTO != null) {
-//    		requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
-//    				addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-//		}
-    	
-//    	else requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-
-    	//call transaction service to debit account
-    	//ici on va tester le moyen de paiement et lire les propriétés correspondante de addedParamsPaymentDTOJson et 
-    	//ensuite construire requestBuild
     			
     	switch (provider) {
     			
@@ -293,8 +291,6 @@ public class PaymentResource {
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
     			requestBuild);
 
-    	System.out.println("----------------- request -> " + requestBuild);
-	    //build response body to send at front
 		result.put("paymentDTO", paymentDTO2);
 		result.put("resultTransaction", resultTransaction);
 
@@ -310,6 +306,7 @@ public class PaymentResource {
     	Statut status = null;
 		Payment payment = new Payment();
 		EmissionDTO emissionDTO = null;
+		RetPaiFiscalis[] retourPaiFiscalis;
 //		TransactionDTO transaction = new TransactionDTO();
 
 		//we accept status code equal <100> or <400>
@@ -338,7 +335,7 @@ public class PaymentResource {
     	//en cas de paiement d une emission on met a jour le statut de l emission
     	if (payment.getIdEmission() != null) {
     		//update emission status
-    		restClientEmissionService.updateEmission(payment.getIdEmission(), status);
+    		retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status).getBody();
 
     		//create historique emission
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
