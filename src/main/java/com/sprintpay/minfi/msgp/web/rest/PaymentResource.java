@@ -139,7 +139,7 @@ public class PaymentResource {
 //    }
 
 
-    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
+//    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
     												, PaymentDTO paymentDTO
