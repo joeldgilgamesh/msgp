@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.sprintpay.minfi.msgp.domain.Payment;
-import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
@@ -47,7 +45,6 @@ import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
-import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
 import com.sprintpay.minfi.msgp.service.dto.ImputationDTO;
@@ -61,7 +58,6 @@ import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
-import liquibase.structure.core.Data;
 
 /**
  * REST controller for managing {@link com.sprintpay.minfi.msgp.domain.Payment}.
@@ -306,7 +302,7 @@ public class PaymentResource {
     	Statut status = null;
 		Payment payment = new Payment();
 		EmissionDTO emissionDTO = null;
-		RetPaiFiscalis[] retourPaiFiscalis;
+		RetPaiFiscalis[] retourPaiFiscalis = null;
 //		TransactionDTO transaction = new TransactionDTO();
 
 		//we accept status code equal <100> or <400>
@@ -352,28 +348,41 @@ public class PaymentResource {
     		//appel du service de retour paiement pour construire l objet imputation
     		//url a lancer -> http://teledeclaration-dgi.cm:1020/api/paiement dans le service retour paiement
     		//et le retour paiement doit me retourner les imputations a envoyer a quittance
-	    	JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
-	    	ImputationDTO imputationDTO = new ImputationDTO();
-	    	imputationDTO.setMontant(payment.getAmount());
-	    	imputationDTO.setNumDeclarationImputation(1L);
-	    	imputationDTO.setOperation("Create");
-	    	imputationDTO.setNatrureDesDroits("NDroit01");
-	    	Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
-	    	listImput.add(imputationDTO);
-	    	
+    		//si msquittance n est pas actif, penser a service de gestion des file d attente des recu et quittance
+    		//coesa quand msquittance demarre il vient lire les recu et quittance en attente et il les genere
+    		
+    		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+    		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
+			ImputationDTO imputationDTO = new ImputationDTO();
+    		
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
 	    	
 	    	if (emissionDTO != null) {
+	    		
+	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
+	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
+	    	    	imputationDTO.setNumDeclarationImputation(Long.parseLong(retourPaiFiscalis[i].getNumero_imposition()));
+	    	    	imputationDTO.setOperation("Create");
+	    	    	imputationDTO.setNatrureDesDroits("NDroit01");
+	    	    	listImput.add(imputationDTO);
+				}
+	    		
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    		justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
 	    	}
 	    	
 	    	if (payment.getIdRecette() != null) {//normalement ceci correspond à emissionDTO == null
 	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
-	    		justificatifPaiementDTO.setNui("default NIU"); //a enlever
+	    		justificatifPaiementDTO.setNui("Default Niu"); //a enlever
+	    		
+	    		imputationDTO.setMontant(payment.getAmount());
+    	    	imputationDTO.setNumDeclarationImputation(0L); 
+    	    	imputationDTO.setOperation("Create");
+    	    	imputationDTO.setNatrureDesDroits("NDroit01");
+    	    	listImput.add(imputationDTO);
 	    	}
 	    	
 	    	justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
@@ -381,16 +390,16 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setCode(payment.getCode());
 	    	
 	    	justificatifPaiementDTO.setNatureRecette("NRecette01"); //comment recuperer ceci
-	    	justificatifPaiementDTO.setNomPrenomClient("nomprenom"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setNomPrenomClient("nomPrenom"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setNomOrganisation("nomOrg"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setCodeOrganisation("codeOrg"); //comment recuperer ceci
-	    	justificatifPaiementDTO.setRaisonSociale("raisonsocial"); //comment recuperer ceci
+	    	justificatifPaiementDTO.setRaisonSociale("raisonSocial"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setSigle("sigle"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setCodePoste(1L); //comment recuperer ceci
 	    	justificatifPaiementDTO.setExercise("exo");
 	    	justificatifPaiementDTO.setMois("01-01-2020");
 	    	justificatifPaiementDTO.setLibelleCentre("libCentre");
-	    	justificatifPaiementDTO.setLibelleCourtCentre("libcourtcent");
+	    	justificatifPaiementDTO.setLibelleCourtCentre("libCourtCentre");
 	    	justificatifPaiementDTO.setIfu("ifu");
 	    	
 	    	

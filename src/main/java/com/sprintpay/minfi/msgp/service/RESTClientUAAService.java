@@ -10,6 +10,6 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 public interface RESTClientUAAService {
 
 	@GetMapping("/api/users/niu/{niu}")
-	public ResponseEntity<Object> getNiuContribuablesEnregistres(@PathVariable ("niu") String niu);
+	ResponseEntity<Object> getNiuContribuablesEnregistres(@PathVariable ("niu") String niu);
 	
 }

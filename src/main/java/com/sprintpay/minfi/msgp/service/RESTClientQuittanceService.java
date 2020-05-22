@@ -17,12 +17,12 @@ public interface RESTClientQuittanceService {
 
 	@PostMapping("/api/justificatif-paiements")
     @Async
-	public ResponseEntity<JustificatifPaiementDTO> createJustificatifPaiement(@RequestBody JustificatifPaiementDTO justificatifPaiementDTO);
+	ResponseEntity<JustificatifPaiementDTO> createJustificatifPaiement(@RequestBody JustificatifPaiementDTO justificatifPaiementDTO);
 
     @PostMapping("/api/justificatif-paiements/list")
     @Async
-    public void createManyJustificatifPaiement(@RequestBody List<JustificatifPaiementDTO> justificatifPaiementDTOs);
+    void createManyJustificatifPaiement(@RequestBody List<JustificatifPaiementDTO> justificatifPaiementDTOs);
 
     @PostMapping("/api/justificatif-paiements/genererRecuOuQuittance")
-    public ResponseEntity<byte []> genererRecuOuQuittance(@RequestBody  JustificatifPaiementDTO justificatifPaiementDTO);
+    ResponseEntity<byte []> genererRecuOuQuittance(@RequestBody  JustificatifPaiementDTO justificatifPaiementDTO);
 }

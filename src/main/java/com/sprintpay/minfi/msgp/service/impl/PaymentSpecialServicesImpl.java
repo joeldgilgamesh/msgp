@@ -3,14 +3,11 @@ package com.sprintpay.minfi.msgp.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;

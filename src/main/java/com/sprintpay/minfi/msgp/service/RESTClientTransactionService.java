@@ -13,9 +13,9 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 public interface RESTClientTransactionService {
 
 	@PostMapping("/api/payment/{provider}")
-	public Map<String, String> getTransaction(@PathVariable ("provider") String provider, @RequestBody Map<String, String> request);
+	Map<String, String> getTransaction(@PathVariable ("provider") String provider, @RequestBody Map<String, String> request);
 	
 	@GetMapping("/api/payment/{provider}/notification/status")
-	public String getAlltransaction(@PathVariable ("provider") String provider);
+	String getAlltransaction(@PathVariable ("provider") String provider);
 	
 }

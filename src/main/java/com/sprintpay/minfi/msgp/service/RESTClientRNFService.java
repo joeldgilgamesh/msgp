@@ -8,5 +8,5 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 public interface RESTClientRNFService {
 
 	@GetMapping("/api/recettes-services/{id}")
-	public Object getRecettesService(@PathVariable ("id") Long id);
+	Object getRecettesService(@PathVariable ("id") Long id);
 }

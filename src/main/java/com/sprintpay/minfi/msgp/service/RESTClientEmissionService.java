@@ -22,24 +22,24 @@ public interface RESTClientEmissionService {
 
 	//cette demande doit etre envoyé sans Id
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
-		public ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
+		ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/updateEmission/{idEmis}/{status}")
-		public ResponseEntity<RetPaiFiscalis[]> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
+		ResponseEntity<RetPaiFiscalis[]> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
 
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
-		public ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
+		ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
 										@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/emissions")
-		public EmissionDTO createEmission(@RequestBody EmissionDTO emissionDTO);
+		EmissionDTO createEmission(@RequestBody EmissionDTO emissionDTO);
 
 		@GetMapping("/api/emission-temp/{id}")
-		public Map<String, String> findRefEmission(@PathVariable ("id") Long id);
+		Map<String, String> findRefEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/getEmissionById/{id}")
-	    public EmissionDTO getEmission(@PathVariable ("id") Long id);
+	    EmissionDTO getEmission(@PathVariable ("id") Long id);
 
 		@GetMapping("/api/emissionsContri/{niu}")
-		public List<String> getEmissionsContri(@PathVariable ("niu") String niu);
+		List<String> getEmissionsContri(@PathVariable ("niu") String niu);
 }

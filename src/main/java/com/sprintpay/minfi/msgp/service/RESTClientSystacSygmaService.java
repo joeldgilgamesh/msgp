@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Service
 public interface RESTClientSystacSygmaService {
     @GetMapping("/api/transactions/find/{numeroVersment}")
-    public ResponseEntity<TransactionSSDTO> searchTransaction(@PathVariable("numeroVersment") String numeroVersment, @RequestParam("token") String token);
+    ResponseEntity<TransactionSSDTO> searchTransaction(@PathVariable("numeroVersment") String numeroVersment, @RequestParam("token") String token);
 }

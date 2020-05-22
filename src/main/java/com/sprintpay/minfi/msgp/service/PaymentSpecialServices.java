@@ -17,19 +17,19 @@ public interface PaymentSpecialServices {
 	 * @param amount
 	 * @return
 	 */
-	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code);
+	Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code);
 	
 	/**
 	 * 
 	 * @param provider
 	 * @return
 	 */
-	public String convertProvider(String provider);
+	String convertProvider(String provider);
 	
 	/*
 	 * 
 	 */
-	public String codeNext();
+	String codeNext();
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public interface PaymentSpecialServices {
 	 * @param referenceEmission
 	 * @return
 	 */
-	public Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
+	Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
 
 	/**
 	 * 
@@ -53,7 +53,7 @@ public interface PaymentSpecialServices {
 	 * @param lastname
 	 * @return
 	 */
-	public Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
+	Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
 
 	/**
 	 * 
@@ -65,7 +65,7 @@ public interface PaymentSpecialServices {
 	 * @param meansOfPayment
 	 * @return
 	 */
-	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette, String meansOfPayment);
+	PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette, String meansOfPayment);
 
 	/**
 	 * 
@@ -75,7 +75,7 @@ public interface PaymentSpecialServices {
 	 * @param lastname
 	 * @return
 	 */
-	public AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname);
+	AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname);
 
-	public ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission();
+	ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission();
 }
