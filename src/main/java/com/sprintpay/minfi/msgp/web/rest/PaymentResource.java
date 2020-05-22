@@ -141,7 +141,7 @@ public class PaymentResource {
     												, PaymentDTO paymentDTO
     												, @PathVariable String debitInfo
     												, @PathVariable String niu
-    												, @PathVariable Long refEmi
+    												, @PathVariable String refEmi
     												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
 		
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
@@ -171,7 +171,7 @@ public class PaymentResource {
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 		
     	//controle du niu en cas des emissions
-    	if (refEmi != 0) {
+    	if (!refEmi.equals("null")) {
     		
     		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
         	
@@ -208,7 +208,7 @@ public class PaymentResource {
         PaymentDTO paymentDTO2;
         
         //case emission
-        if (refEmi != 0) {
+        if (!refEmi.equals("null")) {
 
         	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
