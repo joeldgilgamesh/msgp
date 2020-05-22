@@ -365,7 +365,7 @@ public class PaymentResource {
 	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
 //	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
 	    	    	imputationDTO.setMontant(100d);
-	    	    	imputationDTO.setNumDeclarationImputation(Long.parseLong(retourPaiFiscalis[i].getNumero_imposition()));
+	    	    	imputationDTO.setNumDeclarationImputation(100000000L);
 	    	    	imputationDTO.setOperation("Create");
 	    	    	imputationDTO.setNatrureDesDroits("NDroit01");
 	    	    	listImput.add(imputationDTO);
