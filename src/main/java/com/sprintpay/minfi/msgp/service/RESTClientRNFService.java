@@ -9,4 +9,5 @@ public interface RESTClientRNFService {
 
 	@GetMapping("/api/recettes-services/{id}")
 	Object getRecettesService(@PathVariable ("id") Long id);
+	
 }

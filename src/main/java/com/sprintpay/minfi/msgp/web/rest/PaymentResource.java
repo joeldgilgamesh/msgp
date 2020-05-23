@@ -375,12 +375,12 @@ public class PaymentResource {
 	    		justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
 	    	}
 	    	
-	    	if (payment.getIdRecette() != null) {//normalement ceci correspond à emissionDTO == null
+	    	if (payment.getIdRecette() > 0) {//normalement ceci correspond à emissionDTO == null
 	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 	    		justificatifPaiementDTO.setNui("Default Niu"); //a enlever
 	    		
 	    		imputationDTO.setMontant(payment.getAmount());
-    	    	imputationDTO.setNumDeclarationImputation(0L); 
+    	    	imputationDTO.setNumDeclarationImputation(100000000L); 
     	    	imputationDTO.setOperation("Create");
     	    	imputationDTO.setNatrureDesDroits("NDroit01");
     	    	listImput.add(imputationDTO);
@@ -488,7 +488,7 @@ public class PaymentResource {
 
         return new ResponseEntity<>(paymentList, HttpStatus.OK);
     }
-
+	
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
 //    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
