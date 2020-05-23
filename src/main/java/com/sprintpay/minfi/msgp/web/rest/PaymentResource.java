@@ -329,7 +329,7 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 
     	//en cas de paiement d une emission on met a jour le statut de l emission
-    	if (payment.getIdEmission() != null) {
+    	if (payment.getIdEmission() > 0) {
     		//update emission status
     		retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status).getBody();
 
@@ -341,7 +341,7 @@ public class PaymentResource {
 
 //    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
     	
-    	if (emissionDTO == null && payment.getIdRecette() == null) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
+    	if (emissionDTO == null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
     	//TODO UPDATE TJIS SECTION
     	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
