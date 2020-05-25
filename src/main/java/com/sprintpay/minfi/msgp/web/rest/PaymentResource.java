@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import com.sprintpay.minfi.msgp.security.SecurityUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,7 +144,7 @@ public class PaymentResource {
     												, @PathVariable String niu
     												, @PathVariable Long refEmi
     												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
-		
+
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
     	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
@@ -155,31 +156,31 @@ public class PaymentResource {
 			result.put("Reject", "Enter Datas is Null");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
-		
+
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
-		
+
 		//construct paymentDTO and addedParamsPaymentDTO
-		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"), 
+		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
 				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
-		
+
 		if (paymentDTO == null) {
 			result.put("Reject", "Bad Datas Entry Of Payment");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
-		
+
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
-		
+
     	//controle du niu en cas des emissions
     	if (refEmi != 0) {
-    		
+
     		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
-        	
+
         	if (niuVerif == null) {
         		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
     			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
     		}
-        	
+
         	//controle du depassement du montant a payer
         	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
         		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
@@ -188,7 +189,7 @@ public class PaymentResource {
 		}
 
     	//controle du numero de telephone, selon le moyen de paiement
-    	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION")) 
+    	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION"))
     		&& (debitInfo.isEmpty() || debitInfo == null)) {
     		result.put("Reject", "Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -204,9 +205,9 @@ public class PaymentResource {
     	//complete datas paymentDTO
     	paymentDTO.setStatut(Statut.DRAFT);
         paymentDTO.setCode(UUID.randomUUID().toString());
-        
+
         PaymentDTO paymentDTO2;
-        
+
         //case emission
         if (refEmi != 0) {
 
@@ -216,17 +217,17 @@ public class PaymentResource {
         		result.put("Reject", "Emission Not Exist");
     			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
         	}
-        	
+
         	if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
         		result.put("Reject", "Emission Not Have Reference");
     			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
         	}
-        	
+
         	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {//si les montant ne matche pas
     			result.put("Reject", "Paiement Reject");
     			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
     		}
-        	
+
         	//create emission before save payment
             EmissionDTO emissionDTO = new EmissionDTO();
         	emissionDTO.setStatus(Statut.DRAFT);
@@ -240,7 +241,7 @@ public class PaymentResource {
         	paymentDTO2 =  paymentService.save(paymentDTO);
         }
         else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
-        	
+
         	resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
         	if (resultRecette != null) paymentDTO2 =  paymentService.save(paymentDTO);
         	else {
@@ -251,18 +252,18 @@ public class PaymentResource {
 
     	//create historique payment
     	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
-    			
+
     	switch (provider) {
-    			
+
     	case "uba":
     		{
     			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
-    			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"), 
+    			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"),
     					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
-    					
+
     			if (addedParamsPaymentDTO != null) {
     				//construct request build
-    				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(), 
+    				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(),
     			    		addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
     			}
     			else {
@@ -271,19 +272,19 @@ public class PaymentResource {
     			}
     		}
     		break;
-    				
-    	case "orangecmr": case "mtncmr": case "yup": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(), 
+
+    	case "orangecmr": case "mtncmr": case "yup": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(),
     			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
     	break;
-    			
-    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(), 
+
+    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(),
     			niu, "", paymentDTO.getAmount(), refEmi.toString());
     	break;
-    			
+
     	default:
     		break;
     			}
-    	
+
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
     			requestBuild);
 
@@ -335,12 +336,12 @@ public class PaymentResource {
 
     		//create historique emission
     		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
-    		
+
     		emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
     	}
 
 //    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
-    	
+
     	if (emissionDTO == null && payment.getIdRecette() == null) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
     	//TODO UPDATE TJIS SECTION
@@ -350,18 +351,18 @@ public class PaymentResource {
     		//et le retour paiement doit me retourner les imputations a envoyer a quittance
     		//si msquittance n est pas actif, penser a service de gestion des file d attente des recu et quittance
     		//coesa quand msquittance demarre il vient lire les recu et quittance en attente et il les genere
-    		
+
     		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
     		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
 			ImputationDTO imputationDTO = new ImputationDTO();
-    		
+
 	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
-	    	
+
 	    	if (emissionDTO != null) {
-	    		
+
 	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
 	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
 	    	    	imputationDTO.setNumDeclarationImputation(Long.parseLong(retourPaiFiscalis[i].getNumero_imposition()));
@@ -369,26 +370,26 @@ public class PaymentResource {
 	    	    	imputationDTO.setNatrureDesDroits("NDroit01");
 	    	    	listImput.add(imputationDTO);
 				}
-	    		
+
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    		justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
 	    	}
-	    	
+
 	    	if (payment.getIdRecette() != null) {//normalement ceci correspond à emissionDTO == null
 	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 	    		justificatifPaiementDTO.setNui("Default Niu"); //a enlever
-	    		
+
 	    		imputationDTO.setMontant(payment.getAmount());
-    	    	imputationDTO.setNumDeclarationImputation(0L); 
+    	    	imputationDTO.setNumDeclarationImputation(0L);
     	    	imputationDTO.setOperation("Create");
     	    	imputationDTO.setNatrureDesDroits("NDroit01");
     	    	listImput.add(imputationDTO);
 	    	}
-	    	
+
 	    	justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
-	    	
+
 	    	justificatifPaiementDTO.setNatureRecette("NRecette01"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setNomPrenomClient("nomPrenom"); //comment recuperer ceci
 	    	justificatifPaiementDTO.setNomOrganisation("nomOrg"); //comment recuperer ceci
@@ -401,8 +402,8 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setLibelleCentre("libCentre");
 	    	justificatifPaiementDTO.setLibelleCourtCentre("libCourtCentre");
 	    	justificatifPaiementDTO.setIfu("ifu");
-	    	
-	    	
+
+
 	    	justificatifPaiementDTO.setImputations(listImput);
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
@@ -488,6 +489,27 @@ public class PaymentResource {
         return new ResponseEntity<>(paymentList, HttpStatus.OK);
     }
 
+
+    /**
+     *
+     * @param option valeurs possibles [all, emissions, rnf]
+     * @param pageable
+     * @return
+     */
+    @GetMapping("listPaymentUser/{option}")
+    public ResponseEntity<List<Payment>> literPaymentByStatut(@PathVariable String option, Pageable pageable) {
+        String username = SecurityUtils.getCurrentUserLogin().get();
+        Page<Payment> pageresult = null;
+        if(option.equalsIgnoreCase("all")){
+            pageresult = paymentService.findAllByCreatedBy(username, pageable);
+        } else if (option.equalsIgnoreCase("emissions")){
+            pageresult = paymentService.findEmissionByCreatedBy(username, pageable);
+        }else if (option.equalsIgnoreCase("rnf")){
+            pageresult = paymentService.findRNFByCreatedBy(username, pageable);
+        }
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
+        return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+    }
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
 //    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){

@@ -174,15 +174,30 @@ public class PaymentServiceImpl implements PaymentService {
 		// TODO Auto-generated method stub
 		paymentRepository.updatePaymentWithTransaction(id, status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
 	}
-	
+
+    @Override
+    public Page<Payment> findAllByCreatedBy(String username, Pageable pageable) {
+        return paymentRepository.findAllByCreatedBy(username, pageable);
+    }
+
+    @Override
+    public Page<Payment> findEmissionByCreatedBy(String username, Pageable pageable) {
+        return paymentRepository.findEmissionByCreatedBy(username, pageable);
+    }
+
+    @Override
+    public Page<Payment> findRNFByCreatedBy(String username, Pageable pageable) {
+        return paymentRepository.findRNFByCreatedBy(username, pageable);
+    }
+
 //	@Scheduled(fixedDelay = 60000)
 //	public void test() {
 //		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));
 //		System.out.println("-------------------------- uba test convert provider -> " + paymentSpecialServices.convertProvider("UBA").equals("uba"));
-//		
+//
 //		System.out.println("-------------------------- afriland convert provider value return -> " + paymentSpecialServices.convertProvider("AFRILAND"));
 //		System.out.println("-------------------------- afriland test convert provider -> " + paymentSpecialServices.convertProvider("AFRILAND").equals("afrilandcmr"));
-//	    
+//
 //		System.out.println("-------------------------- uba valueof convert provider -> " + MeansOfPayment.valueOf("UBA"));
 //		System.out.println("-------------------------- convert provider -> " + MeansOfPayment.valueOf("AFRILAND"));
 //	}

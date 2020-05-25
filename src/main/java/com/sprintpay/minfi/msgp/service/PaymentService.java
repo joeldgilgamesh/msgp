@@ -7,6 +7,7 @@ import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -119,4 +120,10 @@ public interface PaymentService {
     void updateAllPayments(Set<String> refs, Statut statut);
 
 	void update(Long id, Statut status, TransactionDTO transactionDTO);
+
+    Page<Payment> findAllByCreatedBy(String username, Pageable pageable);
+
+    Page<Payment> findEmissionByCreatedBy(@Param("user") String username, Pageable pageable);
+
+    Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
 }
