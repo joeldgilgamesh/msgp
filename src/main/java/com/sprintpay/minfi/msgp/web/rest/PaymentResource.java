@@ -139,11 +139,12 @@ public class PaymentResource {
 //    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
     public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
-    												, PaymentDTO paymentDTO
+    												//, PaymentDTO paymentDTO
     												, @PathVariable String debitInfo
     												, @PathVariable String niu
     												, @PathVariable String refEmi
-    												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
+    												//, AddedParamsPaymentDTO addedParamsPaymentDTO
+    ) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
     	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
@@ -158,11 +159,14 @@ public class PaymentResource {
 		}
 
 		JSONObject bodyJson = new JSONObject(body);
-		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		//JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+
+        PaymentDTO paymentDTO = (PaymentDTO) bodyJson.get("paymentDTO");
+        AddedParamsPaymentDTO addedParamsPaymentDTO = (AddedParamsPaymentDTO) bodyJson.get("addedParamsPaymentDTO");
 
 		//construct paymentDTO and addedParamsPaymentDTO
-		paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
-				paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
+		//paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
+		//		paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
 
 		if (paymentDTO == null) {
 			result.put("Reject", "Bad Datas Entry Of Payment");
@@ -257,10 +261,10 @@ public class PaymentResource {
 
     	case "uba":
     		{
-    			JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+    			/*JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
     			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"),
     					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
-
+                */
     			if (addedParamsPaymentDTO != null) {
     				//construct request build
     				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(),
