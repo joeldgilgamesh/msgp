@@ -497,7 +497,7 @@ public class PaymentResource {
      * @param pageable
      * @return
      */
-    @GetMapping("listPaymentUser/{option}")
+    @GetMapping("/listPaymentUser/{option}")
     public ResponseEntity<List<Payment>> literPaymentByStatut(@PathVariable String option, Pageable pageable) {
         String username = SecurityUtils.getCurrentUserLogin().get();
         Page<Payment> pageresult = null;
