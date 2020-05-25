@@ -142,7 +142,7 @@ public class PaymentResource {
     												, PaymentDTO paymentDTO
     												, @PathVariable String debitInfo
     												, @PathVariable String niu
-    												, @PathVariable Long refEmi
+    												, @PathVariable String refEmi
     												, AddedParamsPaymentDTO addedParamsPaymentDTO) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
@@ -172,7 +172,7 @@ public class PaymentResource {
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 
     	//controle du niu en cas des emissions
-    	if (refEmi != 0) {
+    	if (!refEmi.equals("null")) {
 
     		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
 
@@ -209,7 +209,7 @@ public class PaymentResource {
         PaymentDTO paymentDTO2;
 
         //case emission
-        if (refEmi != 0) {
+        if (!refEmi.equals("null")) {
 
         	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
@@ -330,7 +330,7 @@ public class PaymentResource {
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 
     	//en cas de paiement d une emission on met a jour le statut de l emission
-    	if (payment.getIdEmission() != null) {
+    	if (payment.getIdEmission() > 0) {
     		//update emission status
     		retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status).getBody();
 
@@ -342,7 +342,7 @@ public class PaymentResource {
 
 //    	EmissionDTO emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
 
-    	if (emissionDTO == null && payment.getIdRecette() == null) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
+    	if (emissionDTO == null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
     	//TODO UPDATE TJIS SECTION
     	if (status_code.equals("100")) {//ici on génère le reçu en cas de paiement réussi
@@ -364,8 +364,9 @@ public class PaymentResource {
 	    	if (emissionDTO != null) {
 
 	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
-	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
-	    	    	imputationDTO.setNumDeclarationImputation(Long.parseLong(retourPaiFiscalis[i].getNumero_imposition()));
+//	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
+	    	    	imputationDTO.setMontant(100d);
+	    	    	imputationDTO.setNumDeclarationImputation(100000000L);
 	    	    	imputationDTO.setOperation("Create");
 	    	    	imputationDTO.setNatrureDesDroits("NDroit01");
 	    	    	listImput.add(imputationDTO);
@@ -375,12 +376,12 @@ public class PaymentResource {
 	    		justificatifPaiementDTO.setIdOrganisation(1L); //a enlever
 	    	}
 
-	    	if (payment.getIdRecette() != null) {//normalement ceci correspond à emissionDTO == null
+	    	if (payment.getIdRecette() > 0) {//normalement ceci correspond à emissionDTO == null
 	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 	    		justificatifPaiementDTO.setNui("Default Niu"); //a enlever
 
 	    		imputationDTO.setMontant(payment.getAmount());
-    	    	imputationDTO.setNumDeclarationImputation(0L);
+    	    	imputationDTO.setNumDeclarationImputation(100000000L);
     	    	imputationDTO.setOperation("Create");
     	    	imputationDTO.setNatrureDesDroits("NDroit01");
     	    	listImput.add(imputationDTO);
