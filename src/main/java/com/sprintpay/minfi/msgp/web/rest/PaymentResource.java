@@ -14,6 +14,8 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprintpay.minfi.msgp.security.SecurityUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -159,10 +161,19 @@ public class PaymentResource {
 		}
 
 		JSONObject bodyJson = new JSONObject(body);
-		//JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+        JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 
-        PaymentDTO paymentDTO = (PaymentDTO) bodyJson.get("paymentDTO");
-        AddedParamsPaymentDTO addedParamsPaymentDTO = (AddedParamsPaymentDTO) bodyJson.get("addedParamsPaymentDTO");
+        PaymentDTO paymentDTO = null;// (PaymentDTO) body.get("paymentDTO");
+        AddedParamsPaymentDTO addedParamsPaymentDTO=null;
+        try {
+            paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+            addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(), AddedParamsPaymentDTO.class); //(AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            result.put("Reject", "Bad Datas Entry Of Payment");
+            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+        }
 
 		//construct paymentDTO and addedParamsPaymentDTO
 		//paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),

@@ -65,9 +65,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p FROM Payment p WHERE p.createdBy = :user")
     Page<Payment> findAllByCreatedBy(@Param("user") String username, Pageable pageable);
 
-    @Query("SELECT p FROM Payment p WHERE p.createdBy = :user AND p.idEmission is not null")
+    @Query("SELECT p FROM Payment p WHERE p.createdBy = :user AND (p.idEmission is not null OR p.idEmission > 0)")
     Page<Payment> findEmissionByCreatedBy(@Param("user") String username, Pageable pageable);
 
-    @Query("SELECT p FROM Payment p WHERE p.createdBy = :user AND p.idRecette is not null")
+    @Query("SELECT p FROM Payment p WHERE p.createdBy = :user AND (p.idRecette is not null OR p.idRecette > 0)")
     Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
 }
