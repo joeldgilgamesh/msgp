@@ -99,9 +99,34 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
     	//a traiter...
-        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    	String details = ex.getDetail();
+    	
+    	Problem problem = Problem.builder()
+                .withType(ErrorConstants.DEFAULT_TYPE)
+                .withTitle("Bad Entry Datas")
+                .withStatus(defaultConstraintViolationStatus())
+                .with(MESSAGE_KEY, ErrorConstants.DEFAULT_TYPE)
+                .with(FIELD_ERRORS_KEY, details)
+                .build();
+//        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
+    	return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
+    	
+    	String msg = ex.getLocalizedMessage();
+    	
+    	Problem problem = Problem.builder()
+                .withType(ErrorConstants.DEFAULT_TYPE)
+                .withTitle("Bad Type Datas Send")
+                .withStatus(defaultConstraintViolationStatus())
+                .with(MESSAGE_KEY, ErrorConstants.DEFAULT_TYPE)
+                .with(FIELD_ERRORS_KEY, msg)
+                .build();
+    	return new ResponseEntity<>(problem, HttpStatus.NOT_ACCEPTABLE);
+    }
+    
     @ExceptionHandler
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
