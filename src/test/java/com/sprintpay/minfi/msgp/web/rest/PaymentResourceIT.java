@@ -11,7 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -46,6 +49,7 @@ import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
@@ -135,6 +139,8 @@ public class PaymentResourceIT {
     private MockMvc restPaymentMockMvc;
 
     private Payment payment;
+    
+    private AddedParamsPaymentDTO addedParamsPaymentDTO;
 
     private HistoriquePayment historique;
 
@@ -202,11 +208,21 @@ public class PaymentResourceIT {
             .idOrganisation(UPDATED_ID_ORGANISATION);
         return payment;
     }
+    
+    public static AddedParamsPaymentDTO createAddedParamsPaymentDTO() {
+    	AddedParamsPaymentDTO addedParamsPaymentDTO = new AddedParamsPaymentDTO();
+    	addedParamsPaymentDTO.setEmail("testmail@yahoo.com");
+    	addedParamsPaymentDTO.setFirstname("testfirstname");
+    	addedParamsPaymentDTO.setLastname("testlastname");
+    	
+    	return addedParamsPaymentDTO;
+    }
 
     @BeforeEach
     public void initTest() {
         payment = createEntity(em);
         historique = createEntityHistorique(em);
+        addedParamsPaymentDTO = createAddedParamsPaymentDTO();
     }
 
     @Test
@@ -411,9 +427,14 @@ public class PaymentResourceIT {
         paymentDTO.setId(null);
         paymentDTO.setIdTransaction(null);
         paymentDTO.setIdDetVersId(null);
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", 10)
+        
+        Map<String, Object> body = new HashMap<String, Object>();
+        body.put("paymentDTO", paymentDTO);
+        body.put("addedParamsPaymentDTO", addedParamsPaymentDTO);
+        
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", "10")
         .contentType(TestUtil.APPLICATION_JSON)
-        .content(TestUtil.convertObjectToJsonBytes(paymentDTO)));
+        .content(TestUtil.convertObjectToJsonBytes(body)));
 //        .andExpect(status().isOk());
 
 

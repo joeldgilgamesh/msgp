@@ -193,7 +193,7 @@ public class PaymentResource {
 
         	if (niuVerif == null) {
         		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
     		}
 
         	//controle du depassement du montant a payer
