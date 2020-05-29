@@ -432,10 +432,10 @@ public class PaymentResourceIT {
         body.put("paymentDTO", paymentDTO);
         body.put("addedParamsPaymentDTO", addedParamsPaymentDTO);
         
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", "10")
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", null)
         .contentType(TestUtil.APPLICATION_JSON)
-        .content(TestUtil.convertObjectToJsonBytes(body)));
-//        .andExpect(status().isOk());
+        .content(TestUtil.convertObjectToJsonBytes(body)))
+        .andExpect(status().isOk());
 
 
     }
