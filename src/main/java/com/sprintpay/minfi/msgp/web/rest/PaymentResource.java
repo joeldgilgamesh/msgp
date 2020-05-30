@@ -374,7 +374,7 @@ public class PaymentResource {
                 restClientRNFService.payerRecettesService(payment.getIdRecette(), payment.getId());
             }
 
-            if (emissionDTO == null && payment.getIdRecette() ==null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
+            if (emissionDTO == null && payment.getIdRecette() !=null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
 
             JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
@@ -408,7 +408,7 @@ public class PaymentResource {
 	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 
 	    		justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); //a enlever
-
+                justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); //comment recuperer ceci
 	    		imputationDTO.setMontant(payment.getAmount());
     	    	imputationDTO.setNumDeclarationImputation(1L);
     	    	imputationDTO.setOperation(String.valueOf(payment.getId()));
@@ -420,7 +420,6 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
 
-	    	justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); //comment recuperer ceci
             if(userDTO.get().getFirstName() == null){
                 userDTO.get().setFirstName("");
             }
@@ -438,8 +437,7 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
 	    	justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
 	    	justificatifPaiementDTO.setIfu(" ");
-
-
+	    	
 	    	justificatifPaiementDTO.setImputations(listImput);
 
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
