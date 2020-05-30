@@ -17,7 +17,7 @@ public interface RESTClientUAAService {
 	@GetMapping("/api/users/niu/{niu}")
 	ResponseEntity<Object> getNiuContribuablesEnregistres(@PathVariable ("niu") String niu);
 
-    @GetMapping("/users/search/{login}")
+    @GetMapping("/api/users/search/{login}")
     Optional<UserDTO> searchUser(@PathVariable("login") String login);
 
 }
