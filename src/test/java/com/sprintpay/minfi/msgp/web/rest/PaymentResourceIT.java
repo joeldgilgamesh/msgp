@@ -40,6 +40,15 @@ import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.HistoriquePaymentRepository;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
+import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
+import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
+import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
+import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
@@ -426,10 +435,10 @@ public class PaymentResourceIT {
         body.put("paymentDTO", paymentDTO);
         body.put("addedParamsPaymentDTO", addedParamsPaymentDTO);
 
-        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", "10")
+        restPaymentMockMvc.perform(post("/api/effectuerPaiement/{debitInfo}/{niu}/{refEmi}", DEFAULT_DEBIT_INFO, "niu01", null)
         .contentType(TestUtil.APPLICATION_JSON)
-        .content(TestUtil.convertObjectToJsonBytes(body)));
-//        .andExpect(status().isOk());
+        .content(TestUtil.convertObjectToJsonBytes(body)))
+        .andExpect(status().isOk());
 
 
     }
