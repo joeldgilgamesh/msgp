@@ -3,6 +3,7 @@ package com.sprintpay.minfi.msgp.service.dto;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.sprintpay.minfi.msgp.domain.enumeration.Nature;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 
 /**
@@ -24,6 +25,7 @@ public class EmissionDTO implements Serializable {
 
     private Long idTypeEmisId;
 
+    private Nature nature;
 
     public Long getId() {
         return id;
@@ -81,6 +83,14 @@ public class EmissionDTO implements Serializable {
         this.idTypeEmisId = idTypeEmisId;
     }
 
+    public Nature getNature() {
+        return nature;
+    }
+
+    public void setNature(Nature nature) {
+        this.nature = nature;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,13 +115,14 @@ public class EmissionDTO implements Serializable {
     @Override
     public String toString() {
         return "EmissionDTO{" +
-            "id=" + getId() +
-            ", refEmi='" + getRefEmi() + "'" +
-            ", amount=" + getAmount() +
-            ", codeContribuable='" + getCodeContribuable() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", idOrganisation=" + getIdOrganisation() +
-            ", idTypeEmisId=" + getIdTypeEmisId() +
-            "}";
+            "id=" + id +
+            ", refEmi='" + refEmi + '\'' +
+            ", amount=" + amount +
+            ", codeContribuable='" + codeContribuable + '\'' +
+            ", status=" + status +
+            ", idOrganisation=" + idOrganisation +
+            ", idTypeEmisId=" + idTypeEmisId +
+            ", nature=" + nature +
+            '}';
     }
 }
