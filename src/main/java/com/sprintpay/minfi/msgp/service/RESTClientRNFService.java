@@ -18,9 +18,9 @@ public interface RESTClientRNFService {
 	@GetMapping("/api/recettes-services/{id}")
 	Object getRecettesService(@PathVariable ("id") Long id);
 
-    @PutMapping("/payerRecette/{id}/{idPaiement}")
+    @PutMapping("/api/payerRecette/{id}/{idPaiement}")
     public ResponseEntity<Object> payerRecettesService(@PathVariable("id")  Long id, @PathVariable("idPaiement") Long idPaiement);
 
-    @GetMapping("/recettes-services/resume/{id}")
+    @GetMapping("/api/recettes-services/resume/{id}")
     Map<String, Object> getResumeRecettesService(@PathVariable("id") Long id);
 }
