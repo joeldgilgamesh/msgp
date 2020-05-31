@@ -344,8 +344,7 @@ public class PaymentResource {
 
     	paymentService.update(payment.getId(), status, transactionDTO);
     	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
-
-
+        log.info("========// "+payment+" //============");
     	//TODO UPDATE THIS SECTION
         //detail organisation
         Map<String, Object> organisationDetails = new HashMap<String, Object>();
@@ -368,15 +367,16 @@ public class PaymentResource {
 
                 emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
             }
+            log.info("======== JUSTIF 1============");
             //update recette service
             if (payment.getIdRecette() != null && payment.getIdRecette() > 0){
 
                 restClientRNFService.payerRecettesService(payment.getIdRecette(), payment.getId());
             }
 
-            if (emissionDTO == null && payment.getIdRecette() !=null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
+            if (emissionDTO == null && payment.getIdRecette() == null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
-
+            log.info("======== JUSTIF 2============");
             JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
     		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
 			ImputationDTO imputationDTO = new ImputationDTO();
@@ -385,9 +385,10 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
 	    	justificatifPaiementDTO.setMontant(payment.getAmount());
 	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
-
+            log.info("======== JUSTIF 3============");
 	    	if (emissionDTO != null) {
                 organisationDetails = restClientOrganisationService.findOrganisationById(emissionDTO.getIdOrganisation());
+                log.info("======== JUSTIF 4============");
 	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
 //	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
 
@@ -397,9 +398,10 @@ public class PaymentResource {
 	    	    	imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
 	    	    	listImput.add(imputationDTO);
 				}
-
+                log.info("======== JUSTIF 5============");
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
-	    		justificatifPaiementDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation")); //a enlever
+	    		justificatifPaiementDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));
+                log.info("======== JUSTIF 6============");
 	    	}
 
 	    	if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {//normalement ceci correspond à emissionDTO == null
@@ -419,30 +421,33 @@ public class PaymentResource {
 	    	justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
 	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 	    	justificatifPaiementDTO.setCode(payment.getCode());
-
+            log.info("======== JUSTIF 7============");
             if(userDTO.get().getFirstName() == null){
                 userDTO.get().setFirstName("");
             }
             if(userDTO.get().getLastName() == null){
                 userDTO.get().setLastName("");
             }
+            log.info("======== JUSTIF 8============");
 	    	justificatifPaiementDTO.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); //comment recuperer ceci
 	    	justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); //comment recuperer ceci
 	    	justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); //comment recuperer ceci
 	    	justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); //comment recuperer ceci
 	    	justificatifPaiementDTO.setSigle(""); //comment recuperer ceci
 	    	justificatifPaiementDTO.setCodePoste(1L); //comment recuperer ceci
+            log.info("======== JUSTIF 9============");
 	    	justificatifPaiementDTO.setExercise(String.valueOf(LocalDateTime.now().getYear()));
 	    	justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
 	    	justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
 	    	justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
 	    	justificatifPaiementDTO.setIfu(" ");
-	    	
+            log.info("======== JUSTIF 10============");
 	    	justificatifPaiementDTO.setImputations(listImput);
-
+            log.info("======== JUSTIF 11============");
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
+            log.info("======== JUSTIF 12============");
 		}
-
+        log.info("======== JUSTIF 13============");
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
 
     }
