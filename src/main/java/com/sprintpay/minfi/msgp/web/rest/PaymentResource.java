@@ -389,15 +389,23 @@ public class PaymentResource {
 	    	if (emissionDTO != null) {
                 organisationDetails = restClientOrganisationService.findOrganisationById(emissionDTO.getIdOrganisation());
                 log.info("======== JUSTIF 4============");
-	    		for (int i = 0; i < retourPaiFiscalis.length; i++) {
+                if(retourPaiFiscalis != null) {
+                    for (int i = 0; i < retourPaiFiscalis.length; i++) {
 //	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
 
-	    	    	imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
-	    	    	imputationDTO.setNumDeclarationImputation(Long.valueOf(retourPaiFiscalis[i].getImputation()));
-	    	    	imputationDTO.setOperation(retourPaiFiscalis[i].getNumeropaiement());
-	    	    	imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
-	    	    	listImput.add(imputationDTO);
-				}
+                        imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
+                        imputationDTO.setNumDeclarationImputation(Long.valueOf(retourPaiFiscalis[i].getNumerodeclaration()));
+                        imputationDTO.setOperation(retourPaiFiscalis[i].getNumeropaiement());
+                        imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
+                        listImput.add(imputationDTO);
+                    }
+                }else{
+                    imputationDTO.setMontant(payment.getAmount());
+                    imputationDTO.setNumDeclarationImputation(emissionDTO.getId());
+                    imputationDTO.setOperation(String.valueOf(payment.getId()));
+                    imputationDTO.setNatrureDesDroits(emissionDTO.getNature().name()+" N° "+emissionDTO.getRefEmi());
+                    listImput.add(imputationDTO);
+                }
                 log.info("======== JUSTIF 5============");
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    		justificatifPaiementDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));
