@@ -392,13 +392,12 @@ public class PaymentResource {
                 log.info("======== JUSTIF 4============");
                 if(retourPaiFiscalis != null) {
                     for (int i = 0; i < retourPaiFiscalis.length; i++) {
-//	    	    	imputationDTO.setMontant(Double.parseDouble(retourPaiFiscalis[i].getMontant()));
-
                         imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
                         imputationDTO.setNumDeclarationImputation(Long.valueOf(retourPaiFiscalis[i].getNumerodeclaration()));
                         imputationDTO.setOperation(retourPaiFiscalis[i].getNumeropaiement());
                         imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
                         listImput.add(imputationDTO);
+                        imputationDTO = new ImputationDTO();
                     }
                 }else{
                     imputationDTO.setMontant(payment.getAmount());
