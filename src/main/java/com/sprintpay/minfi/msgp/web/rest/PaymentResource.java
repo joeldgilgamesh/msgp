@@ -254,6 +254,7 @@ public class PaymentResource {
 
         	//complete datas payment with idEmission create, and save payment
         	paymentDTO.setIdEmission(emissionDTO2.getId());
+        	paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
         	paymentDTO2 =  paymentService.save(paymentDTO);
         } else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
 
@@ -408,7 +409,7 @@ public class PaymentResource {
                 }
                 log.info("======== JUSTIF 5============");
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
-	    		justificatifPaiementDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));
+	    		justificatifPaiementDTO.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
                 log.info("======== JUSTIF 6============");
 	    	}
 
