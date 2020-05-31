@@ -410,6 +410,7 @@ public class PaymentResource {
                 log.info("======== JUSTIF 5============");
 	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 	    		justificatifPaiementDTO.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
+	    		justificatifPaiementDTO.setNatureRecette(emissionDTO.getRefEmi());
                 log.info("======== JUSTIF 6============");
 	    	}
 
