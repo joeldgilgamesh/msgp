@@ -109,7 +109,11 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public void update(Long idPaymeLong, Statut state) {
 		// TODO Auto-generated method stub
-		paymentRepository.updatePayment(idPaymeLong, state);
+		Optional<Payment> op = paymentRepository.findById(idPaymeLong);
+		Payment p = op.get();
+		p.setStatut(state);
+		paymentRepository.saveAndFlush(p);
+		//paymentRepository.updatePayment(idPaymeLong, state);
 	}
 
 	/**
@@ -120,7 +124,13 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public void update(Long idPaymeLong, Statut state, Long idTransaction, String refTransaction) {
 		// TODO Auto-generated method stub
-		paymentRepository.updatePayment(idPaymeLong, state, idTransaction, refTransaction);
+		Optional<Payment> op = paymentRepository.findById(idPaymeLong);
+		Payment p = op.get();
+		p.setStatut(state);
+		p.setIdTransaction(idTransaction);
+		p.setRefTransaction(refTransaction);
+		paymentRepository.saveAndFlush(p);
+		// paymentRepository.updatePayment(idPaymeLong, state, idTransaction, refTransaction);
 	}
 
 	@Override
@@ -166,13 +176,23 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void updateAllPayments(Set<String> refs, Statut statut){
-        paymentRepository.updateAllPayments(refs, statut);
+    	List<Payment> ls = paymentRepository.findByRefTransactionIn(refs);
+    	for (Payment payment : ls) {
+			payment.setStatut(statut);
+		}
+    	//paymentRepository.saveAll(ls);
+        // paymentRepository.updateAllPayments(refs, statut);
     }
 
 	@Override
 	public void update(Long id, Statut status, TransactionDTO transactionDTO) {
 		// TODO Auto-generated method stub
-		paymentRepository.updatePaymentWithTransaction(id, status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
+		Payment p = paymentRepository.findById(id).get();
+		p.setStatut(status);
+		p.setIdTransaction(transactionDTO.getId());
+		p.setRefTransaction(transactionDTO.getCodeTransaction());
+		
+		//paymentRepository.updatePaymentWithTransaction(id, status, transactionDTO.getId(), transactionDTO.getCodeTransaction());
 	}
 
     @Override

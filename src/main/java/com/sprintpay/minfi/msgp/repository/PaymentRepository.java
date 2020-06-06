@@ -21,13 +21,13 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-	@Modifying
-	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
-	void updatePayment(@Param("idPaymeLong") Long idPaymeLong, @Param("state") Statut state);
+//	@Modifying
+//	@Query("update Payment p set p.statut = :state where p.id = :idPaymeLong")
+//	void updatePayment(@Param("idPaymeLong") Long idPaymeLong, @Param("state") Statut state);
 
-	@Modifying
-	@Query("update Payment p set p.statut = :state, p.idTransaction = :idTransaction, p.refTransaction = :refTransaction where p.id = :idPaymeLong")
-	void updatePayment(@Param("idPaymeLong") Long idPaymeLong, @Param("state") Statut state,  @Param("idTransaction") Long idTransaction, @Param("refTransaction") String refTransaction);
+//	@Modifying
+//	@Query("update Payment p set p.statut = :state, p.idTransaction = :idTransaction, p.refTransaction = :refTransaction where p.id = :idPaymeLong")
+//	void updatePayment(@Param("idPaymeLong") Long idPaymeLong, @Param("state") Statut state,  @Param("idTransaction") Long idTransaction, @Param("refTransaction") String refTransaction);
 
 	Payment findByCode(String code);
 
@@ -50,14 +50,16 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 	Payment findByIdEmission(Long idEmis);
 
 	List<Payment> findByRefTransactionInAndStatut(Set<String> refs, Statut statut);
+	
+	List<Payment> findByRefTransactionIn(Set<String> refs);
 
-    @Modifying
-    @Query("update Payment p set p.statut = :state where p.refTransaction in :refs")
-    void updateAllPayments(@Param("refs") Set<String> refs, @Param("state") Statut state);
-
-    @Modifying
-    @Query("update Payment p set p.statut = :status, p.idTransaction = :idTransaction, p.refTransaction = :refTransaction  where p.id = :id")
-	void updatePaymentWithTransaction(@Param("id") Long id, @Param("status") Statut status, @Param("idTransaction") Long idTransaction, @Param("refTransaction") String refTransaction);
+//    @Modifying
+//    @Query("update Payment p set p.statut = :state where p.refTransaction in :refs")
+//    void updateAllPayments(@Param("refs") Set<String> refs, @Param("state") Statut state);
+//
+//    @Modifying
+//    @Query("update Payment p set p.statut = :status, p.idTransaction = :idTransaction, p.refTransaction = :refTransaction  where p.id = :id")
+//	void updatePaymentWithTransaction(@Param("id") Long id, @Param("status") Statut status, @Param("idTransaction") Long idTransaction, @Param("refTransaction") String refTransaction);
 
 //	@Query("SELECT p FROM Payment p INNER JOIN Emission e ON e.id = p.emission WHERE e.codeContribuable = :niu")
 //	Page<Object> findPaymentEmissionContrib(@Param("niu") String niu, Pageable pageable);
