@@ -210,16 +210,20 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findRNFByCreatedBy(username, pageable);
     }
 
-//	@Scheduled(fixedDelay = 60000)
+//	@Scheduled(cron = "0 */5 * ? * *")
 //	public void test() {
-//		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));
-//		System.out.println("-------------------------- uba test convert provider -> " + paymentSpecialServices.convertProvider("UBA").equals("uba"));
-//
-//		System.out.println("-------------------------- afriland convert provider value return -> " + paymentSpecialServices.convertProvider("AFRILAND"));
-//		System.out.println("-------------------------- afriland test convert provider -> " + paymentSpecialServices.convertProvider("AFRILAND").equals("afrilandcmr"));
-//
-//		System.out.println("-------------------------- uba valueof convert provider -> " + MeansOfPayment.valueOf("UBA"));
-//		System.out.println("-------------------------- convert provider -> " + MeansOfPayment.valueOf("AFRILAND"));
+////		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));
+////		System.out.println("-------------------------- uba test convert provider -> " + paymentSpecialServices.convertProvider("UBA").equals("uba"));
+////
+////		System.out.println("-------------------------- afriland convert provider value return -> " + paymentSpecialServices.convertProvider("AFRILAND"));
+////		System.out.println("-------------------------- afriland test convert provider -> " + paymentSpecialServices.convertProvider("AFRILAND").equals("afrilandcmr"));
+////
+////		System.out.println("-------------------------- uba valueof convert provider -> " + MeansOfPayment.valueOf("UBA"));
+////		System.out.println("-------------------------- convert provider -> " + MeansOfPayment.valueOf("AFRILAND"));
+//		System.out.println("je suis entrain de tester ------------------------------------");
+//		System.out.println("je suis entrain de tester ------------------------------------");
+//		System.out.println("je suis entrain de tester ------------------------------------");
+//		System.out.println("je suis entrain de tester ------------------------------------");
 //	}
 
 }
