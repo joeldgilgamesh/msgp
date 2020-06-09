@@ -395,16 +395,16 @@ public class PaymentResource {
                 if(retourPaiFiscalis != null) {
                     for (int i = 0; i < retourPaiFiscalis.length; i++) {
                         imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
-                        imputationDTO.setNumDeclarationImputation(Long.valueOf(retourPaiFiscalis[i].getNumerodeclaration()));
-                        imputationDTO.setOperation(retourPaiFiscalis[i].getNumeropaiement());
+                        imputationDTO.setNumDeclarationImputation(payment.getId());
+                        imputationDTO.setOperation(emissionDTO.getRefEmi());
                         imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
                         listImput.add(imputationDTO);
                         imputationDTO = new ImputationDTO();
                     }
                 }else{
                     imputationDTO.setMontant(payment.getAmount());
-                    imputationDTO.setNumDeclarationImputation(emissionDTO.getId());
-                    imputationDTO.setOperation(String.valueOf(payment.getId()));
+                    imputationDTO.setNumDeclarationImputation(payment.getId());
+                    imputationDTO.setOperation(emissionDTO.getRefEmi());
                     imputationDTO.setNatrureDesDroits(emissionDTO.getNature().name()+" N° "+emissionDTO.getRefEmi());
                     listImput.add(imputationDTO);
                 }
@@ -423,8 +423,8 @@ public class PaymentResource {
 	    		justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); //a enlever
                 justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); //comment recuperer ceci
 	    		imputationDTO.setMontant(payment.getAmount());
-    	    	imputationDTO.setNumDeclarationImputation(1L);
-    	    	imputationDTO.setOperation(String.valueOf(payment.getId()));
+    	    	imputationDTO.setNumDeclarationImputation(payment.getId());
+    	    	imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
     	    	imputationDTO.setNatrureDesDroits((String) recetteServiceDetails.get("nature"));
     	    	listImput.add(imputationDTO);
 	    	}
