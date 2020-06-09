@@ -238,7 +238,9 @@ public class PaymentResource {
 
             Map<String, Object> organisationDetails = restClientOrganisationService.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
             if(!organisationDetails.isEmpty()){
-                emissionDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));
+            	log.info(".................. "+resultEmission.toString());
+            	log.info(".................. "+organisationDetails.get("idOrganisation"));
+                emissionDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));//Long.parseLong(organisationDetails.get("idOrganisation").toString());
             } else {
                 if (resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name()) ||
                     resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name()) ||
