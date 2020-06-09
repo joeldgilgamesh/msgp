@@ -240,7 +240,7 @@ public class PaymentResource {
             if(!organisationDetails.isEmpty()){
             	log.info(".................. "+resultEmission.toString());
             	log.info(".................. "+organisationDetails.get("idOrganisation"));
-                emissionDTO.setIdOrganisation((Long) organisationDetails.get("idOrganisation"));//Long.parseLong(organisationDetails.get("idOrganisation").toString());
+                emissionDTO.setIdOrganisation(Long.parseLong(organisationDetails.get("idOrganisation").toString()));
             } else {
                 if (resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name()) ||
                     resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name()) ||
