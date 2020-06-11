@@ -4,11 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.*;
-
 import javax.validation.Valid;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Nature;
 import com.sprintpay.minfi.msgp.security.SecurityUtils;
 import com.sprintpay.minfi.msgp.service.*;
@@ -31,13 +30,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
-
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -280,7 +277,7 @@ public class PaymentResource {
                 */
     			if (addedParamsPaymentDTO != null) {
     				//construct request build
-    				requestBuild = paymentSpecialServices.buildRequestBankUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(),
+    				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(),
     			    		addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
     			}
     			else {
@@ -294,7 +291,7 @@ public class PaymentResource {
     			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
     	break;
 
-    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestBank(debitInfo, paymentDTO.getCode(),
+    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(),
     			niu, "", paymentDTO.getAmount(), refEmi.toString());
     	break;
 
@@ -302,6 +299,14 @@ public class PaymentResource {
     		break;
     			}
 
+    	if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
+    		result.put("Reject", "MeansOfPayment Not Founds");
+			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+		}
+    	
+//    	if (MeansOfPayment.AFRILAND.getAll().stream().filter(langage -> langage.equals(paymentDTO.getMeansOfPayment().toString())).count() != 0)
+			
+		
     	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
     			requestBuild);
 

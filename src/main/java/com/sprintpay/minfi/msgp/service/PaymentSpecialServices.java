@@ -29,7 +29,7 @@ public interface PaymentSpecialServices {
 	/*
 	 * 
 	 */
-	String codeNext();
+//	String codeNext();
 	
 	/**
 	 * 
@@ -41,7 +41,7 @@ public interface PaymentSpecialServices {
 	 * @param referenceEmission
 	 * @return
 	 */
-	Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
+	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
 
 	/**
 	 * 
@@ -53,7 +53,7 @@ public interface PaymentSpecialServices {
 	 * @param lastname
 	 * @return
 	 */
-	Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
+	Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname);
 
 	/**
 	 * 
@@ -77,5 +77,4 @@ public interface PaymentSpecialServices {
 	 */
 	AddedParamsPaymentDTO constructAddedParamsPaymentDTO(AddedParamsPaymentDTO addedParamsPaymentDTO, String email, String firstname, String lastname);
 
-	ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission();
 }

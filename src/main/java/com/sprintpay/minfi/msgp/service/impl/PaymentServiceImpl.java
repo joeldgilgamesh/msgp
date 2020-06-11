@@ -33,19 +33,12 @@ import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 public class PaymentServiceImpl implements PaymentService {
 
     private final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
-
     private final PaymentRepository paymentRepository;
-
     private final PaymentMapper paymentMapper;
 
-    private final RESTClientEmissionService restClientEmissionService;
-    private final PaymentSpecialServices paymentSpecialServices;
-
-    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, RESTClientEmissionService restClientEmissionService, PaymentSpecialServices paymentSpecialServices) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
-        this.restClientEmissionService = restClientEmissionService;
-        this.paymentSpecialServices = paymentSpecialServices;
     }
 
     /**
