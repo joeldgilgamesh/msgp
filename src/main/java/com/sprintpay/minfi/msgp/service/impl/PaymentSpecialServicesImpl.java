@@ -18,37 +18,36 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
 	
-	private PaymentRepository paymentRepository;
+//	private PaymentRepository paymentRepository;
+//	
+//	public PaymentSpecialServicesImpl(PaymentRepository paymentRepository) {
+//		this.paymentRepository = paymentRepository;
+//	}
 	
-	public PaymentSpecialServicesImpl(PaymentRepository paymentRepository) {
-		this.paymentRepository = paymentRepository;
-	}
-	
+	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
-		
-		if (provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION") {
-			request.put("clientId", "");
-	    	request.put("clientToken", "");
-	    	request.put("phone", debitInfo);
-	    	request.put("orderId", code);
-	    	request.put("amount", amount.toString());
-	    	request.put("currency", "");
-	    	request.put("description", "");
-	    	request.put("companyName", "");
-	    	request.put("successUrl", "");
-	    	request.put("failureUrl", "");
-	    	request.put("notificationUrl", "");
-	    	request.put("ipAddress", "");
-		}
-		
+		request.put("clientId", "");
+    	request.put("clientToken", "");
+    	request.put("phone", debitInfo);
+    	request.put("orderId", code);
+    	request.put("amount", amount.toString());
+    	request.put("currency", "");
+    	request.put("description", "");
+    	request.put("companyName", "");
+    	request.put("successUrl", "");
+    	request.put("failureUrl", "");
+    	request.put("notificationUrl", "");
+    	request.put("ipAddress", "");
+    	
 		return request;
 	}
 	
-	public Map<String, String> buildRequestBank(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission) {
-		Map<String, String> request = new HashMap<String, String>();
+	//provider == "AFRILAND"
+	public Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission) {
 		
+		Map<String, String> request = new HashMap<String, String>();
 		request.put("contribuableId", niu);
 		request.put("libelle", libelleEmision);
 		request.put("montant", amount.toString());
@@ -62,9 +61,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		return request;
 	}
 	
-	public Map<String, String> buildRequestBankUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname) {
-		Map<String, String> request = new HashMap<String, String>();
+	//provider == "UBA"
+	public Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname) {
 		
+		Map<String, String> request = new HashMap<String, String>();
 		request.put("clientId", "");
     	request.put("clientToken", "");
     	request.put("phone", debitInfo);
@@ -125,16 +125,16 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			result = null;
 			break;
 		}
+		
 		return result;
 	}
 
-	@Override
-	public String codeNext() {
-		// TODO Auto-generated method stub
-		System.out.println("------------------------------ lastcode" + this.paymentRepository.countLine());
-//		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
-		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
-	}
+//	@Override
+//	public String codeNext() {
+//		// TODO Auto-generated method stub
+////		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
+//		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
+//	}
 
 	@Override
 	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette,
@@ -155,12 +155,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		addedParamsPaymentDTO.setFirstname(firstname);
 		addedParamsPaymentDTO.setLastname(lastname);
 		return addedParamsPaymentDTO;
-	}
-
-	@Override
-	public ResponseEntity<Map<String, Object>> validationEffectuerPaiementEnterDatasEmission() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
