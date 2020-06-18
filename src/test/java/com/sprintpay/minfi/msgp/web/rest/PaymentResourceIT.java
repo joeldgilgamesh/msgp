@@ -130,6 +130,9 @@ public class PaymentResourceIT {
 
     @MockBean
     private RESTClientOrganisationService restClientOrganisationService;
+    
+    @MockBean
+    private RESTClientNotificationService restClientNotificationService;
 
     @BeforeEach
     public void setup() {
@@ -137,7 +140,8 @@ public class PaymentResourceIT {
         final PaymentResource paymentResource = new PaymentResource(paymentService, historiquePaymentService,
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
-        															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService);
+        															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService,
+        															restClientNotificationService);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

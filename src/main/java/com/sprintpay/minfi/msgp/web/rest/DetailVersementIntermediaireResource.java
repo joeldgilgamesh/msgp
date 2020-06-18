@@ -5,10 +5,16 @@ import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionSSDTO;
+import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.UserDTO;
+
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -65,15 +71,23 @@ public class DetailVersementIntermediaireResource {
 	private final ApplicationProperties applicationProperties;
 
 	private final RESTClientQuittanceService restClientQuittanceService;
+	
+	private final RESTClientNotificationService restClientNotificationService;
+	
+	private final RESTClientUAAService restClientUAAService;
 
 	public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
 			PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
-			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService) {
+			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
+			RESTClientNotificationService restClientNotificationService,
+			RESTClientUAAService restClientUAAService) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
 		this.restClientSystacSygmaService = restClientSystacSygmaService;
 		this.applicationProperties = applicationProperties;
 		this.restClientQuittanceService = restClientQuittanceService;
+		this.restClientNotificationService = restClientNotificationService;
+		this.restClientUAAService = restClientUAAService;
 	}
 
 	/**
@@ -181,7 +195,11 @@ public class DetailVersementIntermediaireResource {
 		paymentService.updateAllPayments(
 				paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toSet()),
 				Statut.RECONCILED);
-
+		
+		
+		
+		//TODO: update Emissions and RNF
+		
 		// Try to Generate Quittances
 		retryCount = 0;
 		while (retryCount < MAX_RETRY_COUNT) {
@@ -196,6 +214,24 @@ public class DetailVersementIntermediaireResource {
 				retryCount++;
 				continue;
 			}
+		}
+		// generate notification
+        TypeNotificationDTO typeNotificationPayment = restClientNotificationService.getTypeNotification("quittance");
+        if(typeNotificationPayment == null) {
+        	typeNotificationPayment = new TypeNotificationDTO(null, "quittance", "Nouvelle quittance disponible", 
+        			"Notification des quittances disponible", null, "PUSH", null);
+        	typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);        	
+        }
+        
+        
+		for (Payment payment2 : paymentsToReconciled) {
+			Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment2.getCreatedBy());
+            NotificationDTO notificationPayment = new NotificationDTO(null, 
+            				"Nouvelle quittance disponible pour le payment N° ["+payment2.getId()+"] d'un montant de "+
+            				payment2.getAmount()+"effectué via "+payment2.getMeansOfPayment().name()+
+            				"<a href='/voirJustificatif/quittance/"+payment2.getId()+"'>Afficher la quittance</a>", userDTO.get().getId(), applicationName,
+            				"TRANSMIS", typeNotificationPayment.getId(), null);
+            restClientNotificationService.createNotification(notificationPayment);
 		}
 		return ResponseEntity
 				.created(new URI("/api/detail-versement-intermediaires/" + result.getId())).headers(HeaderUtil

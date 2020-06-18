@@ -69,6 +69,7 @@ public class PaymentResource {
     private final RESTClientUAAService restClientUAAService;
     private final RESTClientRNFService restClientRNFService;
     private final RESTClientOrganisationService restClientOrganisationService;
+    private final RESTClientNotificationService restClientNotificationService;
 
     public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
         , DetailVersementIntermediaireService detailVersementIntermediaireService
@@ -79,7 +80,8 @@ public class PaymentResource {
         , PaymentMapper paymentMapper
         , RESTClientUAAService restClientUAAService
         , RESTClientRNFService restClientRNFService,
-        RESTClientOrganisationService restClientOrganisationService) {
+        RESTClientOrganisationService restClientOrganisationService,
+        RESTClientNotificationService restClientNotificationService) {
         this.paymentService = paymentService;
         this.historiquePaymentService = historiquePaymentService;
         this.detailVersementIntermediaireService = detailVersementIntermediaireService;
@@ -91,6 +93,7 @@ public class PaymentResource {
         this.restClientUAAService = restClientUAAService;
         this.restClientRNFService = restClientRNFService;
         this.restClientOrganisationService = restClientOrganisationService;
+        this.restClientNotificationService = restClientNotificationService;
     }
 
     /**
@@ -457,6 +460,22 @@ public class PaymentResource {
             log.info("======== JUSTIF 11============");
 	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
             log.info("======== JUSTIF 12============");
+            
+            // generate notification
+            TypeNotificationDTO typeNotificationPayment = restClientNotificationService.getTypeNotification("payment");
+            if(typeNotificationPayment == null) {
+            	typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement", 
+            			"Notification des paiements effectués", null, "PUSH", null);
+            	typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+            	
+            }
+            NotificationDTO notificationPayment = new NotificationDTO(null, 
+            		"Votre payment N° ["+payment.getId()+"] d'un montant de "+
+            				payment.getAmount()+"effectué via "+payment.getMeansOfPayment().name()+
+            				" a réussi <a href='/voirJustificatif/recu/"+payment.getId()+"'>Afficher le reçu</a>",
+            		userDTO.get().getId(), applicationName,
+            		"TRANSMIS", typeNotificationPayment.getId(), null);
+            restClientNotificationService.createNotification(notificationPayment);
 		}
         log.info("======== JUSTIF 13============");
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
