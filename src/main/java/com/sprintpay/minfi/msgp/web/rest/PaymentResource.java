@@ -552,7 +552,7 @@ public class PaymentResource {
 				}
 				NotificationDTO notificationPayment = new NotificationDTO(null,
 						"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
-								+ "effectué via " + payment.getMeansOfPayment().name()
+								+ " effectué via " + payment.getMeansOfPayment().name()
 								+ " a réussi <a href='/voirJustificatif/recu/" + payment.getId()
 								+ "'>Afficher le reçu</a>",
 						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
