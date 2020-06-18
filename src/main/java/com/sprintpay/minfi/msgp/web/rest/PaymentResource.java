@@ -35,6 +35,8 @@ import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
+
+import feign.FeignException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -467,20 +469,43 @@ public class PaymentResource {
             log.info("======== JUSTIF 12============");
             
             // generate notification
-            TypeNotificationDTO typeNotificationPayment = restClientNotificationService.getTypeNotification("payment");
-            if(typeNotificationPayment == null) {
-            	typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement", 
+            TypeNotificationDTO typeNotificationPayment = null;
+            try {
+            	typeNotificationPayment = restClientNotificationService.getTypeNotification("payment");
+                if(typeNotificationPayment == null) {
+                	typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement", 
+                			"Notification des paiements effectués", null, "PUSH", null);
+                	typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+                	log.info("======== CHECK 1============");
+                } else {
+                	NotificationDTO notificationPayment = new NotificationDTO(null, 
+                    		"Votre payment N° ["+payment.getId()+"] d'un montant de "+
+                    				payment.getAmount()+"effectué via "+payment.getMeansOfPayment().name()+
+                    				" a réussi <a href='/voirJustificatif/recu/"+payment.getId()+"'>Afficher le reçu</a>",
+                    		userDTO.get().getId(), applicationName,
+                    		"TRANSMIS", typeNotificationPayment.getId(), null);
+                	log.info("======== CHECK 2============");
+                    restClientNotificationService.createNotification(notificationPayment);
+                    log.info("======== CHECK 3============");
+                }                
+                
+            }catch (FeignException e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+			}finally {
+				typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement", 
             			"Notification des paiements effectués", null, "PUSH", null);
             	typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
-            	
-            }
-            NotificationDTO notificationPayment = new NotificationDTO(null, 
-            		"Votre payment N° ["+payment.getId()+"] d'un montant de "+
-            				payment.getAmount()+"effectué via "+payment.getMeansOfPayment().name()+
-            				" a réussi <a href='/voirJustificatif/recu/"+payment.getId()+"'>Afficher le reçu</a>",
-            		userDTO.get().getId(), applicationName,
-            		"TRANSMIS", typeNotificationPayment.getId(), null);
-            restClientNotificationService.createNotification(notificationPayment);
+            	log.info("======== CHECK 4============");
+            	NotificationDTO notificationPayment = new NotificationDTO(null, 
+                		"Votre payment N° ["+payment.getId()+"] d'un montant de "+
+                				payment.getAmount()+"effectué via "+payment.getMeansOfPayment().name()+
+                				" a réussi <a href='/voirJustificatif/recu/"+payment.getId()+"'>Afficher le reçu</a>",
+                		userDTO.get().getId(), applicationName,
+                		"TRANSMIS", typeNotificationPayment.getId(), null);
+                restClientNotificationService.createNotification(notificationPayment);
+                log.info("======== CHECK 5============");
+			}
 		}
         log.info("======== JUSTIF 13============");
     	return new ResponseEntity<>(resultat, HttpStatus.OK);
