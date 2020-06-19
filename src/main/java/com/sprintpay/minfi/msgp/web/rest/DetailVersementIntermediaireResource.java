@@ -235,7 +235,7 @@ public class DetailVersementIntermediaireResource {
 				NotificationDTO notificationPayment = new NotificationDTO(null,
 						"La quittance est disponible pour le payment N° [" + payment2.getId() + "] d'un montant de "
 								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name()
-								+ "<a href='/voirJustificatif/quittance/" + payment2.getId()
+								+ "<a href='/client/voirJustificatif/quittance/" + payment2.getId()
 								+ "'>Afficher la quittance</a>",
 						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
 				restClientNotificationService.createNotification(notificationPayment);
