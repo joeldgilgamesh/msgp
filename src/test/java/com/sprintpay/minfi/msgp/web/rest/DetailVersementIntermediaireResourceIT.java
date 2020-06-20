@@ -24,8 +24,11 @@ import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -98,12 +101,17 @@ public class DetailVersementIntermediaireResourceIT {
     private MockMvc restDetailVersementIntermediaireMockMvc;
 
     private DetailVersementIntermediaire detailVersementIntermediaire;
+    
+    @Autowired
+    private RESTClientNotificationService restClientNotificationService;
+    
+    private RESTClientUAAService restClientUAAService;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final DetailVersementIntermediaireResource detailVersementIntermediaireResource = new DetailVersementIntermediaireResource(detailVersementIntermediaireService,
-            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService);
+            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService);
         this.restDetailVersementIntermediaireMockMvc = MockMvcBuilders.standaloneSetup(detailVersementIntermediaireResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

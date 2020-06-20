@@ -3,15 +3,18 @@ package com.sprintpay.minfi.msgp.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import javax.validation.Valid;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Nature;
-import com.sprintpay.minfi.msgp.security.SecurityUtils;
-import com.sprintpay.minfi.msgp.service.*;
-import com.sprintpay.minfi.msgp.service.dto.*;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +33,40 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Nature;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
+import com.sprintpay.minfi.msgp.security.SecurityUtils;
+import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
+import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
+import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
+import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
+import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
+import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
+import com.sprintpay.minfi.msgp.service.dto.ImputationDTO;
+import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
+import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
+
+import feign.FeignException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
@@ -46,69 +78,71 @@ import io.github.jhipster.web.util.ResponseUtil;
 @RequestMapping("/api")
 public class PaymentResource {
 
-    private static final Long DEFAULT_ORGANISATION_DGI_ID = 3L;
-    private static final Long DEFAULT_ORGANISATION_DGD_ID = 4L;
-    private final Logger log = LoggerFactory.getLogger(PaymentResource.class);
+	private static final Long DEFAULT_ORGANISATION_DGI_ID = 3L;
+	private static final Long DEFAULT_ORGANISATION_DGD_ID = 4L;
+	private final Logger log = LoggerFactory.getLogger(PaymentResource.class);
 
-    private static final String ENTITY_NAME = "spminfimsgpPayment";
+	private static final String ENTITY_NAME = "spminfimsgpPayment";
 
-    @Value("${jhipster.clientApp.name}")
-    private String applicationName;
+	@Value("${jhipster.clientApp.name}")
+	private String applicationName;
 
-    private final PaymentService paymentService;
-    private final HistoriquePaymentService historiquePaymentService;
-    private final DetailVersementIntermediaireService detailVersementIntermediaireService;
-    private final RESTClientTransactionService restClientTransactionService;
-    private final RESTClientEmissionService restClientEmissionService;
-    private final RESTClientQuittanceService restClientQuittanceService;
-    private final PaymentSpecialServices paymentSpecialServices;
-    private final PaymentMapper paymentMapper;
-    private final RESTClientUAAService restClientUAAService;
-    private final RESTClientRNFService restClientRNFService;
-    private final RESTClientOrganisationService restClientOrganisationService;
+	private final PaymentService paymentService;
+	private final HistoriquePaymentService historiquePaymentService;
+	private final DetailVersementIntermediaireService detailVersementIntermediaireService;
+	private final RESTClientTransactionService restClientTransactionService;
+	private final RESTClientEmissionService restClientEmissionService;
+	private final RESTClientQuittanceService restClientQuittanceService;
+	private final PaymentSpecialServices paymentSpecialServices;
+	private final PaymentMapper paymentMapper;
+	private final RESTClientUAAService restClientUAAService;
+	private final RESTClientRNFService restClientRNFService;
+	private final RESTClientOrganisationService restClientOrganisationService;
+	private final RESTClientNotificationService restClientNotificationService;
 
-    public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService
-        , DetailVersementIntermediaireService detailVersementIntermediaireService
-        , RESTClientTransactionService restClientTransactionService
-        , RESTClientEmissionService restClientEmissionService
-        , PaymentSpecialServices paymentSpecialServices
-        , RESTClientQuittanceService restClientQuittanceService
-        , PaymentMapper paymentMapper
-        , RESTClientUAAService restClientUAAService
-        , RESTClientRNFService restClientRNFService,
-        RESTClientOrganisationService restClientOrganisationService) {
-        this.paymentService = paymentService;
-        this.historiquePaymentService = historiquePaymentService;
-        this.detailVersementIntermediaireService = detailVersementIntermediaireService;
-        this.restClientTransactionService = restClientTransactionService;
-        this.restClientEmissionService = restClientEmissionService;
-        this.paymentSpecialServices = paymentSpecialServices;
-        this.restClientQuittanceService = restClientQuittanceService;
-        this.paymentMapper = paymentMapper;
-        this.restClientUAAService = restClientUAAService;
-        this.restClientRNFService = restClientRNFService;
-        this.restClientOrganisationService = restClientOrganisationService;
-    }
+	public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService,
+			DetailVersementIntermediaireService detailVersementIntermediaireService,
+			RESTClientTransactionService restClientTransactionService,
+			RESTClientEmissionService restClientEmissionService, PaymentSpecialServices paymentSpecialServices,
+			RESTClientQuittanceService restClientQuittanceService, PaymentMapper paymentMapper,
+			RESTClientUAAService restClientUAAService, RESTClientRNFService restClientRNFService,
+			RESTClientOrganisationService restClientOrganisationService,
+			RESTClientNotificationService restClientNotificationService) {
+		this.paymentService = paymentService;
+		this.historiquePaymentService = historiquePaymentService;
+		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
+		this.restClientTransactionService = restClientTransactionService;
+		this.restClientEmissionService = restClientEmissionService;
+		this.paymentSpecialServices = paymentSpecialServices;
+		this.restClientQuittanceService = restClientQuittanceService;
+		this.paymentMapper = paymentMapper;
+		this.restClientUAAService = restClientUAAService;
+		this.restClientRNFService = restClientRNFService;
+		this.restClientOrganisationService = restClientOrganisationService;
+		this.restClientNotificationService = restClientNotificationService;
+	}
 
-    /**
-     * {@code POST  /payments} : save payment.
-     *
-     * @param paymentDTO the paymentDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (saved)} and with body the new paymentDTO, or with status {@code 400 (Bad Request)} if the payment has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PostMapping("/payments")
-    public ResponseEntity<PaymentDTO> savePayment(@Valid @RequestBody PaymentDTO paymentDTO) throws URISyntaxException {
-        log.debug("REST request to save Payment : {}", paymentDTO);
-        if (paymentDTO.getId() != null) {
-            throw new BadRequestAlertException("A new payment cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        PaymentDTO result = paymentService.save(paymentDTO);
-        return ResponseEntity.created(new URI("/api/payments/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
-    }
-
+	/**
+	 * {@code POST  /payments} : save payment.
+	 *
+	 * @param paymentDTO the paymentDTO to create.
+	 * @return the {@link ResponseEntity} with status {@code 201 (saved)} and with
+	 *         body the new paymentDTO, or with status {@code 400 (Bad Request)} if
+	 *         the payment has already an ID.
+	 * @throws URISyntaxException if the Location URI syntax is incorrect.
+	 */
+	@PostMapping("/payments")
+	public ResponseEntity<PaymentDTO> savePayment(@Valid @RequestBody PaymentDTO paymentDTO) throws URISyntaxException {
+		log.debug("REST request to save Payment : {}", paymentDTO);
+		if (paymentDTO.getId() != null) {
+			throw new BadRequestAlertException("A new payment cannot already have an ID", ENTITY_NAME, "idexists");
+		}
+		PaymentDTO result = paymentService.save(paymentDTO);
+		return ResponseEntity
+				.created(new URI("/api/payments/" + result.getId())).headers(HeaderUtil
+						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+				.body(result);
+	}
 
 //    @PostMapping("/payments")
 //    public ResponseEntity<PaymentDTO> savePayment(@Valid @RequestBody PaymentDTO paymentDTO) {
@@ -119,24 +153,21 @@ public class PaymentResource {
 //        return new ResponseEntity<PaymentDTO>(result, HttpStatus.CREATED);
 //    }
 
-
 //    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
-    public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
-    												//, PaymentDTO paymentDTO
-    												, @PathVariable String debitInfo
-    												, @PathVariable String niu
-    												, @PathVariable String refEmi
-    												//, AddedParamsPaymentDTO addedParamsPaymentDTO
-    ) {
+	public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
+	// , PaymentDTO paymentDTO
+			, @PathVariable String debitInfo, @PathVariable String niu, @PathVariable String refEmi
+	// , AddedParamsPaymentDTO addedParamsPaymentDTO
+	) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
-    	Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
-    	Map<String, String> resultEmission = new LinkedHashMap<String, String>();
-    	Object resultRecette = null;
-    	Map<String, String> requestBuild = new LinkedHashMap<String, String>();
+		Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
+		Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+		Object resultRecette = null;
+		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 
-		//controle body enter
+		// controle body enter
 		if (body == null) {
 			result.put("Reject", "Enter Datas is Null");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -144,22 +175,26 @@ public class PaymentResource {
 
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
-        JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 
-        PaymentDTO paymentDTO = null;// (PaymentDTO) body.get("paymentDTO");
-        AddedParamsPaymentDTO addedParamsPaymentDTO=null;
-        try {
-            paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
-            addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(), AddedParamsPaymentDTO.class); //(AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            result.put("Reject", "Bad Datas Entry Of Payment");
-            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-        }
+		PaymentDTO paymentDTO = null;// (PaymentDTO) body.get("paymentDTO");
+		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
+		try {
+			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			result.put("Reject", "Bad Datas Entry Of Payment");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
 
-		//construct paymentDTO and addedParamsPaymentDTO
-		//paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO, paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
-		//		paymentDTOJson.getLong("idOrganisation"), paymentDTOJson.getLong("idRecette"), paymentDTOJson.getString("meansOfPayment"));
+		// construct paymentDTO and addedParamsPaymentDTO
+		// paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO,
+		// paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
+		// paymentDTOJson.getLong("idOrganisation"),
+		// paymentDTOJson.getLong("idRecette"),
+		// paymentDTOJson.getString("meansOfPayment"));
 
 		if (paymentDTO == null) {
 			result.put("Reject", "Bad Datas Entry Of Payment");
@@ -168,306 +203,367 @@ public class PaymentResource {
 
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 
-    	//controle du niu en cas des emissions
-    	if (!refEmi.equals("null")) {
+		// controle du niu en cas des emissions
+		if (!refEmi.equals("null")) {
 
-    		Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
+			Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
 
-        	if (niuVerif == null) {
-        		result.put("Reject", "Usurpateur Voulant effectuer le paiement");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-    		}
+			if (niuVerif == null) {
+				result.put("Reject", "Usurpateur Voulant effectuer le paiement");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
 
-        	//controle du depassement du montant a payer
-        	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY")) && (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
-        		result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-    		}
+			// controle du depassement du montant a payer
+			if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY"))
+					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
+				result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
 		}
 
-    	//controle du numero de telephone, selon le moyen de paiement
-    	if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION"))
-    		&& (debitInfo.isEmpty() || debitInfo == null)) {
-    		result.put("Reject", "Phone Number is Required");
+		// controle du numero de telephone, selon le moyen de paiement
+		if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION"))
+				&& (debitInfo.isEmpty() || debitInfo == null)) {
+			result.put("Reject", "Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
-    	//controle des données du paiement
-		if(paymentDTO.getId() != null || (paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
-			|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() <= 0) && (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() <= 0)))  {
+		// controle des données du paiement
+		if (paymentDTO.getId() != null || (paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
+				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() <= 0)
+						&& (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() <= 0))) {
 			result.put("Reject", "Bad Entry");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
-    	//complete datas paymentDTO
-    	paymentDTO.setStatut(Statut.DRAFT);
-        paymentDTO.setCode(UUID.randomUUID().toString());
+		// complete datas paymentDTO
+		paymentDTO.setStatut(Statut.DRAFT);
+		paymentDTO.setCode(UUID.randomUUID().toString());
 
-        PaymentDTO paymentDTO2;
+		PaymentDTO paymentDTO2;
 
-        //case emission
-        if (!refEmi.equals("null")) {
+		// case emission
+		if (!refEmi.equals("null")) {
 
-        	resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
-        	if(resultEmission == null) {//si l emission a payer n existe pas dans la liste des emission
-        		result.put("Reject", "Emission Not Exist");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-        	}
+			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
+				result.put("Reject", "Emission Not Exist");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
 
-        	if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
-        		result.put("Reject", "Emission Not Have Reference");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-        	}
+			if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
+				result.put("Reject", "Emission Not Have Reference");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
 
-        	if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {//si les montant ne matche pas
-    			result.put("Reject", "Paiement Reject");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-    		}
+			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {// si les montant ne
+																									// matche pas
+				result.put("Reject", "Paiement Reject");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
 
-        	//create emission before save payment
-            EmissionDTO emissionDTO = new EmissionDTO();
-        	emissionDTO.setStatus(Statut.DRAFT);
-        	emissionDTO.setAmount(paymentDTO.getAmount());
-        	emissionDTO.setRefEmi(refEmi.toString());
-        	emissionDTO.setCodeContribuable(niu);
-            emissionDTO.setNature(Nature.valueOf(resultEmission.get("type")));
+			// create emission before save payment
+			EmissionDTO emissionDTO = new EmissionDTO();
+			emissionDTO.setStatus(Statut.DRAFT);
+			emissionDTO.setAmount(paymentDTO.getAmount());
+			emissionDTO.setRefEmi(refEmi.toString());
+			emissionDTO.setCodeContribuable(niu);
+			emissionDTO.setNature(Nature.valueOf(resultEmission.get("type")));
 
-            Map<String, Object> organisationDetails = restClientOrganisationService.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
-            if(!organisationDetails.isEmpty()){
-            	log.info(".................. "+resultEmission.toString());
-            	log.info(".................. "+organisationDetails.get("idOrganisation"));
-                emissionDTO.setIdOrganisation(Long.parseLong(organisationDetails.get("idOrganisation").toString()));
-            } else {
-                if (resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name()) ||
-                    resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name()) ||
-                    resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())
-                ){
-                    emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGI_ID);
-                } else {
-                    emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGD_ID);
-                }
-            }
+			Map<String, Object> organisationDetails = restClientOrganisationService
+					.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
+			if (!organisationDetails.isEmpty()) {
+				log.info(".................. " + resultEmission.toString());
+				log.info(".................. " + organisationDetails.get("idOrganisation"));
+				emissionDTO.setIdOrganisation(Long.parseLong(organisationDetails.get("idOrganisation").toString()));
+			} else {
+				if (resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+						|| resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+						|| resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+					emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGI_ID);
+				} else {
+					emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGD_ID);
+				}
+			}
 
-        	EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+			EmissionDTO emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
 
-        	//complete datas payment with idEmission create, and save payment
-        	paymentDTO.setIdEmission(emissionDTO2.getId());
-        	paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
-        	paymentDTO2 =  paymentService.save(paymentDTO);
-        } else {//case recette non fiscale, create payment directly with idRecette in PaymentDTO entry
+			// complete datas payment with idEmission create, and save payment
+			paymentDTO.setIdEmission(emissionDTO2.getId());
+			paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
+			paymentDTO2 = paymentService.save(paymentDTO);
+		} else {// case recette non fiscale, create payment directly with idRecette in
+				// PaymentDTO entry
 
-        	resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
-        	if (resultRecette != null){
-        	    paymentDTO2 =  paymentService.save(paymentDTO);
-        	} else {
-        		result.put("Reject", "Recette Not Found");
-    			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-        	}
-        }
+			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
+			if (resultRecette != null) {
+				paymentDTO2 = paymentService.save(paymentDTO);
+			} else {
+				result.put("Reject", "Recette Not Found");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
+		}
 
-    	//create historique payment
-    	historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO2));
+		// create historique payment
+		historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
+				paymentMapper.toEntity(paymentDTO2));
 
-    	switch (provider) {
+		switch (provider) {
 
-    	case "uba":
-    		{
-    			/*JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
-    			addedParamsPaymentDTO = paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO, addedParamsPaymentDTOJson.getString("email"),
-    					addedParamsPaymentDTOJson.getString("firstname"), addedParamsPaymentDTOJson.getString("lastname"));
-                */
-    			if (addedParamsPaymentDTO != null) {
-    				//construct request build
-    				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(), paymentDTO.getAmount(),
-    			    		addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname());
-    			}
-    			else {
-    				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
-    				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-    			}
-    		}
-    		break;
+		case "uba": {
+			/*
+			 * JSONObject addedParamsPaymentDTOJson = new
+			 * JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+			 * addedParamsPaymentDTO =
+			 * paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO,
+			 * addedParamsPaymentDTOJson.getString("email"),
+			 * addedParamsPaymentDTOJson.getString("firstname"),
+			 * addedParamsPaymentDTOJson.getString("lastname"));
+			 */
+			if (addedParamsPaymentDTO != null) {
+				// construct request build
+				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
+						paymentDTO.getAmount(), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
+						addedParamsPaymentDTO.getLastname());
+			} else {
+				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+		}
+			break;
 
-    	case "orangecmr": case "orangecmr2": case "mtncmr": case "yup": case "EXPRESS_UNION": requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(),
-    			paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-    	break;
+		case "orangecmr":
+		case "orangecmr2":
+		case "mtncmr":
+		case "yup":
+		case "EXPRESS_UNION":
+			requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(),
+					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+			break;
 
-    	case "afrilandcmr": requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(),
-    			niu, "", paymentDTO.getAmount(), refEmi.toString());
-    	break;
+		case "afrilandcmr":
+			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), niu, "",
+					paymentDTO.getAmount(), refEmi.toString());
+			break;
 
-    	default:
-    		break;
-    			}
+		default:
+			break;
+		}
 
-    	if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
-    		result.put("Reject", "MeansOfPayment Not Founds");
+		if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
+			result.put("Reject", "MeansOfPayment Not Founds");
 			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 		}
-    	
+
 //    	if (MeansOfPayment.AFRILAND.getAll().stream().filter(langage -> langage.equals(paymentDTO.getMeansOfPayment().toString())).count() != 0)
-			
-		
-    	resultTransaction = restClientTransactionService.getTransaction(paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()),
-    			requestBuild);
+
+		resultTransaction = restClientTransactionService.getTransaction(
+				paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
 
 		result.put("paymentDTO", paymentDTO2);
 		result.put("resultTransaction", resultTransaction);
 
 		return new ResponseEntity<>(result, HttpStatus.OK);
-    }
+	}
 
-    @PostMapping("/callbackTransaction/{codePaiement}/{status_code}")
-    public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
-    													@PathVariable String codePaiement,
-    													@PathVariable String status_code) {//cette methode sera démarrer par un client feign configuré dans mstransaction
+	@PostMapping("/callbackTransaction/{codePaiement}/{status_code}")
+	public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
+			@PathVariable String codePaiement, @PathVariable String status_code) {// cette methode sera démarrer par un
+																					// client feign configuré dans
+																					// mstransaction
 
-    	String resultat = "Success";
-    	Statut status = null;
+		String resultat = "Success";
+		Statut status = null;
 		Payment payment = new Payment();
 		EmissionDTO emissionDTO = null;
 		RetPaiFiscalis[] retourPaiFiscalis = null;
 //		TransactionDTO transaction = new TransactionDTO();
 
-		//we accept status code equal <100> or <400>
-		if (!status_code.equals("400") && !status_code.equals("100")) return new ResponseEntity<>(resultat = "status code Reject", HttpStatus.NOT_ACCEPTABLE);
+		// we accept status code equal <100> or <400>
+		if (!status_code.equals("400") && !status_code.equals("100"))
+			return new ResponseEntity<>(resultat = "status code Reject", HttpStatus.NOT_ACCEPTABLE);
 
-		if (status_code.equals("100")) {//Payment Sucessfull
+		if (status_code.equals("100")) {// Payment Sucessfull
 			status = Statut.VALIDATED;
-		}
-		else if (status_code.equals("400")) {//Payment Failed
+		} else if (status_code.equals("400")) {// Payment Failed
 			status = Statut.CANCEL;
 		}
 
-		//create transaction
+		// create transaction
 //    	transactionService.save(transactionDTO);
 //    	transaction = transactionService.save(transactionDTO);
 
+		// find payment by codePaiement and update status
+		payment = paymentService.findByCode(codePaiement);
+		Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		if (payment == null)
+			return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 
-    	//find payment by codePaiement and update status
-    	payment = paymentService.findByCode(codePaiement);
-        Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
-    	if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
+		paymentService.update(payment.getId(), status, transactionDTO);
+		historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
+		log.info("========// " + payment + " //============");
+		// TODO UPDATE THIS SECTION
+		// detail organisation
+		Map<String, Object> organisationDetails = new HashMap<String, Object>();
+		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
+		if (status_code.equals("100")) {
+			// ici on génère le reçu en cas de paiement réussi
+			// appel du service de retour paiement pour construire l objet imputation
+			// url a lancer -> http://teledeclaration-dgi.cm:1020/api/paiement dans le
+			// service retour paiement
+			// et le retour paiement doit me retourner les imputations a envoyer a quittance
+			// si msquittance n est pas actif, penser a service de gestion des file d
+			// attente des recu et quittance
+			// coesa quand msquittance demarre il vient lire les recu et quittance en
+			// attente et il les genere
 
-    	paymentService.update(payment.getId(), status, transactionDTO);
-    	historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
-        log.info("========// "+payment+" //============");
-    	//TODO UPDATE THIS SECTION
-        //detail organisation
-        Map<String, Object> organisationDetails = new HashMap<String, Object>();
-        Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
-    	if (status_code.equals("100")) {
-    	    //ici on génère le reçu en cas de paiement réussi
-    		//appel du service de retour paiement pour construire l objet imputation
-    		//url a lancer -> http://teledeclaration-dgi.cm:1020/api/paiement dans le service retour paiement
-    		//et le retour paiement doit me retourner les imputations a envoyer a quittance
-    		//si msquittance n est pas actif, penser a service de gestion des file d attente des recu et quittance
-    		//coesa quand msquittance demarre il vient lire les recu et quittance en attente et il les genere
+			// en cas de paiement d une emission on met a jour le statut de l emission
+			if (payment.getIdEmission() != null && payment.getIdEmission() > 0) {
+				// update emission status
+				retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status).getBody();
 
-            //en cas de paiement d une emission on met a jour le statut de l emission
-            if (payment.getIdEmission() != null && payment.getIdEmission() > 0) {
-                //update emission status
-                retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status).getBody();
+				// create historique emission
+				restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(),
+						payment.getIdEmission());
 
-                //create historique emission
-                restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(), payment.getIdEmission());
+				emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
+			}
+			log.info("======== JUSTIF 1============");
+			// update recette service
+			if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {
 
-                emissionDTO = restClientEmissionService.getEmission(payment.getIdEmission());
-            }
-            log.info("======== JUSTIF 1============");
-            //update recette service
-            if (payment.getIdRecette() != null && payment.getIdRecette() > 0){
+				restClientRNFService.payerRecettesService(payment.getIdRecette(), payment.getId());
+			}
 
-                restClientRNFService.payerRecettesService(payment.getIdRecette(), payment.getId());
-            }
+			if (emissionDTO == null && payment.getIdRecette() == null && payment.getIdRecette() < 0)
+				return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
 
-            if (emissionDTO == null && payment.getIdRecette() == null && payment.getIdRecette() < 0) return new ResponseEntity<>(resultat = "Emission Not Exist", HttpStatus.NOT_FOUND);
-
-            log.info("======== JUSTIF 2============");
-            JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
-    		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
+			log.info("======== JUSTIF 2============");
+			JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+			Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
 			ImputationDTO imputationDTO = new ImputationDTO();
 
-	    	justificatifPaiementDTO.setIdPaiement(payment.getId());
-	    	justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
-	    	justificatifPaiementDTO.setMontant(payment.getAmount());
-	    	justificatifPaiementDTO.setReferencePaiement(payment.getCode());
-            log.info("======== JUSTIF 3============");
-	    	if (emissionDTO != null) {
-                organisationDetails = restClientOrganisationService.findOrganisationById(emissionDTO.getIdOrganisation());
-                log.info("======== JUSTIF 4============");
-                if(retourPaiFiscalis != null) {
-                    for (int i = 0; i < retourPaiFiscalis.length; i++) {
-                        imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
-                        imputationDTO.setNumDeclarationImputation(payment.getId());
-                        imputationDTO.setOperation(emissionDTO.getRefEmi());
-                        imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
-                        listImput.add(imputationDTO);
-                        imputationDTO = new ImputationDTO();
-                    }
-                }else{
-                    imputationDTO.setMontant(payment.getAmount());
-                    imputationDTO.setNumDeclarationImputation(payment.getId());
-                    imputationDTO.setOperation(emissionDTO.getRefEmi());
-                    imputationDTO.setNatrureDesDroits(emissionDTO.getNature().name()+" N° "+emissionDTO.getRefEmi());
-                    listImput.add(imputationDTO);
-                }
-                log.info("======== JUSTIF 5============");
-	    		justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
-	    		justificatifPaiementDTO.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
-	    		justificatifPaiementDTO.setNatureRecette(emissionDTO.getRefEmi());
-                log.info("======== JUSTIF 6============");
-	    	}
+			justificatifPaiementDTO.setIdPaiement(payment.getId());
+			justificatifPaiementDTO.setDateCreation(transactionDTO.getDate());
+			justificatifPaiementDTO.setMontant(payment.getAmount());
+			justificatifPaiementDTO.setReferencePaiement(payment.getCode());
+			log.info("======== JUSTIF 3============");
+			if (emissionDTO != null) {
+				organisationDetails = restClientOrganisationService
+						.findOrganisationById(emissionDTO.getIdOrganisation());
+				log.info("======== JUSTIF 4============");
+				if (retourPaiFiscalis != null) {
+					for (int i = 0; i < retourPaiFiscalis.length; i++) {
+						imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
+						imputationDTO.setNumDeclarationImputation(payment.getId());
+						imputationDTO.setOperation(emissionDTO.getRefEmi());
+						imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
+						listImput.add(imputationDTO);
+						imputationDTO = new ImputationDTO();
+					}
+				} else {
+					imputationDTO.setMontant(payment.getAmount());
+					imputationDTO.setNumDeclarationImputation(payment.getId());
+					imputationDTO.setOperation(emissionDTO.getRefEmi());
+					imputationDTO
+							.setNatrureDesDroits(emissionDTO.getNature().name() + " N° " + emissionDTO.getRefEmi());
+					listImput.add(imputationDTO);
+				}
+				log.info("======== JUSTIF 5============");
+				justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
+				justificatifPaiementDTO
+						.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
+				justificatifPaiementDTO.setNatureRecette(emissionDTO.getRefEmi());
+				log.info("======== JUSTIF 6============");
+			}
 
-	    	if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {//normalement ceci correspond à emissionDTO == null
-                organisationDetails = restClientOrganisationService.findOrganisationById(payment.getIdOrganisation());
-                recetteServiceDetails = restClientRNFService.getResumeRecettesService(payment.getIdRecette());
-	    		justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
+			if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {// normalement ceci correspond à
+																				// emissionDTO == null
+				organisationDetails = restClientOrganisationService.findOrganisationById(payment.getIdOrganisation());
+				recetteServiceDetails = restClientRNFService.getResumeRecettesService(payment.getIdRecette());
+				justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 
-	    		justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); //a enlever
-                justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); //comment recuperer ceci
-	    		imputationDTO.setMontant(payment.getAmount());
-    	    	imputationDTO.setNumDeclarationImputation(payment.getId());
-    	    	imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
-    	    	imputationDTO.setNatrureDesDroits((String) recetteServiceDetails.get("nature"));
-    	    	listImput.add(imputationDTO);
-	    	}
+				justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); // a enlever
+				justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); // comment
+																										// recuperer
+																										// ceci
+				imputationDTO.setMontant(payment.getAmount());
+				imputationDTO.setNumDeclarationImputation(payment.getId());
+				imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
+				imputationDTO.setNatrureDesDroits((String) recetteServiceDetails.get("nature"));
+				listImput.add(imputationDTO);
+			}
 
-	    	justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
-	    	justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
-	    	justificatifPaiementDTO.setCode(payment.getCode());
-            log.info("======== JUSTIF 7============");
-            if(userDTO.get().getFirstName() == null){
-                userDTO.get().setFirstName("");
-            }
-            if(userDTO.get().getLastName() == null){
-                userDTO.get().setLastName("");
-            }
-            log.info("======== JUSTIF 8============");
-	    	justificatifPaiementDTO.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); //comment recuperer ceci
-	    	justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); //comment recuperer ceci
-	    	justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); //comment recuperer ceci
-	    	justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); //comment recuperer ceci
-	    	justificatifPaiementDTO.setSigle(""); //comment recuperer ceci
-	    	justificatifPaiementDTO.setCodePoste(1L); //comment recuperer ceci
-            log.info("======== JUSTIF 9============");
-	    	justificatifPaiementDTO.setExercise(String.valueOf(LocalDateTime.now().getYear()));
-	    	justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
-	    	justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
-	    	justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
-	    	justificatifPaiementDTO.setIfu(" ");
-            log.info("======== JUSTIF 10============");
-	    	justificatifPaiementDTO.setImputations(listImput);
-            log.info("======== JUSTIF 11============");
-	    	restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
-            log.info("======== JUSTIF 12============");
+			justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
+			justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
+			justificatifPaiementDTO.setCode(payment.getCode());
+			log.info("======== JUSTIF 7============");
+			if (userDTO.get().getFirstName() == null) {
+				userDTO.get().setFirstName("");
+			}
+			if (userDTO.get().getLastName() == null) {
+				userDTO.get().setLastName("");
+			}
+			log.info("======== JUSTIF 8============");
+			justificatifPaiementDTO
+					.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); // comment
+																											// recuperer
+																											// ceci
+			justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); // comment
+																												// recuperer
+																												// ceci
+			justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); // comment
+																										// recuperer
+																										// ceci
+			justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); // comment recuperer
+																									// ceci
+			justificatifPaiementDTO.setSigle(""); // comment recuperer ceci
+			justificatifPaiementDTO.setCodePoste(1L); // comment recuperer ceci
+			log.info("======== JUSTIF 9============");
+			justificatifPaiementDTO.setExercise(String.valueOf(LocalDateTime.now().getYear()));
+			justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
+			justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
+			justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
+			justificatifPaiementDTO.setIfu(" ");
+			log.info("======== JUSTIF 10============");
+			justificatifPaiementDTO.setImputations(listImput);
+			log.info("======== JUSTIF 11============");
+			restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
+			log.info("======== JUSTIF 12============");
+
+			// generate notification
+			TypeNotificationDTO typeNotificationPayment = null;
+			try {
+				typeNotificationPayment = restClientNotificationService.getTypeNotification("payment");
+				log.info("======== CHECK 1============");
+			} catch (FeignException e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+				log.info("======== CHECK 2============");
+			} finally {
+
+				if (typeNotificationPayment == null) {
+					typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement",
+							"Notification des paiements effectués", null, "PUSH", null);
+					typeNotificationPayment = restClientNotificationService
+							.createTypeNotification(typeNotificationPayment);
+					log.info("======== CHECK 3============");
+				}
+				NotificationDTO notificationPayment = new NotificationDTO(null,
+						"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
+								+ " effectué via " + payment.getMeansOfPayment().name()
+								+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
+								+ "'>Afficher le reçu</a>",
+						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
+				restClientNotificationService.createNotification(notificationPayment);
+				log.info("======== CHECK 4============");
+			}
 		}
-        log.info("======== JUSTIF 13============");
-    	return new ResponseEntity<>(resultat, HttpStatus.OK);
+		log.info("======== JUSTIF 13============");
+		return new ResponseEntity<>(resultat, HttpStatus.OK);
 
-    }
-
+	}
 
 //    @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
 //    public ResponseEntity<String> reconcilierPaiement(@RequestBody List<PaymentDTO> paymentDTOList
@@ -518,53 +614,53 @@ public class PaymentResource {
 //
 //    }
 
+	@GetMapping("/literPaymentByStatut/{statut}")
+	public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
 
-    @GetMapping("/literPaymentByStatut/{statut}")
-    public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
-
-    	Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-        return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
-    }
+		Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
+		HttpHeaders headers = PaginationUtil
+				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
+		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+	}
 
 	@GetMapping("/literPaymentEmissionContrib/{niu}")
-    public ResponseEntity<List<Payment>> literPaymentEmissionContrib(@PathVariable String niu) {
+	public ResponseEntity<List<Payment>> literPaymentEmissionContrib(@PathVariable String niu) {
 
-    	//Get All Id of Emission already payed
-    	List<String> emissionIdList = restClientEmissionService.getEmissionsContri(niu);
-    	List<Payment> paymentList = new ArrayList<>();
+		// Get All Id of Emission already payed
+		List<String> emissionIdList = restClientEmissionService.getEmissionsContri(niu);
+		List<Payment> paymentList = new ArrayList<>();
 
-    	//Get All Payment where Id_Emission equals Id in emissionIdList
-    	if (emissionIdList != null) {
-    		for (String idEmis : emissionIdList) {
-    			paymentList.add(paymentService.findByIdEmission(Long.parseLong(idEmis)));
-    		}
+		// Get All Payment where Id_Emission equals Id in emissionIdList
+		if (emissionIdList != null) {
+			for (String idEmis : emissionIdList) {
+				paymentList.add(paymentService.findByIdEmission(Long.parseLong(idEmis)));
+			}
 		}
 
-        return new ResponseEntity<>(paymentList, HttpStatus.OK);
-    }
+		return new ResponseEntity<>(paymentList, HttpStatus.OK);
+	}
 
-
-    /**
-     *
-     * @param option valeurs possibles [all, emissions, rnf]
-     * @param pageable
-     * @return
-     */
-    @GetMapping("/listPaymentUser/{option}")
-    public ResponseEntity<List<Payment>> literPaymentByStatut(@PathVariable String option, Pageable pageable) {
-        String username = SecurityUtils.getCurrentUserLogin().get();
-        Page<Payment> pageresult = null;
-        if(option.equalsIgnoreCase("all")){
-            pageresult = paymentService.findAllByCreatedBy(username, pageable);
-        } else if (option.equalsIgnoreCase("emissions")){
-            pageresult = paymentService.findEmissionByCreatedBy(username, pageable);
-        }else if (option.equalsIgnoreCase("rnf")){
-            pageresult = paymentService.findRNFByCreatedBy(username, pageable);
-        }
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-        return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
-    }
+	/**
+	 *
+	 * @param option   valeurs possibles [all, emissions, rnf]
+	 * @param pageable
+	 * @return
+	 */
+	@GetMapping("/listPaymentUser/{option}")
+	public ResponseEntity<List<Payment>> literPaymentByStatut(@PathVariable String option, Pageable pageable) {
+		String username = SecurityUtils.getCurrentUserLogin().get();
+		Page<Payment> pageresult = null;
+		if (option.equalsIgnoreCase("all")) {
+			pageresult = paymentService.findAllByCreatedBy(username, pageable);
+		} else if (option.equalsIgnoreCase("emissions")) {
+			pageresult = paymentService.findEmissionByCreatedBy(username, pageable);
+		} else if (option.equalsIgnoreCase("rnf")) {
+			pageresult = paymentService.findRNFByCreatedBy(username, pageable);
+		}
+		HttpHeaders headers = PaginationUtil
+				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
+		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+	}
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
 //    public ResponseEntity<Map<String, String>> listerPaymentByCodeTransaction(@PathVariable String codeTransaction){
@@ -578,69 +674,73 @@ public class PaymentResource {
 //    	return new ResponseEntity<>(resultData, HttpStatus.OK);
 //    }
 
+	/**
+	 * {@code PUT  /payments} : Updates an existing payment.
+	 *
+	 * @param paymentDTO the paymentDTO to update.
+	 * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+	 *         the updated paymentDTO, or with status {@code 400 (Bad Request)} if
+	 *         the paymentDTO is not valid, or with status
+	 *         {@code 500 (Internal Server Error)} if the paymentDTO couldn't be
+	 *         updated.
+	 * @throws URISyntaxException if the Location URI syntax is incorrect.
+	 */
+	@PutMapping("/payments")
+	public ResponseEntity<PaymentDTO> updatePayment(@Valid @RequestBody PaymentDTO paymentDTO)
+			throws URISyntaxException {
+		log.debug("REST request to update Payment : {}", paymentDTO);
+		if (paymentDTO.getId() == null) {
+			throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+		}
+		PaymentDTO result = paymentService.save(paymentDTO);
+		return ResponseEntity.ok().headers(
+				HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentDTO.getId().toString()))
+				.body(result);
+	}
 
+	/**
+	 * {@code GET  /payments} : get all the payments.
+	 *
+	 * @param pageable the pagination information.
+	 * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+	 *         of payments in body.
+	 */
+	@GetMapping("/payments")
+	public ResponseEntity<List<PaymentDTO>> getAllPayments(Pageable pageable) {
+		log.debug("REST request to get a page of Payments");
+		Page<PaymentDTO> page = paymentService.findAll(pageable);
+		HttpHeaders headers = PaginationUtil
+				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+		return ResponseEntity.ok().headers(headers).body(page.getContent());
+	}
 
+	/**
+	 * {@code GET  /payments/:id} : get the "id" payment.
+	 *
+	 * @param id the id of the paymentDTO to retrieve.
+	 * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+	 *         the paymentDTO, or with status {@code 404 (Not Found)}.
+	 */
+	@GetMapping("/payments/{id}")
+	public ResponseEntity<PaymentDTO> getPayment(@PathVariable Long id) {
+		log.debug("REST request to get Payment : {}", id);
+		Optional<PaymentDTO> paymentDTO = paymentService.findOne(id);
+		return ResponseUtil.wrapOrNotFound(paymentDTO);
+	}
 
-
-    /**
-     * {@code PUT  /payments} : Updates an existing payment.
-     *
-     * @param paymentDTO the paymentDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated paymentDTO,
-     * or with status {@code 400 (Bad Request)} if the paymentDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the paymentDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PutMapping("/payments")
-    public ResponseEntity<PaymentDTO> updatePayment(@Valid @RequestBody PaymentDTO paymentDTO) throws URISyntaxException {
-        log.debug("REST request to update Payment : {}", paymentDTO);
-        if (paymentDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        PaymentDTO result = paymentService.save(paymentDTO);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, paymentDTO.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * {@code GET  /payments} : get all the payments.
-     *
-     * @param pageable the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of payments in body.
-     */
-    @GetMapping("/payments")
-    public ResponseEntity<List<PaymentDTO>> getAllPayments(Pageable pageable) {
-        log.debug("REST request to get a page of Payments");
-        Page<PaymentDTO> page = paymentService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
-
-    /**
-     * {@code GET  /payments/:id} : get the "id" payment.
-     *
-     * @param id the id of the paymentDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the paymentDTO, or with status {@code 404 (Not Found)}.
-     */
-    @GetMapping("/payments/{id}")
-    public ResponseEntity<PaymentDTO> getPayment(@PathVariable Long id) {
-        log.debug("REST request to get Payment : {}", id);
-        Optional<PaymentDTO> paymentDTO = paymentService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(paymentDTO);
-    }
-
-    /**
-     * {@code DELETE  /payments/:id} : delete the "id" payment.
-     *
-     * @param id the id of the paymentDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
-    @DeleteMapping("/payments/{id}")
-    public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
-        log.debug("REST request to delete Payment : {}", id);
-        paymentService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
-    }
+	/**
+	 * {@code DELETE  /payments/:id} : delete the "id" payment.
+	 *
+	 * @param id the id of the paymentDTO to delete.
+	 * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+	 */
+	@DeleteMapping("/payments/{id}")
+	public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
+		log.debug("REST request to delete Payment : {}", id);
+		paymentService.delete(id);
+		return ResponseEntity.noContent()
+				.headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+				.build();
+	}
 
 }

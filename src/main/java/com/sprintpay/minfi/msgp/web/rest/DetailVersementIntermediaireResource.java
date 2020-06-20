@@ -1,43 +1,50 @@
 package com.sprintpay.minfi.msgp.web.rest;
 
-import com.netflix.hystrix.exception.HystrixRuntimeException;
-import com.sprintpay.minfi.msgp.config.ApplicationProperties;
-import com.sprintpay.minfi.msgp.domain.Payment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
-import com.sprintpay.minfi.msgp.service.PaymentService;
-import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
-import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
-import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
-import com.sprintpay.minfi.msgp.service.dto.TransactionSSDTO;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
-import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
-import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import com.sprintpay.minfi.msgp.config.ApplicationProperties;
+import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
+import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
+import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
+import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.TransactionSSDTO;
+import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.UserDTO;
+import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
+
+import feign.FeignException;
+import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
+import io.github.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing
@@ -66,14 +73,21 @@ public class DetailVersementIntermediaireResource {
 
 	private final RESTClientQuittanceService restClientQuittanceService;
 
+	private final RESTClientNotificationService restClientNotificationService;
+
+	private final RESTClientUAAService restClientUAAService;
+
 	public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
 			PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
-			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService) {
+			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
+			RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
 		this.restClientSystacSygmaService = restClientSystacSygmaService;
 		this.applicationProperties = applicationProperties;
 		this.restClientQuittanceService = restClientQuittanceService;
+		this.restClientNotificationService = restClientNotificationService;
+		this.restClientUAAService = restClientUAAService;
 	}
 
 	/**
@@ -182,6 +196,8 @@ public class DetailVersementIntermediaireResource {
 				paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toSet()),
 				Statut.RECONCILED);
 
+		// TODO: update Emissions and RNF
+
 		// Try to Generate Quittances
 		retryCount = 0;
 		while (retryCount < MAX_RETRY_COUNT) {
@@ -197,6 +213,36 @@ public class DetailVersementIntermediaireResource {
 				continue;
 			}
 		}
+		// generate notification
+		TypeNotificationDTO typeNotificationPayment = null;
+		try {
+			typeNotificationPayment = restClientNotificationService.getTypeNotification("quittance");
+			log.info("======== CHECK 1============");
+		} catch (FeignException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+			log.info("======== CHECK 2============");
+		} finally {
+			if (typeNotificationPayment == null) {
+				typeNotificationPayment = new TypeNotificationDTO(null, "quittance", "Nouvelle quittance disponible",
+						"Notification des quittances disponible", null, "PUSH", null);
+				typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+				log.info("======== CHECK 3============");
+			}
+
+			for (Payment payment2 : paymentsToReconciled) {
+				Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment2.getCreatedBy());
+				NotificationDTO notificationPayment = new NotificationDTO(null,
+						"La quittance est disponible pour le payment N° [" + payment2.getId() + "] d'un montant de "
+								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name()
+								+ "<a href='/client/voirJustificatif/quittance/" + payment2.getId()
+								+ "'>Afficher la quittance</a>",
+						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
+				restClientNotificationService.createNotification(notificationPayment);
+				log.info("======== CHECK 4============");
+			}
+		}
+
 		return ResponseEntity
 				.created(new URI("/api/detail-versement-intermediaires/" + result.getId())).headers(HeaderUtil
 						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
