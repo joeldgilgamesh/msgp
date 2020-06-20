@@ -8,7 +8,7 @@ import java.util.List;
  * The MeansOfPayment enumeration.
  */
 public enum MeansOfPayment {
-    MOBILE_MONEY, ORANGE_MONEY, YUP, EXPRESS_UNION, VISA, MASTER_CARD, AFRILAND, UBA;
+    MOBILE_MONEY, ORANGE_MONEY, ORANGE_MONEY2, YUP, EXPRESS_UNION, VISA, MASTER_CARD, AFRILAND, UBA;
 	
 	public List<String> getAll() {
 		List<String> liste = new ArrayList<String>();
