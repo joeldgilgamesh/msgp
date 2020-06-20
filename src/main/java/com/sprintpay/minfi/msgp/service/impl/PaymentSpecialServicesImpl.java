@@ -102,7 +102,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			break;
 			
 		case "ORANGE_MONEY2":
-			result = "orangecmr";
+			result = "orangecmr2";
 			break;
 			
 		case "EXPRESS_UNION":
