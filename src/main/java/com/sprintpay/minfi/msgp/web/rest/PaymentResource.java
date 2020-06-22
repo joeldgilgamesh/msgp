@@ -555,7 +555,7 @@ public class PaymentResource {
 								+ " effectué via " + payment.getMeansOfPayment().name()
 								+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
 								+ "'>Afficher le reçu</a>",
-						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
+						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 				restClientNotificationService.createNotification(notificationPayment);
 				log.info("======== CHECK 4============");
 			}

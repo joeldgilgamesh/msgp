@@ -237,7 +237,7 @@ public class DetailVersementIntermediaireResource {
 								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name()
 								+ "<a href='/client/voirJustificatif/quittance/" + payment2.getId()
 								+ "'>Afficher la quittance</a>",
-						userDTO.get().getId(), applicationName, "TRANSMIS", typeNotificationPayment.getId(), null);
+						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 				restClientNotificationService.createNotification(notificationPayment);
 				log.info("======== CHECK 4============");
 			}
