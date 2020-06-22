@@ -214,7 +214,7 @@ public class PaymentResource {
 			}
 
 			// controle du depassement du montant a payer
-			if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY"))
+			if ((provider.matches("MOBILE_MONEY|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION"))
 					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
 				result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -222,7 +222,7 @@ public class PaymentResource {
 		}
 
 		// controle du numero de telephone, selon le moyen de paiement
-		if ((provider.equals("MOBILE_MONEY") || provider.equals("ORANGE_MONEY") || provider.equals("EXPRESS_UNION"))
+		if ((provider.matches("MOBILE_MONEY|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION"))
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
 			result.put("Reject", "Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -337,7 +337,7 @@ public class PaymentResource {
 		case "orangecmr2":
 		case "mtncmr":
 		case "yup":
-		case "EXPRESS_UNION":
+		case "eucmr":
 			requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(),
 					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
 			break;
