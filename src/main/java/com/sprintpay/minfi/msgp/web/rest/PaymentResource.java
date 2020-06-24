@@ -387,7 +387,7 @@ public class PaymentResource {
 		if (status_code.equals("100")) {// Payment Sucessfull
 			status = Statut.VALIDATED;
 		} else if (status_code.equals("400")) {// Payment Failed
-			status = Statut.CANCELED;
+			status = Statut.CANCEL;
 		}
 
 		// create transaction
