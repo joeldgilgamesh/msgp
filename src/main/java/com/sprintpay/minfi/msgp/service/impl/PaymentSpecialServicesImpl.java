@@ -124,6 +124,9 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		case "AFRILAND":
 			result = "afrilandcmr";
 			break;
+		
+		case "ECOBANK":
+			result = "ecobankcmr";
 
 		default:
 			result = null;

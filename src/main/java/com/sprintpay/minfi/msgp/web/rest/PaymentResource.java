@@ -338,6 +338,8 @@ public class PaymentResource {
 		case "mtncmr":
 		case "yup":
 		case "eucmr":
+		case "ecobankcmr":
+			
 			requestBuild = paymentSpecialServices.buildRequest(debitInfo, paymentDTO.getAmount(),
 					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
 			break;
