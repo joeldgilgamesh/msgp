@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
@@ -153,13 +155,13 @@ public class PaymentResource {
 //        return new ResponseEntity<PaymentDTO>(result, HttpStatus.CREATED);
 //    }
 
-//    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
+    @PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiement/{debitInfo}/{niu}/{refEmi}")
 	public ResponseEntity<Map<String, Object>> effectuerPaiement(@RequestBody Map<String, Object> body
 	// , PaymentDTO paymentDTO
 			, @PathVariable String debitInfo, @PathVariable String niu, @PathVariable String refEmi
 	// , AddedParamsPaymentDTO addedParamsPaymentDTO
-	) {
+	) throws JsonMappingException, JsonProcessingException {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
@@ -179,15 +181,19 @@ public class PaymentResource {
 
 		PaymentDTO paymentDTO = null;// (PaymentDTO) body.get("paymentDTO");
 		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
-		try {
-			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
-			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
-					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			result.put("Reject", "Bad Datas Entry Of Payment");
-			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-		}
+		
+		paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+		addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+				AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+//		try {
+//			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+//			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+//					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+//		} catch (JsonProcessingException e) {
+//			e.printStackTrace();
+//			result.put("Reject", "Bad Datas Entry Of Payment");
+//			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+//		}
 
 		// construct paymentDTO and addedParamsPaymentDTO
 		// paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO,
@@ -311,7 +317,8 @@ public class PaymentResource {
 
 		switch (provider) {
 
-		case "uba": {
+		case "uba":
+		case "ecobankcmr2": {
 			/*
 			 * JSONObject addedParamsPaymentDTOJson = new
 			 * JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
@@ -325,7 +332,7 @@ public class PaymentResource {
 				// construct request build
 				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
 						paymentDTO.getAmount(), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
-						addedParamsPaymentDTO.getLastname());
+						addedParamsPaymentDTO.getLastname(), provider);
 			} else {
 				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);

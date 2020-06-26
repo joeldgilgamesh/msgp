@@ -19,6 +19,9 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -134,5 +137,23 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
             .with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE)
             .build();
         return create(ex, problem, request);
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleJsonProcessingException(JsonProcessingException ex) {
+    	Problem problem = Problem.builder()
+    			.withStatus(Status.NOT_FOUND)
+    			.with("Fields Errors", ex.getMessage())
+    			.build();
+    	return create(ex, problem, null);
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleJsonMappingException(JsonMappingException ex) {
+    	Problem problem = Problem.builder()
+    			.withStatus(Status.NOT_ACCEPTABLE)
+    			.with("Mapping Errors", ex.getMessage())
+    			.build();
+    	return create(ex, problem, null);
     }
 }

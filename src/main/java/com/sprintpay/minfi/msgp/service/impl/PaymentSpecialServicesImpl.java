@@ -62,7 +62,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	}
 	
 	//provider == "UBA"
-	public Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname) {
+	public Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname, String provider) {
 		
 		Map<String, String> request = new HashMap<String, String>();
 		request.put("clientId", "");
@@ -84,6 +84,8 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("ref", "");
     	request.put("notificationUrl", "");
     	request.put("ipAddress", "");
+    	
+    	if (provider.equals("ecobankcmr2")) request.put("qrCode", "default");
 		
 		return request;
 	}
@@ -132,6 +134,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		
 		case "ECOBANK":
 			result = "ecobankcmr";
+			break;
+			
+		case "ECOBANK2":
+			result = "ecobankcmr2";
 			break;
 
 		default:
