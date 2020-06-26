@@ -24,7 +24,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 //		this.paymentRepository = paymentRepository;
 //	}
 	
-	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"
+	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" || provider == "MOBILE_MONEY2"
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
@@ -93,8 +93,13 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		// TODO Auto-generated method stub
 		String result = "";
 		switch (provider) {
+		
 		case "MOBILE_MONEY":
 			result = "mtncmr";
+			break;
+		
+		case "MOBILE_MONEY2":
+			result = "mtncmr2";
 			break;
 			
 		case "ORANGE_MONEY":
