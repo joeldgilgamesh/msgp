@@ -24,7 +24,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 //		this.paymentRepository = paymentRepository;
 //	}
 	
-	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" || provider == "MOBILE_MONEY2"
+	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" ||provider == "ECOBANK" || provider == "MOBILE_MONEY2"
 	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
@@ -32,7 +32,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("clientToken", "");
     	request.put("phone", debitInfo);
     	request.put("orderId", code);
-    	request.put("amount", amount.toString());
     	request.put("currency", "");
     	request.put("description", "");
     	request.put("companyName", "");
@@ -40,6 +39,12 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("failureUrl", "");
     	request.put("notificationUrl", "");
     	request.put("ipAddress", "");
+    	
+    	if (provider.equals("ecobankcmr")) {
+    		request.put("amount", String.valueOf((long) Math.round(amount)));
+		}
+    	
+    	else request.put("amount", amount.toString());
     	
 		return request;
 	}
@@ -70,7 +75,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("phone", debitInfo);
     	request.put("orderId", code);
     	request.put("uniqueId", "");
-    	request.put("amount", amount.toString());
     	request.put("email", email);
     	request.put("firstname", firstname);
     	request.put("lastname", lastname);
@@ -85,7 +89,12 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("notificationUrl", "");
     	request.put("ipAddress", "");
     	
-    	if (provider.equals("ecobankcmr2")) request.put("qrCode", "default");
+    	if (provider.equals("ecobankcmr2")) {
+    		request.put("qrCode", "default");
+    	    request.put("amount", String.valueOf((long) Math.round(amount)));
+    	}
+    	
+    	else request.put("amount", amount.toString());
 		
 		return request;
 	}

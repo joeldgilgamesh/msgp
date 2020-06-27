@@ -174,14 +174,14 @@ public class PaymentResource {
 			result.put("Reject", "Enter Datas is Null");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
-
+		
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
 		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 
-		PaymentDTO paymentDTO = null;// (PaymentDTO) body.get("paymentDTO");
+		PaymentDTO paymentDTO = null;  //(PaymentDTO) body.get("paymentDTO");
 		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
-		
+
 		paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
 		addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
 				AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
@@ -208,7 +208,7 @@ public class PaymentResource {
 		}
 
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
-
+		
 		// controle du niu en cas des emissions
 		if (!refEmi.equals("null")) {
 
@@ -220,7 +220,7 @@ public class PaymentResource {
 			}
 
 			// controle du depassement du montant a payer
-			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK"))
+			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
 					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
 				result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -228,7 +228,7 @@ public class PaymentResource {
 		}
 
 		// controle du numero de telephone, selon le moyen de paiement
-		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK"))
+		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
 			result.put("Reject", "Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
