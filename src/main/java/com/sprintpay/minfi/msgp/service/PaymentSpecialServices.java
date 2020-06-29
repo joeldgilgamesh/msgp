@@ -54,7 +54,7 @@ public interface PaymentSpecialServices {
 	 * @param lastname
 	 * @return
 	 */
-	Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname, 
+	Map<String, String> buildRequestUBA(String debitInfo, String code, String amount, String email, String firstname, String lastname, 
 			String provider, String clientID);
 
 	/**

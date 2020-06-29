@@ -331,7 +331,7 @@ public class PaymentResource {
 			if (addedParamsPaymentDTO != null) {
 				// construct request build
 				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
-						paymentDTO.getAmount(), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
+						String.valueOf((int) Math.round(paymentDTO.getAmount())), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
 						addedParamsPaymentDTO.getLastname(), provider, niu);
 			} else {
 				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
@@ -346,6 +346,10 @@ public class PaymentResource {
 		case "mtncmr2":
 		case "yup":
 		case "eucmr":
+			requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf(paymentDTO.getAmount()),
+					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+			break;
+			
 		case "ecobankcmr":
 			
 			requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf((int) Math.round(paymentDTO.getAmount())),
