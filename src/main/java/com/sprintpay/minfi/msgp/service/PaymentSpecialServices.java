@@ -41,7 +41,8 @@ public interface PaymentSpecialServices {
 	 * @param referenceEmission
 	 * @return
 	 */
-	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, Double amount, String referenceEmission);
+	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, Double amount, 
+			String referenceEmission);
 
 	/**
 	 * 
@@ -53,7 +54,8 @@ public interface PaymentSpecialServices {
 	 * @param lastname
 	 * @return
 	 */
-	Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname, String provider);
+	Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname, 
+			String provider, String clientID);
 
 	/**
 	 * 

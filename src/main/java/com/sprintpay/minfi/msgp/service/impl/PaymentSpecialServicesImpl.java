@@ -67,10 +67,11 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	}
 	
 	//provider == "UBA"
-	public Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, String lastname, String provider) {
+	public Map<String, String> buildRequestUBA(String debitInfo, String code, Double amount, String email, String firstname, 
+			String lastname, String provider, String clientID) {
 		
 		Map<String, String> request = new HashMap<String, String>();
-		request.put("clientId", "");
+		request.put("clientId", clientID);
     	request.put("clientToken", "");
     	request.put("phone", debitInfo);
     	request.put("orderId", code);

@@ -332,7 +332,7 @@ public class PaymentResource {
 				// construct request build
 				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
 						paymentDTO.getAmount(), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
-						addedParamsPaymentDTO.getLastname(), provider);
+						addedParamsPaymentDTO.getLastname(), provider, niu);
 			} else {
 				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
