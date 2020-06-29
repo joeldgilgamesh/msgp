@@ -41,7 +41,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("ipAddress", "");
     	
     	if (provider.equals("ecobankcmr")) {
-    		request.put("amount", String.valueOf((long) Math.round(amount)));
+    		request.put("amount", String.valueOf((int) Math.round(amount)));
 		}
     	
     	else request.put("amount", amount.toString());
@@ -93,7 +93,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	
     	if (provider.equals("ecobankcmr2")) {
     		request.put("qrCode", "default");
-    	    request.put("amount", String.valueOf((long) Math.round(amount)));
+    	    request.put("amount", String.valueOf((int) Math.round(amount)));
     	}
     	
     	else request.put("amount", amount.toString());
