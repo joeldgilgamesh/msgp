@@ -91,7 +91,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	
     	if (provider.equals("ecobankcmr2")) {
     		request.put("qrCode", "default");
-    	    request.put("amount", String.valueOf((int) Math.round(amount)));
+    	    request.put("amount", String.valueOf((long) Math.round(amount)));
     	}
     	
     	else request.put("amount", amount.toString());
