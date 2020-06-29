@@ -44,7 +44,9 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     		request.put("amount", String.valueOf((int) Math.round(amount)));
 		}
     	
-    	else request.put("amount", amount.toString());
+    	else {
+    		request.put("amount", amount.toString());
+    	}
     	
 		return request;
 	}
