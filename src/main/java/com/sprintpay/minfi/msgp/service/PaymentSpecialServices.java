@@ -17,7 +17,7 @@ public interface PaymentSpecialServices {
 	 * @param amount
 	 * @return
 	 */
-	Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code);
+	Map<String, String> buildRequest(String debitInfo, String amount, String provider, String code);
 	
 	/**
 	 * 

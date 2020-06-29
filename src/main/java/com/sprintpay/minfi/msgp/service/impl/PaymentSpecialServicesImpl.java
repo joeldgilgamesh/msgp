@@ -25,13 +25,14 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 //	}
 	
 	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" ||provider == "ECOBANK" || provider == "MOBILE_MONEY2"
-	public Map<String, String> buildRequest(String debitInfo, Double amount, String provider, String code) {
+	public Map<String, String> buildRequest(String debitInfo, String amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
 		request.put("clientId", "");
     	request.put("clientToken", "");
     	request.put("phone", debitInfo);
     	request.put("orderId", code);
+    	request.put("amount", amount);
     	request.put("currency", "");
     	request.put("description", "");
     	request.put("companyName", "");
@@ -40,13 +41,13 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("notificationUrl", "");
     	request.put("ipAddress", "");
     	
-    	if (provider.equals("ecobankcmr")) {
-    		request.put("amount", String.valueOf((int) Math.round(amount)));
-		}
-    	
-    	else {
-    		request.put("amount", amount.toString());
-    	}
+//    	if (provider.equals("ecobankcmr")) {
+//    		request.put("amount", String.valueOf((int) Math.round(amount)));
+//		}
+//    	
+//    	else {
+//    		request.put("amount", amount.toString());
+//    	}
     	
 		return request;
 	}
