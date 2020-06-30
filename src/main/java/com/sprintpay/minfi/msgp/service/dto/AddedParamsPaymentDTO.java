@@ -12,6 +12,7 @@ public class AddedParamsPaymentDTO implements Serializable {
 	private String email;
 	private String firstname;
 	private String lastname;
+	private String contribuableId;
 	
 	public String getEmail() {
 		return email;
@@ -36,5 +37,13 @@ public class AddedParamsPaymentDTO implements Serializable {
 	public void setLastname(String lastname) {
 		this.lastname = lastname;
 	}
-	
+
+	public String getContribuableId() {
+		return contribuableId;
+	}
+
+	public void setContribuableId(String contribuableId) {
+		this.contribuableId = contribuableId;
+	}
+
 }

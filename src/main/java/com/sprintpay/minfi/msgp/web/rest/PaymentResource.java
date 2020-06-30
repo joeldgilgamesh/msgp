@@ -357,7 +357,7 @@ public class PaymentResource {
 			break;
 
 		case "afrilandcmr":
-			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), niu, "",
+			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
 					paymentDTO.getAmount(), refEmi.toString());
 			break;
 
