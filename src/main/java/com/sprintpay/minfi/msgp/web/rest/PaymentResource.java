@@ -169,6 +169,7 @@ public class PaymentResource {
 		Map<String, String> resultEmission = new LinkedHashMap<String, String>();
 		Object resultRecette = null;
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
+		Long refEmissionOuRecette = 0L;
 		
 //		try {
 //			body.get("sdgdfssgd");
@@ -258,6 +259,7 @@ public class PaymentResource {
 		if (!refEmi.equals("null")) {
 
 			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+			refEmissionOuRecette = paymentDTO.getIdEmission();
 
 			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
 				result.put("Reject", "Emission Not Exist");
@@ -309,6 +311,7 @@ public class PaymentResource {
 				// PaymentDTO entry
 
 			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
+			refEmissionOuRecette = paymentDTO.getIdRecette();
 			if (resultRecette != null) {
 				paymentDTO2 = paymentService.save(paymentDTO);
 			} else {
@@ -364,7 +367,7 @@ public class PaymentResource {
 
 		case "afrilandcmr":
 			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
-					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmi.toString());
+					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmissionOuRecette);
 			break;
 
 		default:

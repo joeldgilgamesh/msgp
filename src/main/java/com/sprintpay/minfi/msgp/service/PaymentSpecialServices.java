@@ -42,7 +42,7 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, String amount, 
-			String referenceEmission);
+			Long referenceEmission);
 
 	/**
 	 * 
