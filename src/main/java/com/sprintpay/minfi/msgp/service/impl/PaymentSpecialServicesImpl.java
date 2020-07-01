@@ -45,13 +45,13 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	}
 	
 	//provider == "AFRILAND"
-	public Map<String, String> buildRequestAfriland(String debitInfo, String code, String contribuableId, String libelleEmision, Double amount, 
+	public Map<String, String> buildRequestAfriland(String debitInfo, String code, String contribuableId, String libelleEmision, String amount, 
 			String referenceEmission) {
 		
 		Map<String, String> request = new HashMap<String, String>();
 		request.put("contribuableId", contribuableId);
 		request.put("libelle", libelleEmision);
-		request.put("amount", amount.toString());
+		request.put("amount", amount);
 		request.put("moyenPaiementId", "afrilandcmr");
 		request.put("referenceEmission", referenceEmission);
 		request.put("clientId", "");

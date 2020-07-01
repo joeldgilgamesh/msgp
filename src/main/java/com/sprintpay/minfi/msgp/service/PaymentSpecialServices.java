@@ -41,7 +41,7 @@ public interface PaymentSpecialServices {
 	 * @param referenceEmission
 	 * @return
 	 */
-	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, Double amount, 
+	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, String amount, 
 			String referenceEmission);
 
 	/**

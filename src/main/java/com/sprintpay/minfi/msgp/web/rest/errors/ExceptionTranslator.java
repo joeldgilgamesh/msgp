@@ -3,6 +3,7 @@ package com.sprintpay.minfi.msgp.web.rest.errors;
 import io.github.jhipster.web.util.HeaderUtil;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -113,6 +114,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                 .build();
 //        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     	return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
+//    	return create(ex, request, HeaderUtil.createFailureAlert(applicationName, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
 
     @ExceptionHandler
@@ -155,5 +157,23 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     			.with("Mapping Errors", ex.getMessage())
     			.build();
     	return create(ex, problem, null);
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleNullPointerException(NullPointerException ex) {
+    	Problem problem = Problem.builder()
+    			.withStatus(Status.NO_CONTENT)
+    			.with("Mapping Errors", ex.getMessage())
+    			.build();
+    	return ResponseEntity.ok().body(problem);
+    }
+    
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleJSONException(JSONException ex) {
+    	Problem problem = Problem.builder()
+    			.withStatus(Status.NO_CONTENT)
+    			.with("Mapping Errors", ex.getMessage())
+    			.build();
+    	return ResponseEntity.ok().body(problem);
     }
 }

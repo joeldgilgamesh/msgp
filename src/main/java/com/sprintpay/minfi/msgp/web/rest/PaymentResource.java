@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -168,7 +169,12 @@ public class PaymentResource {
 		Map<String, String> resultEmission = new LinkedHashMap<String, String>();
 		Object resultRecette = null;
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
-
+		
+//		try {
+//			body.get("sdgdfssgd");
+//		} catch (Exception e) {
+//			log.error("juste avant le body-----------------------" + body);
+//		}
 		// controle body enter
 		if (body == null) {
 			result.put("Reject", "Enter Datas is Null");
@@ -358,7 +364,7 @@ public class PaymentResource {
 
 		case "afrilandcmr":
 			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
-					paymentDTO.getAmount(), refEmi.toString());
+					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmi.toString());
 			break;
 
 		default:
