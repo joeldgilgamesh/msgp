@@ -162,7 +162,7 @@ public class PaymentResource {
 	// , PaymentDTO paymentDTO
 			, @PathVariable String debitInfo, @PathVariable String niu, @PathVariable String refEmi
 	// , AddedParamsPaymentDTO addedParamsPaymentDTO
-	) throws JsonMappingException, JsonProcessingException {
+	) {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		Map<String, String> resultTransaction = new LinkedHashMap<String, String>();
@@ -171,13 +171,11 @@ public class PaymentResource {
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 		Long refEmissionOuRecette = 0L;
 		
-		log.error("juste avant le body-----------------------" + body.get("sdgdfssgd"));
-		
 		// controle body enter
-//		if (body == null) {
-//			result.put("Reject", "Enter Datas is Null");
-//			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//		}
+		if (body == null) {
+			result.put("Reject", "Enter Datas is Null");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
 		
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
@@ -186,18 +184,18 @@ public class PaymentResource {
 		PaymentDTO paymentDTO = null;  //(PaymentDTO) body.get("paymentDTO");
 		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
 
-		paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
-		addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
-				AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
-//		try {
-//			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
-//			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
-//					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
-//		} catch (JsonProcessingException e) {
-//			e.printStackTrace();
-//			result.put("Reject", "Bad Datas Entry Of Payment");
-//			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-//		}
+//		paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+//		addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+//				AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+		try {
+			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			result.put("Reject", "Bad Datas Entry Of Payment");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
 
 		// construct paymentDTO and addedParamsPaymentDTO
 		// paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO,
