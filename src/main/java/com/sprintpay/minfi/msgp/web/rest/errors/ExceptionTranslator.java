@@ -1,6 +1,11 @@
 package com.sprintpay.minfi.msgp.web.rest.errors;
 
-import io.github.jhipster.web.util.HeaderUtil;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.zalando.problem.DefaultProblem;
 import org.zalando.problem.Problem;
 import org.zalando.problem.ProblemBuilder;
@@ -22,12 +28,6 @@ import org.zalando.problem.violations.ConstraintViolationProblem;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -79,27 +79,6 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return new ResponseEntity<>(builder.build(), entity.getHeaders(), entity.getStatusCode());
     }
 
-    @Override
-    public ResponseEntity<Problem> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @Nonnull NativeWebRequest request) {
-        BindingResult result = ex.getBindingResult();
-//        List<FieldErrorVM> fieldErrors = result.getFieldErrors().stream()
-//            .map(f -> new FieldErrorVM(f.getObjectName().replaceFirst("DTO$", ""), f.getField(), f.getCode()))
-//            .collect(Collectors.toList());
-        List<String> errors = result.getFieldErrors().stream()
-        		.map(x -> x.getDefaultMessage())
-        		.collect(Collectors.toList());
-
-        Problem problem = Problem.builder()
-            .withType(ErrorConstants.CONSTRAINT_VIOLATION_TYPE)
-            .withTitle("Method argument not valid")
-            .withStatus(defaultConstraintViolationStatus())
-            .with(MESSAGE_KEY, ErrorConstants.ERR_VALIDATION)
-            .with(FIELD_ERRORS_KEY, errors)
-            .build();
-//        return create(ex, problem, request);
-        return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
     	//a traiter...
@@ -116,21 +95,6 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     	return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
 //    	return create(ex, request, HeaderUtil.createFailureAlert(applicationName, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     }
-
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleIllegalArgumentException(IllegalArgumentException ex) {
-    	
-    	String msg = ex.getLocalizedMessage();
-    	
-    	Problem problem = Problem.builder()
-                .withType(ErrorConstants.DEFAULT_TYPE)
-                .withTitle("Bad Type Datas Send")
-                .withStatus(defaultConstraintViolationStatus())
-                .with(MESSAGE_KEY, ErrorConstants.DEFAULT_TYPE)
-                .with(FIELD_ERRORS_KEY, msg)
-                .build();
-    	return new ResponseEntity<>(problem, HttpStatus.NOT_ACCEPTABLE);
-    }
     
     @ExceptionHandler
     public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
@@ -141,39 +105,4 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(ex, problem, request);
     }
     
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleJsonProcessingException(JsonProcessingException ex) {
-    	Problem problem = Problem.builder()
-    			.withStatus(Status.NOT_FOUND)
-    			.with("Fields Errors", ex.getMessage())
-    			.build();
-    	return create(ex, problem, null);
-    }
-    
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleJsonMappingException(JsonMappingException ex) {
-    	Problem problem = Problem.builder()
-    			.withStatus(Status.NOT_ACCEPTABLE)
-    			.with("Mapping Errors", ex.getMessage())
-    			.build();
-    	return create(ex, problem, null);
-    }
-    
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleNullPointerException(NullPointerException ex) {
-    	Problem problem = Problem.builder()
-    			.withStatus(Status.NO_CONTENT)
-    			.with("Mapping Errors", ex.getMessage())
-    			.build();
-    	return ResponseEntity.ok().body(problem);
-    }
-    
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleJSONException(JSONException ex) {
-    	Problem problem = Problem.builder()
-    			.withStatus(Status.NO_CONTENT)
-    			.with("Mapping Errors", ex.getMessage())
-    			.build();
-    	return ResponseEntity.ok().body(problem);
-    }
 }

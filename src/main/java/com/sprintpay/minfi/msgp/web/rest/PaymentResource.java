@@ -171,16 +171,13 @@ public class PaymentResource {
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 		Long refEmissionOuRecette = 0L;
 		
-//		try {
-//			body.get("sdgdfssgd");
-//		} catch (Exception e) {
-//			log.error("juste avant le body-----------------------" + body);
-//		}
+		log.error("juste avant le body-----------------------" + body.get("sdgdfssgd"));
+		
 		// controle body enter
-		if (body == null) {
-			result.put("Reject", "Enter Datas is Null");
-			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
-		}
+//		if (body == null) {
+//			result.put("Reject", "Enter Datas is Null");
+//			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+//		}
 		
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
