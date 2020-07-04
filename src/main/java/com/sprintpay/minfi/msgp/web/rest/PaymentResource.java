@@ -171,6 +171,8 @@ public class PaymentResource {
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 		Long refEmissionOuRecette = 0L;
 		
+//		log.error("juste avant le body-----------------------" + body.get("sdgdfssgd"));
+		
 		// controle body enter
 		if (body == null) {
 			result.put("Reject", "Enter Datas is Null");
@@ -581,6 +583,22 @@ public class PaymentResource {
 		log.info("======== JUSTIF 13============");
 		return new ResponseEntity<>(resultat, HttpStatus.OK);
 
+	}
+	
+	@PostMapping(value = "/confirmPaymentAfriland/{otp}/{trxid}")
+	Map<String, String> confirmPaymentAfriland(@PathVariable("otp") String otp, @PathVariable("trxid") String trxid) {
+		
+		Map<String, String> result = new HashMap<>();
+		
+		try {
+			 result = restClientTransactionService.confirmPayment(otp, trxid);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("exception", e.getMessage());
+			return result;
+		}
+		
+		return result;
 	}
 
 //    @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
