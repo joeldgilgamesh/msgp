@@ -20,7 +20,7 @@ public interface RESTClientTransactionService {
 	@GetMapping("/api/payment/{provider}/notification/status")
 	String getAlltransaction(@PathVariable ("provider") String provider);
 	
-	@GetMapping("/api/afrilandcmr/confirmpayment/{otp}/{trxid}")
+	@GetMapping("/api/payment/afrilandcmr/confirmpayment/{otp}/{trxid}")
 	Map<String,String> confirmPayment(@PathVariable("otp") String otp, @PathVariable("trxid") String trxid) throws Exception;
 
 }
