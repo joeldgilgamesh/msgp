@@ -1,0 +1,23 @@
+// entités du micro service MS Emission et Declaration
+
+enum Statut {
+	DRAFT,
+    PENDING,
+    VALIDATED,
+    RECONCILED,
+    CANCEL
+}
+
+entity Emission {
+    refEmi String,
+    amount Double,
+    codeContribuable String,
+	status Statut,
+	idOrganisation Long,
+	idTypeEmisId Long
+}
+
+dto * with mapstruct  //pour chaque entité je genère un DTO
+service * with serviceClass  //pour chaque entité je génère une interface 
+service * with serviceImpl  //pour chaque entité je génère une implémentation
+microservice * with spminfimsgp

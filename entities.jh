@@ -1,0 +1,65 @@
+// entités du micro service MS Paiement
+enum Statut {
+	DRAFT,
+    PENDING,
+    VALIDATED,
+    RECONCILED,
+    CANCEL
+}
+
+enum MeansOfPayment {
+	MOBILE_MONEY,
+    ORANGE_MONEY,
+    YUP,
+    EXPRESS_UNION,
+    VISA,
+    MASTER_CARD
+}
+
+entity Payment {
+	code String required,
+    meansOfPayment MeansOfPayment,
+    statut Statut,
+    amount Double,
+	idEmission Long,  //non pris en compte pour le moment
+	idRecette Long,  //non pris en compte pour le moment
+	idOrganisation Long  //non pris en compte pour le moment
+}
+
+entity HistoriquePayment {
+	status String,
+    dateStatus LocalDate
+}
+
+entity Transaction {
+	codeTransaction String,
+	telephone String
+}
+
+entity DetailVersementIntermediaire {
+	numeroVersment String,
+    date LocalDate,
+    montant Double
+}
+
+relationship ManyToOne {
+    Payment {idTransaction} to Transaction,  //a partir d un Payment on peut consulter les details sur la transaction
+	Payment {idDetVers} to DetailVersementIntermediaire 
+}
+
+relationship OneToMany {
+	Payment {idHistPay} to HistoriquePayment  //a partir d un Payment on peut consulter tous les historiques concernant ce Payment
+}
+
+paginate Payment with pagination
+paginate HistoriquePayment with pagination
+paginate Transaction with pagination
+paginate DetailVersementIntermediaire with pagination
+dto * with mapstruct  //pour chaque entité je genère un DTO
+service * with serviceClass  //pour chaque entité je génère une interface 
+service * with serviceImpl  //pour chaque entité je génère une implémentation
+microservice * with spminfimsgp
+
+
+
+

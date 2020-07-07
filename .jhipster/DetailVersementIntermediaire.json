@@ -1,0 +1,29 @@
+{
+    "name": "DetailVersementIntermediaire",
+    "fields": [
+        {
+            "fieldName": "numeroVersment",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "date",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "montant",
+            "fieldType": "Double"
+        }
+    ],
+    "relationships": [],
+    "changelogDate": "20200219160000",
+    "entityTableName": "detail_versement_intermediaire",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "readOnly": false,
+    "clientRootFolder": "spminfimsgp",
+    "applications": "*",
+    "microserviceName": "spminfimsgp"
+}
