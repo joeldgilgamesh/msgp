@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @AuthorizedFeignClient(name = "spminfimsss")
 @Service
 public interface RESTClientSystacSygmaService {
+	
     @GetMapping("/api/transactions/find/{numeroVersment}")
     ResponseEntity<TransactionSSDTO> searchTransaction(@PathVariable("numeroVersment") String numeroVersment, @RequestParam("token") String token);
 }

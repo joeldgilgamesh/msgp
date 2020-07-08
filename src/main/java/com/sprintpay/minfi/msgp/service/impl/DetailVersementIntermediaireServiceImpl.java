@@ -1,9 +1,9 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,8 +14,6 @@ import com.sprintpay.minfi.msgp.repository.DetailVersementIntermediaireRepositor
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
-
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link DetailVersementIntermediaire}.

@@ -19,7 +19,9 @@ public class RetPaiFiscalis {
     public RetPaiFiscalis() {
     }
 
-    public RetPaiFiscalis(String codeagence, String codebanque, String datepaiement, String imputation, String libelle_imputation, String message, String montant_imputation, String montantcheque, String numerocheque, String numerocompte, String numerodeclaration, String numeropaiement, String result) {
+    public RetPaiFiscalis(String codeagence, String codebanque, String datepaiement, String imputation, String libelle_imputation, 
+    		String message, String montant_imputation, String montantcheque, String numerocheque, String numerocompte, 
+    		String numerodeclaration, String numeropaiement, String result) {
         this.codeagence = codeagence;
         this.codebanque = codebanque;
         this.datepaiement = datepaiement;

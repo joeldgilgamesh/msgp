@@ -15,7 +15,7 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 @Transactional
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
-	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" ||provider == "ECOBANK" || provider == "MOBILE_MONEY2"
+	//provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|YUP|EXPRESS_UNION|ECOBANK")
 	public Map<String, String> buildRequest(String debitInfo, String amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
@@ -53,7 +53,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		return request;
 	}
 	
-	//provider == "UBA"
+	//provider.matches("UBA|ECOBANK2")
 	public Map<String, String> buildRequestUBA(String debitInfo, String code, String amount, String email, String firstname, 
 			String lastname, String provider, String clientID) {
 		

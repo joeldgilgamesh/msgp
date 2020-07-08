@@ -14,6 +14,7 @@ import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 @AuthorizedUserFeignClient(name = "spminfimsno")
 @Service
 public interface RESTClientNotificationService {	
+	
 	    @GetMapping("/api/typeNotificationByLibelle/{libelle}")
 	    TypeNotificationDTO getTypeNotification(@PathVariable("libelle") String libelle);
 	    
