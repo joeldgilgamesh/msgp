@@ -179,25 +179,18 @@ public class PaymentResource {
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
 		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 
-		PaymentDTO paymentDTO = null;  //(PaymentDTO) body.get("paymentDTO");
+		PaymentDTO paymentDTO = null;  
 		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
 
 		try {
 			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
 			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
-					AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
+					AddedParamsPaymentDTO.class); 
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			result.put("Reject", "Bad Datas Entry Of Payment");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
-
-		// construct paymentDTO and addedParamsPaymentDTO
-		// paymentDTO = paymentSpecialServices.constructPaymentDTO(paymentDTO,
-		// paymentDTOJson.getDouble("amount"), paymentDTOJson.getLong("idEmission"),
-		// paymentDTOJson.getLong("idOrganisation"),
-		// paymentDTOJson.getLong("idRecette"),
-		// paymentDTOJson.getString("meansOfPayment"));
 
 		if (paymentDTO == null) {
 			result.put("Reject", "Bad Datas Entry Of Payment");
@@ -318,15 +311,7 @@ public class PaymentResource {
 
 		case "uba":
 		case "ecobankcmr2": {
-			/*
-			 * JSONObject addedParamsPaymentDTOJson = new
-			 * JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
-			 * addedParamsPaymentDTO =
-			 * paymentSpecialServices.constructAddedParamsPaymentDTO(addedParamsPaymentDTO,
-			 * addedParamsPaymentDTOJson.getString("email"),
-			 * addedParamsPaymentDTOJson.getString("firstname"),
-			 * addedParamsPaymentDTOJson.getString("lastname"));
-			 */
+			
 			if (addedParamsPaymentDTO != null) {
 				// construct request build
 				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
