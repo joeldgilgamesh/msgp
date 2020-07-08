@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
@@ -171,8 +169,6 @@ public class PaymentResource {
 		Map<String, String> requestBuild = new LinkedHashMap<String, String>();
 		Long refEmissionOuRecette = 0L;
 		
-//		log.error("juste avant le body-----------------------" + body.get("sdgdfssgd"));
-		
 		// controle body enter
 		if (body == null) {
 			result.put("Reject", "Enter Datas is Null");
@@ -186,9 +182,6 @@ public class PaymentResource {
 		PaymentDTO paymentDTO = null;  //(PaymentDTO) body.get("paymentDTO");
 		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
 
-//		paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
-//		addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
-//				AddedParamsPaymentDTO.class); // (AddedParamsPaymentDTO) body.get("addedParamsPaymentDTO");
 		try {
 			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
 			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
@@ -401,14 +394,11 @@ public class PaymentResource {
 //		TransactionDTO transaction = new TransactionDTO();
 
 		// we accept status code equal <100> or <400>
-		if (!status_code.equals("400") && !status_code.equals("100"))
-			return new ResponseEntity<>(resultat = "status code Reject", HttpStatus.NOT_ACCEPTABLE);
-
-		if (status_code.equals("100")) {// Payment Sucessfull
-			status = Statut.VALIDATED;
-		} else if (status_code.equals("400")) {// Payment Failed
-			status = Statut.CANCEL;
-		}
+		if (!status_code.matches("400|100")) 
+			return new ResponseEntity<>(resultat = "status_code reject", HttpStatus.NOT_ACCEPTABLE);
+		
+		if (status_code.equals("100")) /* Payment Sucessfull */ status = Statut.VALIDATED; 
+		else /* Payment Failed */ status = Statut.CANCEL;
 
 		// create transaction
 //    	transactionService.save(transactionDTO);
@@ -416,10 +406,9 @@ public class PaymentResource {
 
 		// find payment by codePaiement and update status
 		payment = paymentService.findByCode(codePaiement);
+		if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
+		
 		Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
-		if (payment == null)
-			return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
-
 		paymentService.update(payment.getId(), status, transactionDTO);
 		historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 		log.info("========// " + payment + " //============");
@@ -427,16 +416,7 @@ public class PaymentResource {
 		// detail organisation
 		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
-		if (status_code.equals("100")) {
-			// ici on génère le reçu en cas de paiement réussi
-			// appel du service de retour paiement pour construire l objet imputation
-			// url a lancer -> http://teledeclaration-dgi.cm:1020/api/paiement dans le
-			// service retour paiement
-			// et le retour paiement doit me retourner les imputations a envoyer a quittance
-			// si msquittance n est pas actif, penser a service de gestion des file d
-			// attente des recu et quittance
-			// coesa quand msquittance demarre il vient lire les recu et quittance en
-			// attente et il les genere
+		if (status_code.equals("100")) {//on génère le reçu en cas de paiement réussi
 
 			// en cas de paiement d une emission on met a jour le statut de l emission
 			if (payment.getIdEmission() != null && payment.getIdEmission() > 0) {
@@ -498,16 +478,14 @@ public class PaymentResource {
 				log.info("======== JUSTIF 6============");
 			}
 
-			if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {// normalement ceci correspond à
-																				// emissionDTO == null
+			if (payment.getIdRecette() != null && payment.getIdRecette() > 0) {// emissionDTO == null
+																				
 				organisationDetails = restClientOrganisationService.findOrganisationById(payment.getIdOrganisation());
 				recetteServiceDetails = restClientRNFService.getResumeRecettesService(payment.getIdRecette());
 				justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
 
-				justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); // a enlever
-				justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); // comment
-																										// recuperer
-																										// ceci
+				justificatifPaiementDTO.setNui(userDTO.get().getNumeroContrubuable()); 
+				justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); 
 				imputationDTO.setMontant(payment.getAmount());
 				imputationDTO.setNumDeclarationImputation(payment.getId());
 				imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
@@ -527,19 +505,12 @@ public class PaymentResource {
 			}
 			log.info("======== JUSTIF 8============");
 			justificatifPaiementDTO
-					.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); // comment
-																											// recuperer
-																											// ceci
-			justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); // comment
-																												// recuperer
-																												// ceci
-			justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); // comment
-																										// recuperer
-																										// ceci
-			justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); // comment recuperer
-																									// ceci
-			justificatifPaiementDTO.setSigle(""); // comment recuperer ceci
-			justificatifPaiementDTO.setCodePoste(1L); // comment recuperer ceci
+					.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); 
+			justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); 
+			justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); 
+			justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); 
+			justificatifPaiementDTO.setSigle("");
+			justificatifPaiementDTO.setCodePoste(1L);
 			log.info("======== JUSTIF 9============");
 			justificatifPaiementDTO.setExercise(String.valueOf(LocalDateTime.now().getYear()));
 			justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
@@ -566,8 +537,7 @@ public class PaymentResource {
 				if (typeNotificationPayment == null) {
 					typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement",
 							"Notification des paiements effectués", null, "PUSH", null);
-					typeNotificationPayment = restClientNotificationService
-							.createTypeNotification(typeNotificationPayment);
+					typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
 					log.info("======== CHECK 3============");
 				}
 				NotificationDTO notificationPayment = new NotificationDTO(null,
@@ -594,61 +564,12 @@ public class PaymentResource {
 			 result = restClientTransactionService.confirmPayment(otp, trxid);
 		} catch (Exception e) {
 			e.printStackTrace();
-			result.put("exception", e.getMessage());
+			result.put("Exception when confirmPaymentAfriland", e.getMessage());
 			return result;
 		}
 		
 		return result;
 	}
-
-//    @PostMapping("/reconcilierPaiement/{codeVersement}/{montant}")
-//    public ResponseEntity<String> reconcilierPaiement(@RequestBody List<PaymentDTO> paymentDTOList
-//    												  , @PathVariable String codeVersement
-//    												  , @PathVariable double montant) {
-//
-//    	String resultat = "RECONCILED Succes";
-//    	double reelmontant = 0;
-//
-//    	//calcul du montant des paiements a reconcilier
-//    	for (PaymentDTO paymentDTO2 : paymentDTOList) {
-//			reelmontant += paymentDTO2.getAmount();
-//		}
-//
-//    	if (codeVersement == null || montant == 0 || paymentDTOList == null || (reelmontant - montant) > 0) return new ResponseEntity<>(resultat = "Bad Entry", HttpStatus.BAD_REQUEST);
-//
-//    	//appel du service verifier detail versement
-//        Optional<DetailVersementIntermediaireDTO> det = detailVersementIntermediaireService.findByNumeroVersment(codeVersement);
-//
-//    	if (det == null) return new ResponseEntity<>(resultat = "Failed", HttpStatus.NOT_FOUND);
-//
-//    	if (det.get().getNumeroVersment().isEmpty()) return new ResponseEntity<>(resultat = "codeVersement Not Exist", HttpStatus.NOT_FOUND);
-//
-//    	Statut status = null;
-//
-//    	//appel du service de comparaisons des données des paiements des deux cotés
-//    	if (!detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {//si montant different, echec reconciliation
-//    		status = Statut.CANCEL;
-//    		resultat = "Failed RECONCILED, Amount not mapping";
-//        	//creer historique a etat reconcilied
-//
-//		}
-//
-//    	else status = Statut.RECONCILED;  //si montant egaux, alors succès reconciliation
-//
-//    	for (PaymentDTO paymentDTO : paymentDTOList) {
-//    		paymentService.update(paymentDTO.getId(), status);
-//        	historiquePaymentService.saveHistPay(status.toString(), LocalDateTime.now(), paymentMapper.toEntity(paymentDTO));
-//		}
-//
-//    	if (detailVersementIntermediaireService.comparerDonnReconcil(det.get().getMontant(), montant)) {
-//    		//appel du endpoint generer quittance (existe deja, mais à distance) en envoyant l objet payment pour construire la quittance
-//        	//appel du endpoint notification pour renseigner sur l etat de la reconciliation
-//        	//appel du endpoint update emission, en testant dabord quil sagit du paiement dune emission
-//    	}
-//
-//    	return new ResponseEntity<>(resultat, HttpStatus.OK);
-//
-//    }
 
 	@GetMapping("/literPaymentByStatut/{statut}")
 	public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {

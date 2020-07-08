@@ -2,10 +2,6 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
-
-import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 

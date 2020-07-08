@@ -3,12 +3,10 @@ package com.sprintpay.minfi.msgp.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
@@ -16,13 +14,6 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 @Service
 @Transactional
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
-	
-	
-//	private PaymentRepository paymentRepository;
-//	
-//	public PaymentSpecialServicesImpl(PaymentRepository paymentRepository) {
-//		this.paymentRepository = paymentRepository;
-//	}
 	
 	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" ||provider == "ECOBANK" || provider == "MOBILE_MONEY2"
 	public Map<String, String> buildRequest(String debitInfo, String amount, String provider, String code) {
@@ -149,13 +140,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		
 		return result;
 	}
-
-//	@Override
-//	public String codeNext() {
-//		// TODO Auto-generated method stub
-////		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
-//		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
-//	}
 
 	@Override
 	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette,
