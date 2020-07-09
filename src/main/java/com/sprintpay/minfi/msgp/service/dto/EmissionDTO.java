@@ -11,7 +11,12 @@ import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
  */
 public class EmissionDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8630591142965605064L;
+
+	private Long id;
 
     private String refEmi;
 

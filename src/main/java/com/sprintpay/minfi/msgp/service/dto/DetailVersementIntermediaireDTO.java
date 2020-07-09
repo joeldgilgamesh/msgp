@@ -1,7 +1,5 @@
 package com.sprintpay.minfi.msgp.service.dto;
 
-import com.sprintpay.minfi.msgp.domain.Payment;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;

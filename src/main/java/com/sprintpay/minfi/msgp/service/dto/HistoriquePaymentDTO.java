@@ -1,8 +1,7 @@
 package com.sprintpay.minfi.msgp.service.dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -10,7 +9,12 @@ import java.util.Objects;
  */
 public class HistoriquePaymentDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5656799829533240017L;
+
+	private Long id;
 
     private String status;
 

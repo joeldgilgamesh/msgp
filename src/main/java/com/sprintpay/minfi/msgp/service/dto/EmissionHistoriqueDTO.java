@@ -9,7 +9,12 @@ import java.util.Objects;
  */
 public class EmissionHistoriqueDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8266853264124945914L;
+
+	private Long id;
 
     private String status;
 
