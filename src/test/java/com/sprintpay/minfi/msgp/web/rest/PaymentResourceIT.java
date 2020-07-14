@@ -67,7 +67,7 @@ public class PaymentResourceIT {
     private static final MeansOfPayment UPDATED_MEANS_OF_PAYMENT = MeansOfPayment.ORANGE_MONEY;
 
     private static final Statut DEFAULT_STATUT = Statut.DRAFT;
-//    private static final Statut UPDATED_STATUT = Statut.PENDING;
+    private static final Statut UPDATED_STATUT = Statut.CANCEL;
 
     private static final Double DEFAULT_AMOUNT = 1D;
     private static final Double UPDATED_AMOUNT = 2D;
@@ -209,7 +209,7 @@ public class PaymentResourceIT {
         Payment payment = new Payment()
             .code(UPDATED_CODE)
             .meansOfPayment(UPDATED_MEANS_OF_PAYMENT)
-//            .statut(UPDATED_STATUT)
+            .statut(UPDATED_STATUT)
             .amount(UPDATED_AMOUNT)
             .idEmission(UPDATED_ID_EMISSION)
             .idRecette(UPDATED_ID_RECETTE)
@@ -361,7 +361,7 @@ public class PaymentResourceIT {
         updatedPayment
             .code(UPDATED_CODE)
             .meansOfPayment(UPDATED_MEANS_OF_PAYMENT)
-//            .statut(UPDATED_STATUT)
+            .statut(UPDATED_STATUT)
             .amount(UPDATED_AMOUNT)
             .idEmission(UPDATED_ID_EMISSION)
             .idRecette(UPDATED_ID_RECETTE)
@@ -379,7 +379,7 @@ public class PaymentResourceIT {
         Payment testPayment = paymentList.get(paymentList.size() - 1);
         assertThat(testPayment.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testPayment.getMeansOfPayment()).isEqualTo(UPDATED_MEANS_OF_PAYMENT);
-//        assertThat(testPayment.getStatut()).isEqualTo(UPDATED_STATUT);
+        assertThat(testPayment.getStatut()).isEqualTo(UPDATED_STATUT);
         assertThat(testPayment.getAmount()).isEqualTo(UPDATED_AMOUNT);
         assertThat(testPayment.getIdEmission()).isEqualTo(UPDATED_ID_EMISSION);
         assertThat(testPayment.getIdRecette()).isEqualTo(UPDATED_ID_RECETTE);
