@@ -166,6 +166,10 @@ info:
   # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
 
+logging:
+  file:
+    name: target/spminfimsgp.log
+    
 # ===================================================================
 # JHipster specific properties
 #
