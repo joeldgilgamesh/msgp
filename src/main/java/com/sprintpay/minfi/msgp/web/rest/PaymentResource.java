@@ -700,7 +700,9 @@ public class PaymentResource {
 		
 		// controle body enter
 		if (body == null) {
-			result.put("Reject", "Enter Datas is Null");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Enter Datas is Null");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 		
@@ -713,12 +715,16 @@ public class PaymentResource {
 			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
-			result.put("Reject", "Bad Datas Entry Of Payment");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Datas Entry Of Payment");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
 		if (paymentDTO == null) {
-			result.put("Reject", "Bad Datas Entry Of Payment");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Datas Entry Of Payment");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
@@ -730,14 +736,18 @@ public class PaymentResource {
 			Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
 
 			if (niuVerif == null) {
-				result.put("Reject", "Usurpateur Voulant effectuer le paiement");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Usurpateur Voulant effectuer le paiement");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
 			// controle du depassement du montant a payer
 			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
 					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
-				result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Depassement de montant, le montant doit etre compris entre 0 et 500mill");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
 		}
@@ -745,7 +755,9 @@ public class PaymentResource {
 		// controle du numero de telephone, selon le moyen de paiement
 		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
-			result.put("Reject", "Phone Number is Required");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
@@ -753,7 +765,9 @@ public class PaymentResource {
 		if (paymentDTO.getId() != null || (paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
 				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() <= 0)
 						&& (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() <= 0))) {
-			result.put("Reject", "Bad Entry");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Entry");
 			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 		}
 
@@ -769,18 +783,24 @@ public class PaymentResource {
 			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
 
 			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
-				result.put("Reject", "Emission Not Exist");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Not Exist");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
 			if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
-				result.put("Reject", "Emission Not Have Reference");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Not Have Reference");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
 			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {// si les montant ne
 																									// matche pas
-				result.put("Reject", "Paiement Reject");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
 
@@ -822,7 +842,9 @@ public class PaymentResource {
 			if (resultRecette != null) {
 				paymentDTO2 = paymentService.save(paymentDTO);
 			} else {
-				result.put("Reject", "Recette Not Found");
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Recette Not Found");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 		}
@@ -833,7 +855,9 @@ public class PaymentResource {
 
 
 		if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
-			result.put("Reject", "MeansOfPayment Not Founds");
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> MeanOfPayment not Exist");
 			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 		}
 		
