@@ -838,7 +838,6 @@ public class PaymentResource {
 		}
 		
 		//generated recu 
-		result.put("paymentDTO", paymentDTO2);
 		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentMapper.toEntity(paymentDTO2);
@@ -964,7 +963,10 @@ public class PaymentResource {
 			log.info("======== CHECK 4============");
 		}
 		
-		result.put("status", "Succes");
+
+		result.put("paymentCode", paymentDTO2.getCode());
+		result.put("paymentStatus", paymentDTO2.getStatut());
+		result.put("paymentMessageStatus", "payment successful");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	  }
 	
