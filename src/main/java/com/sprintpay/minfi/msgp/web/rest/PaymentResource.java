@@ -708,11 +708,15 @@ public class PaymentResource {
 		
 		JSONObject bodyJson = new JSONObject(body);
 		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
 
 		PaymentDTO paymentDTO = null;  
+		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
 
 		try {
 			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+					AddedParamsPaymentDTO.class); 
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			result.put("paymentCode", null);
@@ -864,8 +868,8 @@ public class PaymentResource {
 			userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
 		else {
 			
-			userDTO.get().setFirstName("firstname");
-			userDTO.get().setLastName("lastname");
+			userDTO.get().setFirstName(addedParamsPaymentDTO.getFirstname());
+			userDTO.get().setLastName(addedParamsPaymentDTO.getLastname());
 			userDTO.get().setRaisonSocialeEntreprise("raisonSocialeEntreprise");
 		}
 		
@@ -937,12 +941,12 @@ public class PaymentResource {
 		justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 		justificatifPaiementDTO.setCode(payment.getCode());
 		log.info("======== JUSTIF 7============");
-		if (userDTO.get().getFirstName() == null) {
-			userDTO.get().setFirstName("");
-		}
-		if (userDTO.get().getLastName() == null) {
-			userDTO.get().setLastName("");
-		}
+//		if (userDTO.get().getFirstName() == null) {
+//			userDTO.get().setFirstName("");
+//		}
+//		if (userDTO.get().getLastName() == null) {
+//			userDTO.get().setLastName("");
+//		}
 		log.info("======== JUSTIF 8============");
 		justificatifPaiementDTO
 				.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); 
