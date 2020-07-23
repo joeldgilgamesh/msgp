@@ -806,7 +806,7 @@ public class PaymentResource {
 
 			// initialize datas of emission ot create before save payment
 			EmissionDTO emissionDTO = new EmissionDTO();
-			emissionDTO.setStatus(Statut.VALIDATED);
+			emissionDTO.setStatus(Statut.DRAFT);
 			emissionDTO.setAmount(paymentDTO.getAmount());
 			emissionDTO.setRefEmi(refEmi.toString());
 			emissionDTO.setCodeContribuable(niu);
@@ -852,21 +852,22 @@ public class PaymentResource {
 		// create historique payment
 		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
-
-
-		if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
-			result.put("paymentCode", null);
-			result.put("paymentStatus", "CANCELED");
-			result.put("paymentMessageStatus", "payment failed -->> MeanOfPayment not Exist");
-			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-		}
 		
 		//generated recu 
 		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
-		Payment payment = paymentMapper.toEntity(paymentDTO2);
-		Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
+		Optional<UserDTO> userDTO = Optional.of(new UserDTO());
 		RetPaiFiscalis[] retourPaiFiscalis = null;
+		
+		if (restClientUAAService.searchUser(payment.getCreatedBy()) != null) 
+			userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		else {
+			
+			userDTO.get().setFirstName("firstname");
+			userDTO.get().setLastName("lastname");
+			userDTO.get().setRaisonSocialeEntreprise("raisonSocialeEntreprise");
+		}
 		
 		// update emission status
 		retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED).getBody();
@@ -888,6 +889,8 @@ public class PaymentResource {
 		if (emissionDTO2 != null) {
 			organisationDetails = restClientOrganisationService
 					.findOrganisationById(emissionDTO2.getIdOrganisation());
+//			System.out.println("---------------------***********************" + emissionDTO2.getIdOrganisation());
+//			System.out.println("---------------------***********************" + organisationDetails);
 			log.info("======== JUSTIF 4============");
 			if (retourPaiFiscalis != null) {
 				for (int i = 0; i < retourPaiFiscalis.length; i++) {
