@@ -688,7 +688,7 @@ public class PaymentResource {
 	}
 	
 	@PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
-	@PostMapping("/effectuerPaiementManuel/{debitInfo}/{niu}/{refEmi}")
+	@PostMapping("/effectuerPaiementWithoutApi/{debitInfo}/{niu}/{refEmi}")
 	public ResponseEntity<Map<String, Object>> effectuerPaiementManuel(@RequestBody Map<String, Object> body
 			, @PathVariable String debitInfo, @PathVariable String niu, @PathVariable String refEmi
 	) {
