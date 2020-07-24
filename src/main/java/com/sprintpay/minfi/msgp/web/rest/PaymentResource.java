@@ -695,6 +695,7 @@ public class PaymentResource {
 
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Object resultRecette = null;
 		EmissionDTO emissionDTO2 = null;
 		
@@ -817,7 +818,7 @@ public class PaymentResource {
 			emissionDTO.setNature(Nature.valueOf(resultEmission.get("type")));
 
 //			emissionDTO.setIdOrganisation(1L);
-			Map<String, Object> organisationDetails = restClientOrganisationService
+			organisationDetails = restClientOrganisationService
 					.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
 			if (!organisationDetails.isEmpty()) {
 				log.info(".................. " + resultEmission.toString());
@@ -858,11 +859,10 @@ public class PaymentResource {
 		}
 
 		// create historique payment
-		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
+		historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
 		
 		//generated recu 
-		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
 		Optional<UserDTO> userDTO = Optional.of(new UserDTO());
@@ -874,7 +874,7 @@ public class PaymentResource {
 			
 			userDTO.get().setFirstName(addedParamsPaymentDTO.getFirstname());
 			userDTO.get().setLastName(addedParamsPaymentDTO.getLastname());
-			userDTO.get().setRaisonSocialeEntreprise("raisonSocialeEntreprise");
+			userDTO.get().setRaisonSocialeEntreprise(organisationDetails.get("nomOrganisation").toString());
 		}
 		
 		// case emission
