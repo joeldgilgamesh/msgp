@@ -816,6 +816,7 @@ public class PaymentResource {
 			emissionDTO.setCodeContribuable(niu);
 			emissionDTO.setNature(Nature.valueOf(resultEmission.get("type")));
 
+//			emissionDTO.setIdOrganisation(1L);
 			Map<String, Object> organisationDetails = restClientOrganisationService
 					.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
 			if (!organisationDetails.isEmpty()) {
@@ -831,6 +832,7 @@ public class PaymentResource {
 					emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGD_ID);
 				}
 			}
+			
 
 			//create emission with datas to complete 
 			emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
@@ -842,6 +844,7 @@ public class PaymentResource {
 		} else {// case recette non fiscale, create payment directly with idRecette in
 				// PaymentDTO entry
 
+//			paymentDTO2 = paymentService.save(paymentDTO);
 			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
 			if (resultRecette != null) {
 				paymentDTO2 = paymentService.save(paymentDTO);
@@ -851,6 +854,7 @@ public class PaymentResource {
 				result.put("paymentMessageStatus", "payment failed -->> Recette Not Found");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
+			
 		}
 
 		// create historique payment
@@ -873,12 +877,16 @@ public class PaymentResource {
 			userDTO.get().setRaisonSocialeEntreprise("raisonSocialeEntreprise");
 		}
 		
-		// update emission status
-		retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED).getBody();
+		// case emission
+		if (!refEmi.equals("null")) {
+			// update emission status
+			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED).getBody();
 
-		// create historique emission
-		restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
-				payment.getIdEmission());
+			// create historique emission
+			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
+					payment.getIdEmission());
+		}
+		
 		
 		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
@@ -896,6 +904,7 @@ public class PaymentResource {
 //			System.out.println("---------------------***********************" + emissionDTO2.getIdOrganisation());
 //			System.out.println("---------------------***********************" + organisationDetails);
 			log.info("======== JUSTIF 4============");
+			
 			if (retourPaiFiscalis != null) {
 				for (int i = 0; i < retourPaiFiscalis.length; i++) {
 					imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
@@ -903,7 +912,7 @@ public class PaymentResource {
 					imputationDTO.setOperation(emissionDTO2.getRefEmi());
 					imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
 					listImput.add(imputationDTO);
-					imputationDTO = new ImputationDTO();
+//					imputationDTO = new ImputationDTO();
 				}
 			} else {
 				imputationDTO.setMontant(payment.getAmount());
@@ -913,10 +922,18 @@ public class PaymentResource {
 						.setNatrureDesDroits(emissionDTO2.getNature().name() + " N° " + emissionDTO2.getRefEmi());
 				listImput.add(imputationDTO);
 			}
+			
+//			imputationDTO.setMontant(100d);
+//			imputationDTO.setNumDeclarationImputation(payment.getId());
+//			imputationDTO.setOperation(emissionDTO2.getRefEmi());
+//			imputationDTO.setNatrureDesDroits("nature");
+//			listImput.add(imputationDTO);
+			
 			log.info("======== JUSTIF 5============");
 			justificatifPaiementDTO.setNui(niu);
 			justificatifPaiementDTO
 					.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
+//			justificatifPaiementDTO.setIdOrganisation(1L);
 			justificatifPaiementDTO.setNatureRecette(emissionDTO2.getRefEmi());
 			log.info("======== JUSTIF 6============");
 		}
@@ -930,10 +947,12 @@ public class PaymentResource {
 
 			justificatifPaiementDTO.setNui(niu); 
 			justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature")); 
+//			justificatifPaiementDTO.setNatureRecette("nature"); 
 			imputationDTO.setMontant(payment.getAmount());
 			imputationDTO.setNumDeclarationImputation(payment.getId());
 			imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
 			imputationDTO.setNatrureDesDroits((String) recetteServiceDetails.get("nature"));
+//			imputationDTO.setNatrureDesDroits("nature");
 			listImput.add(imputationDTO);
 		}
 
@@ -941,18 +960,21 @@ public class PaymentResource {
 		justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
 		justificatifPaiementDTO.setCode(payment.getCode());
 		log.info("======== JUSTIF 7============");
-//		if (userDTO.get().getFirstName() == null) {
-//			userDTO.get().setFirstName("");
-//		}
-//		if (userDTO.get().getLastName() == null) {
-//			userDTO.get().setLastName("");
-//		}
+		if (userDTO.get().getFirstName() == null) {
+			userDTO.get().setFirstName("");
+		}
+		if (userDTO.get().getLastName() == null) {
+			userDTO.get().setLastName("");
+		}
 		log.info("======== JUSTIF 8============");
 		justificatifPaiementDTO
 				.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName()); 
 		justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation")); 
 		justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg")); 
+//		justificatifPaiementDTO.setNomOrganisation("nomOrganisation"); 
+//		justificatifPaiementDTO.setCodeOrganisation("codeOrg"); 
 		justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise()); 
+//		justificatifPaiementDTO.setRaisonSociale("raison"); 
 		justificatifPaiementDTO.setSigle("");
 		justificatifPaiementDTO.setCodePoste(1L);
 		log.info("======== JUSTIF 9============");
@@ -960,6 +982,8 @@ public class PaymentResource {
 		justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
 		justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
 		justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
+//		justificatifPaiementDTO.setLibelleCentre("nomOrganisation");
+//		justificatifPaiementDTO.setLibelleCourtCentre("codeOrg");
 		justificatifPaiementDTO.setIfu(" ");
 		log.info("======== JUSTIF 10============");
 		justificatifPaiementDTO.setImputations(listImput);
