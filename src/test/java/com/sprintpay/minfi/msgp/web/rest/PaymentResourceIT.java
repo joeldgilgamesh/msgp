@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 import com.sprintpay.minfi.msgp.domain.Payment;
@@ -158,7 +159,7 @@ public class PaymentResourceIT {
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
         															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService,
-        															restClientNotificationService);
+        															restClientNotificationService, null);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
