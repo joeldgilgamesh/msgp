@@ -39,6 +39,20 @@ public interface PaymentSpecialServices {
 	 */
 	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, String amount, 
 			Long referenceEmission);
+	
+	/**
+	 * 
+	 * @param provider
+	 * @param code
+	 * @param clientID
+	 * @param debitInfo
+	 * @param amount
+	 * @param firstname
+	 * @param lastname
+	 * @return
+	 */
+	Map<String, String> buildRequestWithoutApi(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname);
 
 	/**
 	 * 

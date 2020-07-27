@@ -82,6 +82,20 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		
 		return request;
 	}
+	
+	public Map<String, String> buildRequestWithoutApi(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname){
+		
+		Map<String, String> request = new HashMap<String, String>();
+		request.put("clientId", clientID);
+    	request.put("phone", debitInfo);
+    	request.put("orderId", code);
+    	request.put("firstname", firstname);
+    	request.put("lastname", lastname);
+    	request.put("amount", amount);
+    	
+    	return request;
+	}
 
 	@Override
 	public String convertProvider(String provider) {

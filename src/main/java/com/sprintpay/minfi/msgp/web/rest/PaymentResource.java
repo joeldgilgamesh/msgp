@@ -37,6 +37,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Nature;
@@ -100,6 +101,7 @@ public class PaymentResource {
 	private final RESTClientRNFService restClientRNFService;
 	private final RESTClientOrganisationService restClientOrganisationService;
 	private final RESTClientNotificationService restClientNotificationService;
+	private final ApplicationProperties app;
 
 	public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService,
 			DetailVersementIntermediaireService detailVersementIntermediaireService,
@@ -108,7 +110,8 @@ public class PaymentResource {
 			RESTClientQuittanceService restClientQuittanceService, PaymentMapper paymentMapper,
 			RESTClientUAAService restClientUAAService, RESTClientRNFService restClientRNFService,
 			RESTClientOrganisationService restClientOrganisationService,
-			RESTClientNotificationService restClientNotificationService) {
+			RESTClientNotificationService restClientNotificationService,
+			ApplicationProperties app) {
 		this.paymentService = paymentService;
 		this.historiquePaymentService = historiquePaymentService;
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
@@ -121,6 +124,7 @@ public class PaymentResource {
 		this.restClientRNFService = restClientRNFService;
 		this.restClientOrganisationService = restClientOrganisationService;
 		this.restClientNotificationService = restClientNotificationService;
+		this.app = app;
 	}
 
 	/**
@@ -875,6 +879,11 @@ public class PaymentResource {
 		// create historique payment
 		historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
+		
+		restClientTransactionService.processPaymentInCash(provider, 
+				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo, 
+						String.valueOf((int) Math.round(paymentDTO.getAmount())), 
+						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname()), app.getSecret());
 		
 		//generated recu 
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
