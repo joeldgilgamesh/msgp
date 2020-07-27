@@ -294,6 +294,13 @@ public class PaymentResource {
 		} else {// case recette non fiscale, create payment directly with idRecette in
 				// PaymentDTO entry
 
+			if (paymentDTO.getAmount() <= 0) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> le montant de la recette doit etre au moins positif");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+			
 			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
 			refEmissionOuRecette = paymentDTO.getIdRecette();
 			if (resultRecette != null) {
@@ -845,6 +852,13 @@ public class PaymentResource {
 		} else {// case recette non fiscale, create payment directly with idRecette in
 				// PaymentDTO entry
 
+			if (paymentDTO.getAmount() <= 0) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> le montant de la recette doit etre au moins positif");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+			
 //			paymentDTO2 = paymentService.save(paymentDTO);
 			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
 			if (resultRecette != null) {
@@ -887,6 +901,8 @@ public class PaymentResource {
 					payment.getIdEmission());
 		}
 		
+		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
+				paymentMapper.toEntity(paymentDTO2));
 		
 		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
