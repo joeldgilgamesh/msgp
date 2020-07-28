@@ -1,18 +1,22 @@
 package com.sprintpay.minfi.msgp.web.rest;
 
-import com.sprintpay.minfi.msgp.SpminfimsgpApp;
-import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
-import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
-import com.sprintpay.minfi.msgp.domain.Payment;
-import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
-import com.sprintpay.minfi.msgp.repository.HistoriquePaymentRepository;
-import com.sprintpay.minfi.msgp.repository.PaymentRepository;
-import com.sprintpay.minfi.msgp.service.*;
-import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
-import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
-import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
-import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -27,16 +31,30 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
-import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.sprintpay.minfi.msgp.SpminfimsgpApp;
+import com.sprintpay.minfi.msgp.config.ApplicationProperties;
+import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
+import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
+import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
+import com.sprintpay.minfi.msgp.repository.HistoriquePaymentRepository;
+import com.sprintpay.minfi.msgp.repository.PaymentRepository;
+import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
+import com.sprintpay.minfi.msgp.service.HistoriquePaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
+import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
+import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
+import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
+import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
+import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
+import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.web.rest.errors.ExceptionTranslator;
 /**
  * Integration tests for the {@link PaymentResource} REST controller.
  */
@@ -50,7 +68,7 @@ public class PaymentResourceIT {
     private static final MeansOfPayment UPDATED_MEANS_OF_PAYMENT = MeansOfPayment.ORANGE_MONEY;
 
     private static final Statut DEFAULT_STATUT = Statut.DRAFT;
-    private static final Statut UPDATED_STATUT = Statut.PENDING;
+    private static final Statut UPDATED_STATUT = Statut.CANCEL;
 
     private static final Double DEFAULT_AMOUNT = 1D;
     private static final Double UPDATED_AMOUNT = 2D;
@@ -141,7 +159,7 @@ public class PaymentResourceIT {
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
         															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService,
-        															restClientNotificationService);
+        															restClientNotificationService, null);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

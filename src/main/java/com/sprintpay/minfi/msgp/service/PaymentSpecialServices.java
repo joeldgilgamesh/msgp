@@ -2,10 +2,6 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
-
-import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 
@@ -43,6 +39,20 @@ public interface PaymentSpecialServices {
 	 */
 	Map<String, String> buildRequestAfriland(String debitInfo, String code, String niu, String libelleEmision, String amount, 
 			Long referenceEmission);
+	
+	/**
+	 * 
+	 * @param provider
+	 * @param code
+	 * @param clientID
+	 * @param debitInfo
+	 * @param amount
+	 * @param firstname
+	 * @param lastname
+	 * @return
+	 */
+	Map<String, String> buildRequestWithoutApi(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname);
 
 	/**
 	 * 

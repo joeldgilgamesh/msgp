@@ -13,7 +13,12 @@ import java.util.Objects;
  */
 public class PaymentDTO implements Serializable {
 
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2097682932298131055L;
+
+	private Long id;
 
     @NotNull
     private String code;

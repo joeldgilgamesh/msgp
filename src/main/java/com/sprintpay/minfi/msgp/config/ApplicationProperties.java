@@ -1,6 +1,5 @@
 package com.sprintpay.minfi.msgp.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -20,4 +19,15 @@ public class ApplicationProperties {
     }
 
     public void setSpMinfiMsssToken(String spMinfiMsssToken) { this.spMinfiMsssToken = spMinfiMsssToken; }
+    
+    private String secret;
+
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
+    
 }

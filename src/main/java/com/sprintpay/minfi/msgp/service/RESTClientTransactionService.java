@@ -2,11 +2,13 @@ package com.sprintpay.minfi.msgp.service;
 
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 
@@ -22,5 +24,9 @@ public interface RESTClientTransactionService {
 	
 	@GetMapping("/api/payment/afrilandcmr/confirmpayment/{otp}/{trxid}")
 	Map<String,String> confirmPayment(@PathVariable("otp") String otp, @PathVariable("trxid") String trxid) throws Exception;
+	
+	@PostMapping("/api/payment/incash/{provider}")
+	ResponseEntity<Object> processPaymentInCash(@PathVariable("provider") String provider, 
+			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 
 }

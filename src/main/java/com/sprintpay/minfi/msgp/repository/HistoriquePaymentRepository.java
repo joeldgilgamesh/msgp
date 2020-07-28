@@ -8,7 +8,7 @@ import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 /**
  * Spring Data  repository for the HistoriquePayment entity.
  */
-@SuppressWarnings("unused")
+
 @Repository
 public interface HistoriquePaymentRepository extends JpaRepository<HistoriquePayment, Long> {
 

@@ -3,12 +3,10 @@ package com.sprintpay.minfi.msgp.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
-import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentSpecialServices;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
@@ -17,14 +15,7 @@ import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 @Transactional
 public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	
-	
-//	private PaymentRepository paymentRepository;
-//	
-//	public PaymentSpecialServicesImpl(PaymentRepository paymentRepository) {
-//		this.paymentRepository = paymentRepository;
-//	}
-	
-	//provider == "MOBILE_MONEY" || provider == "ORANGE_MONEY" || provider == "YUP" || provider == "EXPRESS_UNION"|| provider == "ECOBANK" ||provider == "ECOBANK" || provider == "MOBILE_MONEY2"
+	//provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|YUP|EXPRESS_UNION|ECOBANK")
 	public Map<String, String> buildRequest(String debitInfo, String amount, String provider, String code) {
 		
 		Map<String, String> request = new HashMap<String, String>();
@@ -62,7 +53,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		return request;
 	}
 	
-	//provider == "UBA"
+	//provider.matches("UBA|ECOBANK2")
 	public Map<String, String> buildRequestUBA(String debitInfo, String code, String amount, String email, String firstname, 
 			String lastname, String provider, String clientID) {
 		
@@ -90,6 +81,20 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	if (provider.equals("ecobankcmr2")) request.put("qrCode", "default");
 		
 		return request;
+	}
+	
+	public Map<String, String> buildRequestWithoutApi(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname){
+		
+		Map<String, String> request = new HashMap<String, String>();
+		request.put("clientId", clientID);
+    	request.put("phone", debitInfo);
+    	request.put("orderId", code);
+    	request.put("firstname", firstname);
+    	request.put("lastname", lastname);
+    	request.put("amount", amount);
+    	
+    	return request;
 	}
 
 	@Override
@@ -141,6 +146,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		case "ECOBANK2":
 			result = "ecobankcmr2";
 			break;
+			
+		case "VISION_FINANCE":
+			result = "visionfinancecmr";
+			break;
 
 		default:
 			result = null;
@@ -149,13 +158,6 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		
 		return result;
 	}
-
-//	@Override
-//	public String codeNext() {
-//		// TODO Auto-generated method stub
-////		return "code_" + (Integer.parseInt(this.paymentRepository.findLastCode().substring(5)) + 1);
-//		return "code_" + (this.paymentRepository.getLastId(this.paymentRepository.countLine()) + 1);
-//	}
 
 	@Override
 	public PaymentDTO constructPaymentDTO(PaymentDTO paymentDTO, Double amount, Long idEmission, Long idOrganisation, Long idRecette,
