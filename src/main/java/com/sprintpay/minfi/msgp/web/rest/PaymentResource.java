@@ -355,7 +355,7 @@ public class PaymentResource {
 
 		case "afrilandcmr":
 			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
-					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmissionOuRecette);
+					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmissionOuRecette, addedParamsPaymentDTO.getCanal());
 			break;
 
 		default:
