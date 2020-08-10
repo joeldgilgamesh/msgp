@@ -823,6 +823,8 @@ public class PaymentResource {
 			}
 			
 			if(resultEmission.get("refEmi") != refEmi) {
+				System.out.println("***************************************************");
+				System.out.println("resultEmission Reference Emission :" + resultEmission.get("refEmi"));
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
