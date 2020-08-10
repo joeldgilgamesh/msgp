@@ -451,6 +451,7 @@ public class PaymentResource {
 				organisationDetails = restClientOrganisationService
 						.findOrganisationById(emissionDTO.getIdOrganisation());
 				log.info("======== JUSTIF 4============");
+				
 				if (retourPaiFiscalis != null) {
 					for (int i = 0; i < retourPaiFiscalis.length; i++) {
 						imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
@@ -468,6 +469,7 @@ public class PaymentResource {
 							.setNatrureDesDroits(emissionDTO.getNature().name() + " N° " + emissionDTO.getRefEmi());
 					listImput.add(imputationDTO);
 				}
+				
 				log.info("======== JUSTIF 5============");
 				justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 				justificatifPaiementDTO
@@ -795,9 +797,9 @@ public class PaymentResource {
 
 		// case emission
 		if (!refEmi.equals("null")) {
-
+			
 			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
-
+			
 			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
