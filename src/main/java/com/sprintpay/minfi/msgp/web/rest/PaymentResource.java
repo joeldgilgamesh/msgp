@@ -821,6 +821,13 @@ public class PaymentResource {
 				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
+			
+			if(resultEmission.get("refEmi") != refEmi) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);			
+			}
 
 			// initialize datas of emission ot create before save payment
 			EmissionDTO emissionDTO = new EmissionDTO();
