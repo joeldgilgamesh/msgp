@@ -822,7 +822,7 @@ public class PaymentResource {
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
 			
-			if(resultEmission.get("refEmi") != refEmi) {
+			if(!resultEmission.get("refEmi").equals(refEmi)) {
 				System.out.println("***************************************************");
 				System.out.println("resultEmission Reference Emission :" + resultEmission.get("refEmi"));
 				result.put("paymentCode", null);
