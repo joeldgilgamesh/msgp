@@ -563,7 +563,7 @@ public class PaymentResource {
 		try {
 			 result = restClientTransactionService.confirmPayment(otp, trxid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			result.put("Exception when confirmPaymentAfriland", e.getMessage());
 			return result;
 		}
@@ -574,8 +574,17 @@ public class PaymentResource {
 	@GetMapping("/literPaymentByStatut/{statut}")
 	public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
 
-		Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
-		HttpHeaders headers = PaginationUtil
+		Page<Object> pageresult = null;
+		HttpHeaders headers = null;
+		try {
+			pageresult = paymentService.findByStatut(statut, pageable);
+		} catch (Exception e) {
+			// TODO: handle exception
+			headers = PaginationUtil
+					.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+			return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
+		}
+		headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
 		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
 	}
@@ -823,8 +832,6 @@ public class PaymentResource {
 			}
 			
 			if(!resultEmission.get("refEmi").equals(refEmi)) {
-				System.out.println("***************************************************");
-				System.out.println("resultEmission Reference Emission :" + resultEmission.get("refEmi") + "---" + !resultEmission.get("refEmi").equals(refEmi));
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
@@ -900,6 +907,7 @@ public class PaymentResource {
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
 		Optional<UserDTO> userDTO = Optional.of(new UserDTO());
+		userDTO.orElse(new UserDTO());
 		RetPaiFiscalis[] retourPaiFiscalis = null;
 		
 		if (restClientUAAService.searchUser(payment.getCreatedBy()) != null) 
