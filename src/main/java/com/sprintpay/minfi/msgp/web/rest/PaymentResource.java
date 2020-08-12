@@ -407,6 +407,7 @@ public class PaymentResource {
 		if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 		
 		Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		userDTO.orElse(new UserDTO());
 		paymentService.update(payment.getId(), status, transactionDTO);
 		historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 		log.info("========// " + payment + " //============");
@@ -574,19 +575,23 @@ public class PaymentResource {
 	@GetMapping("/literPaymentByStatut/{statut}")
 	public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
 
-		Page<Object> pageresult = null;
+		Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
 		HttpHeaders headers = null;
+		List<Object> body = null;
+		
 		try {
-			pageresult = paymentService.findByStatut(statut, pageable);
-		} catch (Exception e) {
+			body= pageresult.getContent();
+		} catch (NullPointerException e) {
 			// TODO: handle exception
+			log.error(e.getMessage());
 			headers = PaginationUtil
 					.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
 			return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
 		}
+		
 		headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+		return new ResponseEntity<>(body, headers, HttpStatus.OK);
 	}
 
 	@GetMapping("/literPaymentEmissionContrib/{niu}")
@@ -623,9 +628,22 @@ public class PaymentResource {
 		} else if (option.equalsIgnoreCase("rnf")) {
 			pageresult = paymentService.findRNFByCreatedBy(username, pageable);
 		}
-		HttpHeaders headers = PaginationUtil
+		
+		List<Payment> body = null;
+		HttpHeaders headers = null;
+		try {
+			body = pageresult.getContent();
+		} catch (NullPointerException e) {
+			// TODO: handle exception
+			log.error(e.getMessage());
+			headers = PaginationUtil
+					.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+			return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
+		}
+		
+		headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+		return new ResponseEntity<>(body, headers, HttpStatus.OK);
 	}
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
