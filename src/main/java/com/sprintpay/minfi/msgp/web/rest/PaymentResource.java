@@ -841,7 +841,7 @@ public class PaymentResource {
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
-			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {// si les montant ne
+			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne
 																									// matche pas
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
