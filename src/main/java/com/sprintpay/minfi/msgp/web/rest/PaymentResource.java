@@ -1081,6 +1081,7 @@ public class PaymentResource {
 		}
 		
 
+		result.put("paymentId", paymentDTO2.getId());
 		result.put("paymentCode", paymentDTO2.getCode());
 		result.put("paymentStatus", paymentDTO2.getStatut());
 		result.put("paymentMessageStatus", "payment successful");
