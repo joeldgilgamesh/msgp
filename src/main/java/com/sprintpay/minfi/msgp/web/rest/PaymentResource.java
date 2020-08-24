@@ -407,6 +407,7 @@ public class PaymentResource {
 		if (payment == null) return new ResponseEntity<>(resultat = "Payment Not Exist", HttpStatus.NOT_ACCEPTABLE);
 		
 		Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		userDTO.orElse(new UserDTO());
 		paymentService.update(payment.getId(), status, transactionDTO);
 		historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
 		log.info("========// " + payment + " //============");
@@ -451,6 +452,7 @@ public class PaymentResource {
 				organisationDetails = restClientOrganisationService
 						.findOrganisationById(emissionDTO.getIdOrganisation());
 				log.info("======== JUSTIF 4============");
+				
 				if (retourPaiFiscalis != null) {
 					for (int i = 0; i < retourPaiFiscalis.length; i++) {
 						imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
@@ -468,6 +470,7 @@ public class PaymentResource {
 							.setNatrureDesDroits(emissionDTO.getNature().name() + " N° " + emissionDTO.getRefEmi());
 					listImput.add(imputationDTO);
 				}
+				
 				log.info("======== JUSTIF 5============");
 				justificatifPaiementDTO.setNui(emissionDTO.getCodeContribuable());
 				justificatifPaiementDTO
@@ -561,7 +564,7 @@ public class PaymentResource {
 		try {
 			 result = restClientTransactionService.confirmPayment(otp, trxid);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			result.put("Exception when confirmPaymentAfriland", e.getMessage());
 			return result;
 		}
@@ -573,9 +576,22 @@ public class PaymentResource {
 	public ResponseEntity<List<Object>> literPaymentByStatut(@PathVariable Statut statut, Pageable pageable) {
 
 		Page<Object> pageresult = paymentService.findByStatut(statut, pageable);
-		HttpHeaders headers = PaginationUtil
+		HttpHeaders headers = null;
+		List<Object> body = null;
+		
+		try {
+			body= pageresult.getContent();
+		} catch (NullPointerException e) {
+			// TODO: handle exception
+			log.error(e.getMessage());
+			headers = PaginationUtil
+					.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+			return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
+		}
+		
+		headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+		return new ResponseEntity<>(body, headers, HttpStatus.OK);
 	}
 
 	@GetMapping("/literPaymentEmissionContrib/{niu}")
@@ -612,9 +628,22 @@ public class PaymentResource {
 		} else if (option.equalsIgnoreCase("rnf")) {
 			pageresult = paymentService.findRNFByCreatedBy(username, pageable);
 		}
-		HttpHeaders headers = PaginationUtil
+		
+		List<Payment> body = null;
+		HttpHeaders headers = null;
+		try {
+			body = pageresult.getContent();
+		} catch (NullPointerException e) {
+			// TODO: handle exception
+			log.error(e.getMessage());
+			headers = PaginationUtil
+					.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+			return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
+		}
+		
+		headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), pageresult);
-		return new ResponseEntity<>(pageresult.getContent(), headers, HttpStatus.OK);
+		return new ResponseEntity<>(body, headers, HttpStatus.OK);
 	}
 
 //    @GetMapping("/listerPaymentByCodeTransaction/{codeTransaction}")
@@ -746,6 +775,14 @@ public class PaymentResource {
 
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 		
+		// controle du provider
+		if (!provider.matches("CCA_BANK|VISION_FINANCE|AFRILAND")) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Provider Not Accept");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+		
 		// controle du niu en cas des emissions
 		if (!refEmi.equals("null")) {
 
@@ -795,9 +832,9 @@ public class PaymentResource {
 
 		// case emission
 		if (!refEmi.equals("null")) {
-
+			
 			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
-
+			
 			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
@@ -812,12 +849,19 @@ public class PaymentResource {
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
-			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) > 0) {// si les montant ne
+			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne
 																									// matche pas
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+			
+			if(!resultEmission.get("refEmi").equals(refEmi)) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);			
 			}
 
 			// initialize datas of emission ot create before save payment
@@ -889,6 +933,7 @@ public class PaymentResource {
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
 		Optional<UserDTO> userDTO = Optional.of(new UserDTO());
+		userDTO.orElse(new UserDTO());
 		RetPaiFiscalis[] retourPaiFiscalis = null;
 		
 		if (restClientUAAService.searchUser(payment.getCreatedBy()) != null) 
@@ -1044,6 +1089,7 @@ public class PaymentResource {
 		}
 		
 
+		result.put("paymentId", paymentDTO2.getId());
 		result.put("paymentCode", paymentDTO2.getCode());
 		result.put("paymentStatus", paymentDTO2.getStatut());
 		result.put("paymentMessageStatus", "payment successful");

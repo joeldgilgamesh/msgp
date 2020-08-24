@@ -97,9 +97,12 @@ public class PaymentServiceImpl implements PaymentService {
 	public void update(Long idPaymeLong, Statut state) {
 		// TODO Auto-generated method stub
 		Optional<Payment> op = paymentRepository.findById(idPaymeLong);
-		Payment p = op.get();
-		p.setStatut(state);
-		paymentRepository.saveAndFlush(p);
+		Payment p = new Payment();
+		if (op.isPresent()) { 
+			p = op.get();
+			p.setStatut(state);
+			paymentRepository.saveAndFlush(p);
+		}
 		//paymentRepository.updatePayment(idPaymeLong, state);
 	}
 

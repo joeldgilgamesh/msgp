@@ -232,6 +232,7 @@ public class DetailVersementIntermediaireResource {
 
 			for (Payment payment2 : paymentsToReconciled) {
 				Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment2.getCreatedBy());
+				userDTO.orElse(new UserDTO());
 				NotificationDTO notificationPayment = new NotificationDTO(null,
 						"La quittance est disponible pour le payment N° [" + payment2.getId() + "] d'un montant de "
 								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name()
