@@ -850,8 +850,7 @@ public class PaymentResource {
 			}
 
 			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne matche pas
-				System.out.println("***************** diagnostic amount manager *****************");
-				System.out.println(Double.parseDouble(resultEmission.get("amount")));
+
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
