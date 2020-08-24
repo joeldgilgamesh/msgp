@@ -151,6 +151,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 		case "VISION_FINANCE":
 			result = "visionfinancecmr";
 			break;
+			
+		case "CCA_BANK":
+			result = "ccabankcmr";
+			break;
 
 		default:
 			result = null;
