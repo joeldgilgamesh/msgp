@@ -924,7 +924,7 @@ public class PaymentResource {
 		historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
 		
-		restClientTransactionService.processPaymentInCash(provider, 
+		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider, 
 				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo, 
 						String.valueOf((int) Math.round(paymentDTO.getAmount())), 
 						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname()), app.getSecret());
@@ -1090,7 +1090,7 @@ public class PaymentResource {
 		
 
 		result.put("paymentId", paymentDTO2.getId());
-		result.put("paymentCode", paymentDTO2.getCode());
+		result.put("transactionId", res.get("transactionid"));
 		result.put("paymentStatus", paymentDTO2.getStatut());
 		result.put("paymentMessageStatus", "payment successful");
 		return new ResponseEntity<>(result, HttpStatus.OK);
