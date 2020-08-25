@@ -776,7 +776,7 @@ public class PaymentResource {
 		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
 		
 		// controle du provider
-		if (!provider.matches("CCA_BANK|VISION_FINANCE|AFRILAND")) {
+		if (!provider.matches("visionfinancecmr|ccabankcmr|afrilandcmr")) {
 			result.put("paymentCode", null);
 			result.put("paymentStatus", "CANCELED");
 			result.put("paymentMessageStatus", "payment failed -->> Provider Not Accept");
@@ -849,8 +849,8 @@ public class PaymentResource {
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
-			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne
-																									// matche pas
+			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne matche pas
+
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
