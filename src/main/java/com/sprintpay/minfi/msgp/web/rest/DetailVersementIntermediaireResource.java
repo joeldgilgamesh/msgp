@@ -133,9 +133,11 @@ public class DetailVersementIntermediaireResource {
 		System.out.println("------------------- affichage des resultats ---------------------");
 		Set<String> datas = new HashSet<String>();
 		detailVersementIntermediaireDTO.getPaymentRefs().forEach(data -> datas.add(data));
-		for (String string : datas) {
-			System.out.println(paymentService.findByRefTransaction(string));
-		}
+		datas.stream().forEach(string -> System.out.println(paymentService.findByRefTransaction(string)));
+//		for (String string : datas) {
+//			
+//			System.out.println(paymentService.findByRefTransaction(string));
+//		}
 		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
 				+ " *******************************************");
 		// Check if all provided payments exists and if they are in VALIDATE statut
