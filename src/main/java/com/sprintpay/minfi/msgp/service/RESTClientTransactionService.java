@@ -26,7 +26,7 @@ public interface RESTClientTransactionService {
 	Map<String,String> confirmPayment(@PathVariable("otp") String otp, @PathVariable("trxid") String trxid) throws Exception;
 	
 	@PostMapping("/api/payment/incash/{provider}")
-	ResponseEntity<Object> processPaymentInCash(@PathVariable("provider") String provider, 
+	Map<String, String> processPaymentInCash(@PathVariable("provider") String provider, 
 			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 
 }
