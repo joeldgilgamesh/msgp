@@ -127,7 +127,8 @@ public class DetailVersementIntermediaireResource {
 
 		// Check if payments are already reconciled
 		// TODO
-
+		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
+				+ " *******************************************");
 		// Check if all provided payments exists and if they are in VALIDATE statut
 		List<Payment> paymentsToReconciled = paymentService
 				.findByRefTransactionInAndStatut(detailVersementIntermediaireDTO.getPaymentRefs(), Statut.VALIDATED);
