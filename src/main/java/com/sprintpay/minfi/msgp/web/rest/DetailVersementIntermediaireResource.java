@@ -134,7 +134,7 @@ public class DetailVersementIntermediaireResource {
 		Set<String> datas = new HashSet<String>();
 		detailVersementIntermediaireDTO.getPaymentRefs().forEach(data -> datas.add(data));
 		for (String string : datas) {
-			System.out.println(paymentService.findByRefTransaction(string).getRefTransaction());
+			System.out.println(paymentService.findByRefTransaction(string));
 		}
 		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
 				+ " *******************************************");
