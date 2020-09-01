@@ -133,7 +133,7 @@ public class DetailVersementIntermediaireResource {
 		System.out.println("------------------- affichage des resultats ---------------------");
 		Set<String> datas = new HashSet<String>();
 		detailVersementIntermediaireDTO.getPaymentRefs().forEach(data -> datas.add(data));
-		datas.stream().forEach(string -> System.out.println(paymentService.findByRefTransaction(string)));
+		datas.stream().map(string -> paymentService.findByRefTransaction(string).getRefTransaction()).forEach(System.out::println);
 //		for (String string : datas) {
 //			
 //			System.out.println(paymentService.findByRefTransaction(string));
