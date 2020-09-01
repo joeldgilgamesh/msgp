@@ -4,8 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -128,8 +131,11 @@ public class DetailVersementIntermediaireResource {
 		// Check if payments are already reconciled
 		// TODO
 		System.out.println("------------------- affichage des resultats ---------------------");
-//		detailVersementIntermediaireDTO.getPaymentRefs().forEach(refTrans -> 
-//		System.out.println(paymentService.findByRefTransaction(refTrans).getRefTransaction()));
+		Set<String> datas = new HashSet<String>();
+		detailVersementIntermediaireDTO.getPaymentRefs().forEach(data -> datas.add(data));
+		for (String string : datas) {
+			System.out.println(paymentService.findByRefTransaction(string).getRefTransaction());
+		}
 		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
 				+ " *******************************************");
 		// Check if all provided payments exists and if they are in VALIDATE statut
