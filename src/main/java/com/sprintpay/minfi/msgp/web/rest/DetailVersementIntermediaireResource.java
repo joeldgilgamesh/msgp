@@ -131,10 +131,12 @@ public class DetailVersementIntermediaireResource {
 		// Check if payments are already reconciled
 		// TODO
 		System.out.println("------------------- affichage des resultats ---------------------");
+//		System.out.println(paymentService.findByRefTransaction("").getRefTransaction());
 		Set<String> datas = new HashSet<String>();
 		detailVersementIntermediaireDTO.getPaymentRefs().forEach(data -> datas.add(data));
-		datas.stream().map(string -> paymentService.findByRefTransaction(string).getRefTransaction()).forEach(System.out::println);
-//		for (String string : datas) {
+		List<String> liste = datas.stream().map(string -> paymentService.findByRefTransaction(string).getRefTransaction()).collect(Collectors.toList());
+		System.out.println("taille du set " + liste.size());
+		//		for (String string : datas) {
 //			
 //			System.out.println(paymentService.findByRefTransaction(string));
 //		}
