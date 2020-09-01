@@ -130,14 +130,7 @@ public class DetailVersementIntermediaireResource {
 
 		// Check if payments are already reconciled
 		// TODO
-		System.out.println("------------------- affichage des resultats ---------------------");
-		System.out.println(paymentService.findByRefTransaction("REF20200824031136"));
-//		System.out.println("reference 02 -> " + paymentService.findByRefTransaction("REF20200824030459"));
-//		System.out.println("reference 03 -> " + paymentService.findByRefTransaction("REF20200824030602"));
-//		System.out.println("reference 04 -> " + paymentService.findByRefTransaction("REF20200824020900"));
 
-		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
-				+ " *******************************************");
 		// Check if all provided payments exists and if they are in VALIDATE statut
 		List<Payment> paymentsToReconciled = paymentService
 				.findByRefTransactionInAndStatut(detailVersementIntermediaireDTO.getPaymentRefs(), Statut.VALIDATED);
