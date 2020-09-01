@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -127,6 +128,9 @@ public class DetailVersementIntermediaireResource {
 
 		// Check if payments are already reconciled
 		// TODO
+		System.out.println("------------------- affichage des resultats ---------------------");
+		detailVersementIntermediaireDTO.getPaymentRefs().forEach(refTrans -> 
+		System.out.println(paymentService.findByRefTransaction(refTrans).getRefTransaction()));
 		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
 				+ " *******************************************");
 		// Check if all provided payments exists and if they are in VALIDATE statut
