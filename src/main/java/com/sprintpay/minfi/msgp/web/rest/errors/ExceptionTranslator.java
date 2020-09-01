@@ -83,13 +83,14 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
     	//a traiter...
     	String details = ex.getDetail();
-    	
+    
     	Problem problem = Problem.builder()
                 .withType(ErrorConstants.DEFAULT_TYPE)
                 .withTitle("Bad Entry Datas")
                 .withStatus(defaultConstraintViolationStatus())
                 .with(MESSAGE_KEY, ErrorConstants.DEFAULT_TYPE)
                 .with(FIELD_ERRORS_KEY, details)
+                .with("request", request)
                 .build();
 //        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     	return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);
