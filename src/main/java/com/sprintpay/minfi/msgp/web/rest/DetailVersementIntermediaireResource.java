@@ -131,10 +131,10 @@ public class DetailVersementIntermediaireResource {
 		// Check if payments are already reconciled
 		// TODO
 		System.out.println("------------------- affichage des resultats ---------------------");
-		System.out.println("reference 01 -> " + paymentService.findByRefTransaction("REF20200824031136").getRefTransaction());
-		System.out.println("reference 02 -> " + paymentService.findByRefTransaction("REF20200824030459").getRefTransaction());
-		System.out.println("reference 03 -> " + paymentService.findByRefTransaction("REF20200824030602").getRefTransaction());
-		System.out.println("reference 04 -> " + paymentService.findByRefTransaction("REF20200824020900").getRefTransaction());
+		System.out.println("reference 01 -> " + paymentService.findByRefTransaction("REF20200824031136"));
+		System.out.println("reference 02 -> " + paymentService.findByRefTransaction("REF20200824030459"));
+		System.out.println("reference 03 -> " + paymentService.findByRefTransaction("REF20200824030602"));
+		System.out.println("reference 04 -> " + paymentService.findByRefTransaction("REF20200824020900"));
 
 		System.out.println("before traitement******************************** " + detailVersementIntermediaireDTO
 				+ " *******************************************");
