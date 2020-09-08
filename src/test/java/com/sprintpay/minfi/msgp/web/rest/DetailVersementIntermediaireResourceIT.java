@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,15 +28,16 @@ import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,17 +101,20 @@ public class DetailVersementIntermediaireResourceIT {
     private MockMvc restDetailVersementIntermediaireMockMvc;
 
     private DetailVersementIntermediaire detailVersementIntermediaire;
-    
+
     @Autowired
     private RESTClientNotificationService restClientNotificationService;
-    
+
     private RESTClientUAAService restClientUAAService;
+
+    @Autowired
+    private KafkaTemplate<String, NotificationDTO> kafkaTemplate;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final DetailVersementIntermediaireResource detailVersementIntermediaireResource = new DetailVersementIntermediaireResource(detailVersementIntermediaireService,
-            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService);
+            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService, kafkaTemplate);
         this.restDetailVersementIntermediaireMockMvc = MockMvcBuilders.standaloneSetup(detailVersementIntermediaireResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
