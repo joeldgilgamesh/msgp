@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -103,15 +104,20 @@ public class PaymentResource {
 	private final RESTClientNotificationService restClientNotificationService;
 	private final ApplicationProperties app;
 
+    private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
+
+    @Value("${kafka.servers.topic.notification}")
+    private String topic ;
+
 	public PaymentResource(PaymentService paymentService, HistoriquePaymentService historiquePaymentService,
-			DetailVersementIntermediaireService detailVersementIntermediaireService,
-			RESTClientTransactionService restClientTransactionService,
-			RESTClientEmissionService restClientEmissionService, PaymentSpecialServices paymentSpecialServices,
-			RESTClientQuittanceService restClientQuittanceService, PaymentMapper paymentMapper,
-			RESTClientUAAService restClientUAAService, RESTClientRNFService restClientRNFService,
-			RESTClientOrganisationService restClientOrganisationService,
-			RESTClientNotificationService restClientNotificationService,
-			ApplicationProperties app) {
+                           DetailVersementIntermediaireService detailVersementIntermediaireService,
+                           RESTClientTransactionService restClientTransactionService,
+                           RESTClientEmissionService restClientEmissionService, PaymentSpecialServices paymentSpecialServices,
+                           RESTClientQuittanceService restClientQuittanceService, PaymentMapper paymentMapper,
+                           RESTClientUAAService restClientUAAService, RESTClientRNFService restClientRNFService,
+                           RESTClientOrganisationService restClientOrganisationService,
+                           RESTClientNotificationService restClientNotificationService,
+                           ApplicationProperties app, KafkaTemplate<String, NotificationDTO> kafkaTemplate) {
 		this.paymentService = paymentService;
 		this.historiquePaymentService = historiquePaymentService;
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
@@ -125,7 +131,8 @@ public class PaymentResource {
 		this.restClientOrganisationService = restClientOrganisationService;
 		this.restClientNotificationService = restClientNotificationService;
 		this.app = app;
-	}
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
 	/**
 	 * {@code POST  /payments} : save payment.
@@ -549,7 +556,9 @@ public class PaymentResource {
 								+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
 								+ "'>Afficher le reçu</a>",
 						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
-				restClientNotificationService.createNotification(notificationPayment);
+				//restClientNotificationService.createNotification(notificationPayment);
+                kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+                log.info("Notification créé et transmit au broker {}", notificationPayment);
 				log.info("======== CHECK 4============");
 			}
 		}
@@ -1086,7 +1095,9 @@ public class PaymentResource {
 							+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
 							+ "'>Afficher le reçu</a>",
 					userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
-			restClientNotificationService.createNotification(notificationPayment);
+			//restClientNotificationService.createNotification(notificationPayment);
+            kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+            log.info("Notification créé et transmit au broker {}", notificationPayment);
 			log.info("======== CHECK 4============");
 		}
 

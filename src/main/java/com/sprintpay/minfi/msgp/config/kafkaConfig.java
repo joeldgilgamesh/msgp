@@ -17,20 +17,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class kafkaConfig {
+public class kafkaConfig<T> {
     @Value("${kafka.servers.config:82.165.202.48:9092}")
     private String bootstrapServerConfig;
 
     @Bean
-    ProducerFactory<String, Evenement> producerFactory(){
+    ProducerFactory<String, T> producerFactory(){
         Map<String, Object> config=new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServerConfig);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
         return new DefaultKafkaProducerFactory<>(config);
     }
+
     @Bean
-    KafkaTemplate<String, Evenement> kafkaTemplate(){
+    KafkaTemplate<String, T> kafkaTemplate(){
         return new KafkaTemplate<>(producerFactory());
     }
 }

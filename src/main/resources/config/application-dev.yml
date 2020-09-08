@@ -162,3 +162,4 @@ kafka:
     group: group-sprintpay-2
     topic:
       database: evenement_database_dev
+      notification: notification_event_dev

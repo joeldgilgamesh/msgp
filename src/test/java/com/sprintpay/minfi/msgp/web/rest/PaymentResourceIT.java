@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -26,13 +27,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import com.sprintpay.minfi.msgp.SpminfimsgpApp;
-import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.domain.HistoriquePayment;
 import com.sprintpay.minfi.msgp.domain.Payment;
@@ -148,9 +149,12 @@ public class PaymentResourceIT {
 
     @MockBean
     private RESTClientOrganisationService restClientOrganisationService;
-    
+
     @MockBean
     private RESTClientNotificationService restClientNotificationService;
+
+    @Autowired
+    private KafkaTemplate<String, NotificationDTO> kafkaTemplate;
 
     @BeforeEach
     public void setup() {
@@ -159,7 +163,7 @@ public class PaymentResourceIT {
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
         															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService,
-        															restClientNotificationService, null);
+        															restClientNotificationService, null, kafkaTemplate);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
