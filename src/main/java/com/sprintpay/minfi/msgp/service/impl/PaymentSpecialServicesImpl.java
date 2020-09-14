@@ -97,6 +97,21 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	
     	return request;
 	}
+	
+	public Map<String, String> buildRequestUBA(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname, String partnerTrxId){
+		
+		Map<String, String> request = new HashMap<String, String>();
+    	request.put("phone", debitInfo);
+    	request.put("clientId", clientID);
+    	request.put("orderId", code);
+    	request.put("firstname", firstname);
+    	request.put("lastname", lastname);
+    	request.put("amount", amount);
+    	request.put("amount", partnerTrxId);
+    	
+    	return request;
+	}
 
 	@Override
 	public String convertProvider(String provider) {

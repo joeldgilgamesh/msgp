@@ -53,6 +53,19 @@ public interface PaymentSpecialServices {
 	 */
 	Map<String, String> buildRequestWithoutApi(String code, String clientID, 
 			String debitInfo, String amount, String firstname, String lastname);
+	
+	/**
+	 * 
+	 * @param code
+	 * @param debitInfo
+	 * @param amount
+	 * @param firstname
+	 * @param lastname
+	 * @param partnerTrxId
+	 * @return
+	 */
+	Map<String, String> buildRequestUBA(String code, String clientID, 
+			String debitInfo, String amount, String firstname, String lastname, String partnerTrxId);
 
 	/**
 	 * 
