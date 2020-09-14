@@ -125,3 +125,11 @@ jhipster:
 
 application:
   sp-minfi-msss-token: AKJLJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJDHDJHQJKDHQSJDHSGDJQGDJKHGQGSHKDGDKLJZUEAUIZJEKJKAJLJ@JHJSHDS
+
+kafka:
+  servers:
+    config: 82.165.202.48:9092
+    group: group-sprintpay-2
+    topic:
+      database: evenement_database_dev
+      notification: notification_event_dev
