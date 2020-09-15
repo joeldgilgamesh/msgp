@@ -1142,7 +1142,7 @@ public class PaymentResource {
 		if (paymentDTO == null) {
 			result.put("paymentCode", null);
 			result.put("paymentStatus", "CANCELED");
-			result.put("paymentMessageStatus", "payment failed -->> Bad Datas Entry Of Payment");
+			result.put("paymentMessageStatus", "payment failed -->> Datas Entry is null");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 
