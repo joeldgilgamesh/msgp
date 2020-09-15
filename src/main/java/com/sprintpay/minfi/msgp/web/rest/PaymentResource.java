@@ -1236,12 +1236,9 @@ public class PaymentResource {
 		// case emission
 		if (!refEmi.equals("null")) {
 			// update emission status
-			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
+			//retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
 
 		}
-
-		
-		
 
 		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
@@ -1260,29 +1257,29 @@ public class PaymentResource {
 //			System.out.println("---------------------***********************" + organisationDetails);
 			log.info("======== JUSTIF 4============");
 
-			if (retourPaiFiscalis != null) {
-				for (int i = 0; i < retourPaiFiscalis.length; i++) {
-					imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
-					imputationDTO.setNumDeclarationImputation(payment.getId());
-					imputationDTO.setOperation(emissionDTO2.getRefEmi());
-					imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
-					listImput.add(imputationDTO);
-//					imputationDTO = new ImputationDTO();
-				}
-			} else {
-				imputationDTO.setMontant(payment.getAmount());
-				imputationDTO.setNumDeclarationImputation(payment.getId());
-				imputationDTO.setOperation(emissionDTO2.getRefEmi());
-				imputationDTO
-						.setNatrureDesDroits(emissionDTO2.getNature().name() + " N° " + emissionDTO2.getRefEmi());
-				listImput.add(imputationDTO);
-			}
+//			if (retourPaiFiscalis != null) {
+//				for (int i = 0; i < retourPaiFiscalis.length; i++) {
+//					imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
+//					imputationDTO.setNumDeclarationImputation(payment.getId());
+//					imputationDTO.setOperation(emissionDTO2.getRefEmi());
+//					imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
+//					listImput.add(imputationDTO);
+////					imputationDTO = new ImputationDTO();
+//				}
+//			} else {
+//				imputationDTO.setMontant(payment.getAmount());
+//				imputationDTO.setNumDeclarationImputation(payment.getId());
+//				imputationDTO.setOperation(emissionDTO2.getRefEmi());
+//				imputationDTO
+//						.setNatrureDesDroits(emissionDTO2.getNature().name() + " N° " + emissionDTO2.getRefEmi());
+//				listImput.add(imputationDTO);
+//			}
 
-//			imputationDTO.setMontant(100d);
-//			imputationDTO.setNumDeclarationImputation(payment.getId());
-//			imputationDTO.setOperation(emissionDTO2.getRefEmi());
-//			imputationDTO.setNatrureDesDroits("nature");
-//			listImput.add(imputationDTO);
+			imputationDTO.setMontant(100d);
+			imputationDTO.setNumDeclarationImputation(payment.getId());
+			imputationDTO.setOperation(emissionDTO2.getRefEmi());
+			imputationDTO.setNatrureDesDroits("nature");
+			listImput.add(imputationDTO);
 
 			log.info("======== JUSTIF 5============");
 			justificatifPaiementDTO.setNui(niu);
