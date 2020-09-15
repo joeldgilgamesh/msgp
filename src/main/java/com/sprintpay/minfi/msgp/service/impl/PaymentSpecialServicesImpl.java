@@ -108,7 +108,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("firstname", firstname);
     	request.put("lastname", lastname);
     	request.put("amount", amount);
-    	request.put("amount", partnerTrxId);
+    	request.put("partnerTrxId", partnerTrxId);
     	
     	return request;
 	}
