@@ -952,6 +952,8 @@ public class PaymentResource {
 		if (!refEmi.equals("null")) {
 			// update emission status
 			paymentDTO.setId(payment.getId());
+			System.out.println("**************************---------------------*****************");
+			System.out.println(restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentDTO));
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentDTO).getBody();
 
 			// create historique emission
