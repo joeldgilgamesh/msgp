@@ -29,7 +29,7 @@ public interface RESTClientTransactionService {
 	Map<String, String> processPaymentInCash(@PathVariable("provider") String provider, 
 			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 	
-	@PostMapping("/api/payment/confirmation")
+	@PostMapping("/api/payment/confirmation/{provider}")
 	Map<String, String> confirmationPaymentUBA(@PathVariable("provider") String provider, 
 			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 
