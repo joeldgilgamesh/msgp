@@ -1,5 +1,7 @@
+
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -98,6 +100,12 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 	public Optional<DetailVersementIntermediaireDTO> findByNumeroVersment(String codeVersement) {
 		// TODO Auto-generated method stub
 		return detailVersementIntermediaireRepository.findByNumeroVersment(codeVersement).map(detailVersementIntermediaireMapper::toDto);
+	}
+
+	@Override
+	public List<DetailVersementIntermediaire> findDetailVersementIntermediaire(String meansOfPayment) {
+		// TODO Auto-generated method stub  
+		return detailVersementIntermediaireRepository.findDetailVersementIntermediaire(meansOfPayment);
 	}
 
 

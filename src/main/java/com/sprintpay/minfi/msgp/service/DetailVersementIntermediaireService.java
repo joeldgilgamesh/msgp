@@ -2,9 +2,12 @@ package com.sprintpay.minfi.msgp.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -57,4 +60,11 @@ public interface DetailVersementIntermediaireService {
      * @return
      */
 	Optional<DetailVersementIntermediaireDTO> findByNumeroVersment(String codeVersement);
+	
+	/**
+	 * 
+	 * @param meansOfPayment
+	 * @return
+	 */
+	List<DetailVersementIntermediaire> findDetailVersementIntermediaire(String meansOfPayment);
 }

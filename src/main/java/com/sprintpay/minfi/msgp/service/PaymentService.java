@@ -125,4 +125,8 @@ public interface PaymentService {
     Page<Payment> findEmissionByCreatedBy(@Param("user") String username, Pageable pageable);
 
     Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
+    
+    List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment);
+    
+    Double summReversementByMeansOfPayment(String meansOfPayment);
 }

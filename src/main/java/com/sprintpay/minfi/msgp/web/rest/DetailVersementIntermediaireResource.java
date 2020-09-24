@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -364,5 +365,13 @@ public class DetailVersementIntermediaireResource {
 		return ResponseEntity.noContent()
 				.headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
 				.build();
+	}
+	
+	@GetMapping("/findDetailVersementIntermediaire/{meanOfPayment}")
+	public ResponseEntity<List<DetailVersementIntermediaire>> findDetailVersementIntermediaire(@PathVariable String meanOfPayment){
+		//implement controls here
+		
+		List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaire(meanOfPayment);
+		return new ResponseEntity<>(versements, HttpStatus.FOUND);
 	}
 }

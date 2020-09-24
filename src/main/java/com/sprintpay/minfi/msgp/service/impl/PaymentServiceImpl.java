@@ -203,6 +203,18 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findRNFByCreatedBy(username, pageable);
     }
 
+	@Override
+	public List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment) {
+		// TODO Auto-generated method stub
+		return paymentRepository.findByStatutAndMeansOfPayment(status, MeansOfPayment);
+	}
+
+	@Override
+	public Double summReversementByMeansOfPayment(String meansOfPayment) {
+		// TODO Auto-generated method stub
+		return paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
+	}
+
 //	@Scheduled(cron = "0 */5 * ? * *")
 //	public void test() {
 ////		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));

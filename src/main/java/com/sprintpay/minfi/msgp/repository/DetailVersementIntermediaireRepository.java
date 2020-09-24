@@ -19,6 +19,6 @@ public interface DetailVersementIntermediaireRepository extends JpaRepository<De
 
     Optional<DetailVersementIntermediaire> findByNumeroVersment(String numeroVersment);
     
-    @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = :status AND p.meansOfPayment = :meansOfPayment) ")
-    List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("status") String status, @Param("meansOfPayment") String meansOfPayment);
+    @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment) ")
+    List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("meansOfPayment") String meansOfPayment);
 }

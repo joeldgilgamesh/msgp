@@ -1379,11 +1379,21 @@ public class PaymentResource {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	  }
 	
-//	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meanOfPayment}")
-//	public ResponseEntity<List<Payment>> findPaymentReconciledByMeanOfPayment(@PathVariable String meanOfPayment){
-//		//gestion des controles
-//		return null;
-//	}
+	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meanOfPayment}")
+	public ResponseEntity<List<Payment>> findPaymentReconciledByMeanOfPayment(@PathVariable String meanOfPayment){
+		//implement controls here
+		
+		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment("RECONCILED", meanOfPayment);
+		return new ResponseEntity<>(payments, HttpStatus.FOUND);
+	}
+	
+	@GetMapping("/summReversementByMeansOfPayment/{meanOfPayment}")
+	public ResponseEntity<Double> summReversementByMeansOfPayment(@PathVariable String meanOfPayment){
+		//implement controls here
+		
+		Double sum = paymentService.summReversementByMeansOfPayment(meanOfPayment);
+		return new ResponseEntity<>(sum, HttpStatus.FOUND);
+	}
 
  }
 
