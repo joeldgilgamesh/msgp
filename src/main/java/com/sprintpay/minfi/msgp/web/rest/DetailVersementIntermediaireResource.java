@@ -187,7 +187,7 @@ public class DetailVersementIntermediaireResource {
 				if(transactionSSDTO.getBody().getMontant().compareTo(detailVersementIntermediaireDTO.getMontant()) != 0 ) {
 					throw new BadRequestAlertException(
 							"The global payments amount is different to the SYSTAC/SYGMA transaction",
-							"Global Amount is: " + globalPaymentsAmount + " SYSTAC/SYGMA Amount is: "
+							"Amount Received is: " + detailVersementIntermediaireDTO.getMontant() + " SYSTAC/SYGMA Amount is: "
 									+ transactionSSDTO.getBody().getMontant(),
 							"AmountsNotMatch");
 				}
