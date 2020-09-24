@@ -1,10 +1,13 @@
 package com.sprintpay.minfi.msgp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,4 +18,7 @@ import java.util.Optional;
 public interface DetailVersementIntermediaireRepository extends JpaRepository<DetailVersementIntermediaire, Long> {
 
     Optional<DetailVersementIntermediaire> findByNumeroVersment(String numeroVersment);
+    
+    @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = :status AND p.meansOfPayment = :meansOfPayment) ")
+    List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("status") String status, @Param("meansOfPayment") String meansOfPayment);
 }

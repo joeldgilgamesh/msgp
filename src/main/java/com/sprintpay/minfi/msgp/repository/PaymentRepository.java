@@ -46,4 +46,16 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT p FROM Payment p WHERE p.createdBy = :user AND (p.idRecette is not null AND p.idRecette > 0) ORDER BY p.createdDate DESC")
     Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
+    
+    
+    
+    
+    
+    
+    List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment); //les paiement reconcilié d'un moyen de paiement
+    
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = :statut AND p.meansOfPayment = :meansOfPayment")
+    Double summReversementByMeansOfPayment(@Param("statut") String statut, @Param("meansOfPayment") String meansOfPayment); //la somme des reversements des paiement reconcilié d'un moyen de paiement
+    
+
 }

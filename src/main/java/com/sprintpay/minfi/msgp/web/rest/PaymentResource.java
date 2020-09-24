@@ -951,7 +951,6 @@ public class PaymentResource {
 		// case emission
 		if (!refEmi.equals("null")) {
 			// update emission status
-			paymentDTO.setId(payment.getId());
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
 
 			// create historique emission
@@ -1379,6 +1378,12 @@ public class PaymentResource {
 		result.put("paymentMessageStatus", "payment successful");
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	  }
+	
+//	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meanOfPayment}")
+//	public ResponseEntity<List<Payment>> findPaymentReconciledByMeanOfPayment(@PathVariable String meanOfPayment){
+//		//gestion des controles
+//		return null;
+//	}
 
  }
 
