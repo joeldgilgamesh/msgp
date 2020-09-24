@@ -11,10 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
@@ -165,12 +167,13 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void updateAllPayments(Set<String> refs, Statut statut){
+    public void updateAllPayments(Set<String> refs, Statut statut, DetailVersementIntermediaire dt){
     	List<Payment> ls = paymentRepository.findByRefTransactionIn(refs);
     	for (Payment payment : ls) {
 			payment.setStatut(statut);
+			payment.setIdDetVers(dt);
 		}
-    	//paymentRepository.saveAll(ls);
+    	paymentRepository.saveAll(ls);
         // paymentRepository.updateAllPayments(refs, statut);
     }
 
