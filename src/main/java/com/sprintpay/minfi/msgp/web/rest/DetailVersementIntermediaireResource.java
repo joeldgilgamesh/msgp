@@ -260,10 +260,7 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 
-		return ResponseEntity
-				.created(new URI("/api/detail-versement-intermediaires/" + result.getId())).headers(HeaderUtil
-						.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-				.body(result);
+		return ResponseEntity.ok().body(result);
 	}
 
 	private List<JustificatifPaiementDTO> prepareJustificatifsPayment(List<Payment> paymentsToReconciled) {
