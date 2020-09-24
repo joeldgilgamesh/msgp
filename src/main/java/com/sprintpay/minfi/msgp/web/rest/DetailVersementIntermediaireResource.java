@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,10 +85,15 @@ public class DetailVersementIntermediaireResource {
 	
 	private final DetailVersementIntermediaireMapper detailversementMapper;
 
+    private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
+
+    @Value("${kafka.servers.topic.notification}")
+    private String topic ;
+
 	public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
-			PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
-			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
-			RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService, DetailVersementIntermediaireMapper detailversementMapper) {
+                                                PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
+                                                ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
+                                                RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService, KafkaTemplate<String, NotificationDTO> kafkaTemplate, DetailVersementIntermediaireMapper detailversementMapper) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
 		this.restClientSystacSygmaService = restClientSystacSygmaService;
@@ -96,7 +102,8 @@ public class DetailVersementIntermediaireResource {
 		this.restClientNotificationService = restClientNotificationService;
 		this.restClientUAAService = restClientUAAService;
 		this.detailversementMapper = detailversementMapper;
-	}
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
 	/**
 	 * {@code POST  /detail-versement-intermediaires} : Create a new
@@ -246,7 +253,9 @@ public class DetailVersementIntermediaireResource {
 								+ "<a href='/client/voirJustificatif/quittance/" + payment2.getId()
 								+ "'>Afficher la quittance</a>",
 						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
-				restClientNotificationService.createNotification(notificationPayment);
+				//restClientNotificationService.createNotification(notificationPayment);
+                kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+                log.info("Notification créé et transmit au broker {}", notificationPayment);
 				log.info("======== CHECK 4============");
 			}
 		}

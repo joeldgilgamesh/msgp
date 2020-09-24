@@ -3,6 +3,7 @@ package com.sprintpay.minfi.msgp.service;
 import java.util.List;
 import java.util.Map;
 
+import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public interface RESTClientEmissionService {
 		ResponseEntity<String> historiserEmission(@PathVariable ("status") String status, @PathVariable ("idEmis") Long idEmis);
 
 		@PostMapping("/api/updateEmission/{idEmis}/{status}")
-		ResponseEntity<RetPaiFiscalis[]> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status);
+		ResponseEntity<RetPaiFiscalis[]> updateEmission(@PathVariable ("idEmis") Long idEmis, @PathVariable ("status") Statut status, @RequestBody PaymentDTO payment);
 
 		@PostMapping("/api/historiserEmissions/{status}/{idEmis}")
 		ResponseEntity<String> createEmissionHistorique(@RequestBody EmissionHistoriqueDTO historiqueEmissionDTO,
