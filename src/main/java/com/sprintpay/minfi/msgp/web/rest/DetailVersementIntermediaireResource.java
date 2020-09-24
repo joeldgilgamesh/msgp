@@ -174,7 +174,17 @@ public class DetailVersementIntermediaireResource {
 				// Check if the global amount of payments provided matches with the amount of
 				// SYSTAC SYGMA transaction
 				Double globalPaymentsAmount = paymentsToReconciled.stream().mapToDouble(Payment::getAmount).sum();
-				if (transactionSSDTO.getBody().getMontant().compareTo(globalPaymentsAmount) != 0) {
+				if (transactionSSDTO.getBody().getMontant().compareTo(globalPaymentsAmount) != 0 ) {
+					throw new BadRequestAlertException(
+							"The global payments amount is different to the SYSTAC/SYGMA transaction",
+							"Global Amount is: " + globalPaymentsAmount + " SYSTAC/SYGMA Amount is: "
+									+ transactionSSDTO.getBody().getMontant(),
+							"AmountsNotMatch");
+				}
+				
+				// Check if the global amount of payments from frontend provided matches with the amount of
+				// SYSTAC SYGMA transaction
+				if(transactionSSDTO.getBody().getMontant().compareTo(detailVersementIntermediaireDTO.getMontant()) != 0 ) {
 					throw new BadRequestAlertException(
 							"The global payments amount is different to the SYSTAC/SYGMA transaction",
 							"Global Amount is: " + globalPaymentsAmount + " SYSTAC/SYGMA Amount is: "
