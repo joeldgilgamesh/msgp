@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
@@ -115,7 +116,7 @@ public interface PaymentService {
 
     List<Payment> findByRefTransactionInAndStatut(Set<String> refs, Statut statut);
 
-    void updateAllPayments(Set<String> refs, Statut statut);
+    void updateAllPayments(Set<String> refs, Statut statut, DetailVersementIntermediaire dt);
 
 	void update(Long id, Statut status, TransactionDTO transactionDTO);
 

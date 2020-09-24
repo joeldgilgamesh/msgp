@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.sprintpay.minfi.msgp.config.ApplicationProperties;
+import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
@@ -39,6 +42,8 @@ import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionSSDTO;
 import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
+import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
+import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
 import feign.FeignException;
@@ -76,11 +81,13 @@ public class DetailVersementIntermediaireResource {
 	private final RESTClientNotificationService restClientNotificationService;
 
 	private final RESTClientUAAService restClientUAAService;
+	
+	private final DetailVersementIntermediaireMapper detailversementMapper;
 
 	public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
 			PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
 			ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
-			RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService) {
+			RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService, DetailVersementIntermediaireMapper detailversementMapper) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
 		this.restClientSystacSygmaService = restClientSystacSygmaService;
@@ -88,6 +95,7 @@ public class DetailVersementIntermediaireResource {
 		this.restClientQuittanceService = restClientQuittanceService;
 		this.restClientNotificationService = restClientNotificationService;
 		this.restClientUAAService = restClientUAAService;
+		this.detailversementMapper = detailversementMapper;
 	}
 
 	/**
@@ -143,8 +151,6 @@ public class DetailVersementIntermediaireResource {
 					different.toString(), "paymentRefsNotFound");
 		}
 
-		System.out.println("******************************** " + detailVersementIntermediaireDTO
-				+ " *******************************************");
 		// Check if the numeroVersment exist on SYSTAC SYGMA transactions
 		int retryCount = 0;
 		while (retryCount < MAX_RETRY_COUNT) {
@@ -157,6 +163,7 @@ public class DetailVersementIntermediaireResource {
 							"No detailVersementIntermediaire found in system now, try again later", ENTITY_NAME,
 							"NumeroVersmentNotAvailable");
 				}
+				
 				// Check if the global amount of payments provided matches with the amount of
 				// SYSTAC SYGMA transaction
 				Double globalPaymentsAmount = paymentsToReconciled.stream().mapToDouble(Payment::getAmount).sum();
@@ -188,13 +195,13 @@ public class DetailVersementIntermediaireResource {
 		}
 
 		// Save detailVersementIntermediaire
-		DetailVersementIntermediaireDTO result = detailVersementIntermediaireService
-				.save(detailVersementIntermediaireDTO);
-
+		DetailVersementIntermediaireDTO result = detailVersementIntermediaireDTO;
+		
 		// Update detailVersementIntermediaire.payments
 		paymentService.updateAllPayments(
 				paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toSet()),
-				Statut.RECONCILED);
+				Statut.RECONCILED, detailversementMapper.toEntity(detailVersementIntermediaireDTO));
+			
 
 		// TODO: update Emissions and RNF
 

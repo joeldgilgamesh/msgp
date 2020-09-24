@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -65,7 +66,7 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
     @Column(name = "id_transaction")
     private Long idTransaction;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JsonIgnoreProperties("payments")
     private DetailVersementIntermediaire idDetVers;
 

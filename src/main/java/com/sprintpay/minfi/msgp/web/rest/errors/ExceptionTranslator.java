@@ -90,7 +90,6 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                 .withStatus(defaultConstraintViolationStatus())
                 .with(MESSAGE_KEY, ErrorConstants.DEFAULT_TYPE)
                 .with(FIELD_ERRORS_KEY, details)
-                .with("request_details", request)
                 .build();
 //        return create(ex, request, HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage()));
     	return new ResponseEntity<>(problem, HttpStatus.BAD_REQUEST);

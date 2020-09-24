@@ -106,12 +106,14 @@ public class DetailVersementIntermediaireResourceIT {
     private RESTClientNotificationService restClientNotificationService;
     
     private RESTClientUAAService restClientUAAService;
+    
+    private DetailVersementIntermediaireMapper detailversementMapper;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final DetailVersementIntermediaireResource detailVersementIntermediaireResource = new DetailVersementIntermediaireResource(detailVersementIntermediaireService,
-            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService);
+            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService, detailversementMapper);
         this.restDetailVersementIntermediaireMockMvc = MockMvcBuilders.standaloneSetup(detailVersementIntermediaireResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
