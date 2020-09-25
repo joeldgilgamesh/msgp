@@ -1398,8 +1398,8 @@ public class PaymentResource {
 //		return new ResponseEntity<>(payments, HttpStatus.FOUND);
 //		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
 		
-		HttpHeaders headers = PaginationUtil
-				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
 		return ResponseEntity.ok().headers(headers).body(payments);
 	}
 	
@@ -1416,8 +1416,8 @@ public class PaymentResource {
 		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentSummByMeansOfPayment.put(meansOfPaymemnt.name(), 
 				paymentService.summReversementByMeansOfPayment(meansOfPaymemnt)));
 		
-		HttpHeaders headers = PaginationUtil
-				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
 		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
 	}
 
