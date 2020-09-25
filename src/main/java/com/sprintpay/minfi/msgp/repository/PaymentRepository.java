@@ -58,7 +58,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
 //    List<Payment> findByStatutAndMeansOfPayment(@Param("status") Statut status, @Param("MeansOfPayment") MeansOfPayment MeansOfPayment);
     
-    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment")
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND ((p.idDetVers is not null AND p.meansOfPayment = :meansOfPayment))")
     Double summReversementByMeansOfPayment(@Param("meansOfPayment") MeansOfPayment meansOfPayment); //la somme des reversements des paiement reconcilié d'un moyen de paiement
     
 
