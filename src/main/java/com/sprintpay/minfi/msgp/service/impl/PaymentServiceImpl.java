@@ -1,6 +1,9 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -214,16 +217,31 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Double summReversementByMeansOfPayment(MeansOfPayment meansOfPayment) {
 		// TODO Auto-generated method stub
-		return paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
+		Double value = paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
+		Double resp = (value != null ? value : 0d);
+		return resp;
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
+	@Scheduled(fixedDelay = 60000)
+	public void test() {
 //		System.out.println("------------------------------------ resultat de test de summReversementByMeansOfPayment/{meanOfPayment} ------------------------------------ ");
 //		System.out.println(paymentRepository.summReversementByMeansOfPayment(MeansOfPayment.ORANGE_MONEY));
 //		
 //		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
 //		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY).size());
-//	}
+		
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		Map<String, Double> listePaymentByMeansOfPayment = new HashMap<String, Double>();
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
+				paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt)));
+		
+		System.out.println("******************************-------------------------------");
+		System.out.println(listePaymentByMeansOfPayment);
+		
+	}
 
 }

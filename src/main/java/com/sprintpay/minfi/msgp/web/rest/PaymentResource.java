@@ -1380,35 +1380,45 @@ public class PaymentResource {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	  }
 	
-	@GetMapping("/findPaymentReconciledByMeanOfPayment")
-	public ResponseEntity<Map<String, List<Payment>>> findPaymentReconciledByMeanOfPayment(){
+	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meansOfPayment}")
+	public ResponseEntity<List<Payment>> findPaymentReconciledByMeanOfPayment(@PathVariable MeansOfPayment meansOfPayment){
 		//implement controls here
 		
-//		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
-		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		Map<String, List<Payment>> listePaymentByMeansOfPayment = new HashMap<String, List<Payment>>();
-		
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			AllMeans.add(meansOfPayment);
-		}
-		
-		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
-				paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meansOfPaymemnt)));
+		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meansOfPayment);
+//		List<MeansOfPayment> AllMeans = new ArrayList<>();
+//		Map<String, List<Payment>> listePaymentByMeansOfPayment = new HashMap<String, List<Payment>>();
+//		
+//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+//			AllMeans.add(meansOfPayment);
+//		}
+//		
+//		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
+//				paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meansOfPaymemnt)));
 		
 //		return new ResponseEntity<>(payments, HttpStatus.FOUND);
 //		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
 		
 		HttpHeaders headers = PaginationUtil
 				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
-		return ResponseEntity.ok().headers(headers).body(listePaymentByMeansOfPayment);
+		return ResponseEntity.ok().headers(headers).body(payments);
 	}
 	
-	@GetMapping("/summReversementByMeansOfPayment/{meanOfPayment}")
-	public ResponseEntity<Double> summReversementByMeansOfPayment(@PathVariable MeansOfPayment meanOfPayment){
+	@GetMapping("/summReversementByMeansOfPayment")
+	public ResponseEntity<Map<String, Double>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
-		Double sum = paymentService.summReversementByMeansOfPayment(meanOfPayment);
-		return new ResponseEntity<>(sum, HttpStatus.FOUND);
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		Map<String, Double> listePaymentSummByMeansOfPayment = new HashMap<String, Double>();
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentSummByMeansOfPayment.put(meansOfPaymemnt.name(), 
+				paymentService.summReversementByMeansOfPayment(meansOfPaymemnt)));
+		
+		HttpHeaders headers = PaginationUtil
+				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
 	}
 
  }
