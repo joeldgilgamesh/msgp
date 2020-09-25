@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 
 /**
@@ -52,10 +53,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
     
     
-    List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment); //les paiement reconcilié d'un moyen de paiement
+    List<Payment> findByStatutAndMeansOfPayment(Statut status, MeansOfPayment MeansOfPayment); //les paiement reconcilié d'un moyen de paiement
     
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment")
-    Double summReversementByMeansOfPayment(@Param("meansOfPayment") String meansOfPayment); //la somme des reversements des paiement reconcilié d'un moyen de paiement
+    Double summReversementByMeansOfPayment(@Param("meansOfPayment") MeansOfPayment meansOfPayment); //la somme des reversements des paiement reconcilié d'un moyen de paiement
     
 
 }

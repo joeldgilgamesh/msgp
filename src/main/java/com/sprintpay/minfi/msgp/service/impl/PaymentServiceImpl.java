@@ -8,11 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
@@ -204,31 +206,25 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
 	@Override
-	public List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment) {
+	public List<Payment> findByStatutAndMeansOfPayment(Statut status, MeansOfPayment MeansOfPayment) {
 		// TODO Auto-generated method stub
 		return paymentRepository.findByStatutAndMeansOfPayment(status, MeansOfPayment);
 	}
 
 	@Override
-	public Double summReversementByMeansOfPayment(String meansOfPayment) {
+	public Double summReversementByMeansOfPayment(MeansOfPayment meansOfPayment) {
 		// TODO Auto-generated method stub
 		return paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
 	}
 
-//	@Scheduled(cron = "0 */5 * ? * *")
+//	@Scheduled(fixedDelay = 60000)
 //	public void test() {
-////		System.out.println("-------------------------- uba convert provider value return -> " + paymentSpecialServices.convertProvider("UBA"));
-////		System.out.println("-------------------------- uba test convert provider -> " + paymentSpecialServices.convertProvider("UBA").equals("uba"));
-////
-////		System.out.println("-------------------------- afriland convert provider value return -> " + paymentSpecialServices.convertProvider("AFRILAND"));
-////		System.out.println("-------------------------- afriland test convert provider -> " + paymentSpecialServices.convertProvider("AFRILAND").equals("afrilandcmr"));
-////
-////		System.out.println("-------------------------- uba valueof convert provider -> " + MeansOfPayment.valueOf("UBA"));
-////		System.out.println("-------------------------- convert provider -> " + MeansOfPayment.valueOf("AFRILAND"));
-//		System.out.println("je suis entrain de tester ------------------------------------");
-//		System.out.println("je suis entrain de tester ------------------------------------");
-//		System.out.println("je suis entrain de tester ------------------------------------");
-//		System.out.println("je suis entrain de tester ------------------------------------");
+//		System.out.println("------------------------------------ resultat de test de summReversementByMeansOfPayment/{meanOfPayment} ------------------------------------ ");
+//		System.out.println(paymentRepository.summReversementByMeansOfPayment(MeansOfPayment.ORANGE_MONEY));
+//		
+//		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
+//		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY));
+//		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY));
 //	}
 
 }

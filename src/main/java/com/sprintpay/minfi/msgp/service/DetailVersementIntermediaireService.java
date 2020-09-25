@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 
 import java.util.List;
@@ -66,5 +67,5 @@ public interface DetailVersementIntermediaireService {
 	 * @param meansOfPayment
 	 * @return
 	 */
-	List<DetailVersementIntermediaire> findDetailVersementIntermediaire(String meansOfPayment);
+	List<DetailVersementIntermediaire> findDetailVersementIntermediaire(MeansOfPayment meansOfPayment);
 }

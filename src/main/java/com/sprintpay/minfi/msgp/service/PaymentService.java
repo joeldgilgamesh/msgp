@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
@@ -126,7 +127,7 @@ public interface PaymentService {
 
     Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
     
-    List<Payment> findByStatutAndMeansOfPayment(String status, String MeansOfPayment);
+    List<Payment> findByStatutAndMeansOfPayment(Statut status, MeansOfPayment MeansOfPayment);
     
-    Double summReversementByMeansOfPayment(String meansOfPayment);
+    Double summReversementByMeansOfPayment(MeansOfPayment meansOfPayment);
 }

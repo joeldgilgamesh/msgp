@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.repository.DetailVersementIntermediaireRepository;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
@@ -103,7 +104,7 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 	}
 
 	@Override
-	public List<DetailVersementIntermediaire> findDetailVersementIntermediaire(String meansOfPayment) {
+	public List<DetailVersementIntermediaire> findDetailVersementIntermediaire(MeansOfPayment meansOfPayment) {
 		// TODO Auto-generated method stub  
 		return detailVersementIntermediaireRepository.findDetailVersementIntermediaire(meansOfPayment);
 	}

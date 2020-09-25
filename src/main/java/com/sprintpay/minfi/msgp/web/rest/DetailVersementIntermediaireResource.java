@@ -31,6 +31,7 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.PaymentService;
@@ -368,7 +369,7 @@ public class DetailVersementIntermediaireResource {
 	}
 	
 	@GetMapping("/findDetailVersementIntermediaire/{meanOfPayment}")
-	public ResponseEntity<List<DetailVersementIntermediaire>> findDetailVersementIntermediaire(@PathVariable String meanOfPayment){
+	public ResponseEntity<List<DetailVersementIntermediaire>> findDetailVersementIntermediaire(@PathVariable MeansOfPayment meanOfPayment){
 		//implement controls here
 		
 		List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaire(meanOfPayment);

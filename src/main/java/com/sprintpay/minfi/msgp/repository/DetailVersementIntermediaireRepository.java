@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
+import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,5 +21,5 @@ public interface DetailVersementIntermediaireRepository extends JpaRepository<De
     Optional<DetailVersementIntermediaire> findByNumeroVersment(String numeroVersment);
     
     @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment) ")
-    List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("meansOfPayment") String meansOfPayment);
+    List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("meansOfPayment") MeansOfPayment meansOfPayment);
 }
