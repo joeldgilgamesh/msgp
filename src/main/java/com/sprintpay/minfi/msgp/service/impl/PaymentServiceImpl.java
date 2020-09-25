@@ -217,14 +217,13 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
-//		System.out.println("------------------------------------ resultat de test de summReversementByMeansOfPayment/{meanOfPayment} ------------------------------------ ");
-//		System.out.println(paymentRepository.summReversementByMeansOfPayment(MeansOfPayment.ORANGE_MONEY));
-//		
-//		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
-//		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY));
-//		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY));
-//	}
+	@Scheduled(fixedDelay = 60000)
+	public void test() {
+		System.out.println("------------------------------------ resultat de test de summReversementByMeansOfPayment/{meanOfPayment} ------------------------------------ ");
+		System.out.println(paymentRepository.summReversementByMeansOfPayment(MeansOfPayment.ORANGE_MONEY));
+		
+		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
+		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY).size());
+	}
 
 }

@@ -8,11 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
+import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.DetailVersementIntermediaireRepository;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
@@ -109,6 +111,11 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 		return detailVersementIntermediaireRepository.findDetailVersementIntermediaire(meansOfPayment);
 	}
 
-
+//	@Scheduled(fixedDelay = 60000)
+//	public void test() {
+//		System.out.println("------------------------------------ resultat de test de findDetailVersementIntermediaire/{meanOfPayment} ------------------------------------ ");
+//		System.out.println(detailVersementIntermediaireRepository.findDetailVersementIntermediaire(MeansOfPayment.ORANGE_MONEY).size());
+//
+//	}
 
 }
