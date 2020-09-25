@@ -1380,20 +1380,20 @@ public class PaymentResource {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	  }
 	
-	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meanOfPayment}")
-	public ResponseEntity<Map<String, List<Payment>>> findPaymentReconciledByMeanOfPayment(@PathVariable MeansOfPayment meanOfPayment){
+	@GetMapping("/findPaymentReconciledByMeanOfPayment")
+	public ResponseEntity<Map<String, List<Payment>>> findPaymentReconciledByMeanOfPayment(){
 		//implement controls here
 		
 //		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
-		List<Statut> AllStatus = new ArrayList<Statut>();
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		Map<String, List<Payment>> listePaymentByMeansOfPayment = new HashMap<String, List<Payment>>();
 		
-		for (Statut statut : Statut.values()) {
-			AllStatus.add(statut);
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
 		}
 		
-		AllStatus.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
-				paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment)));
+		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
+				paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meansOfPaymemnt)));
 		
 //		return new ResponseEntity<>(payments, HttpStatus.FOUND);
 //		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
