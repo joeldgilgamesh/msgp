@@ -211,7 +211,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public List<Payment> findByStatutAndMeansOfPayment(Statut status, MeansOfPayment MeansOfPayment) {
 		// TODO Auto-generated method stub
-		return paymentRepository.findByStatutAndMeansOfPayment(status, MeansOfPayment);
+		return paymentRepository.findByStatutANDMeansOfPayment(status, MeansOfPayment);
 	}
 
 	@Override

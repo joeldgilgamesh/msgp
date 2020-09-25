@@ -373,6 +373,8 @@ public class DetailVersementIntermediaireResource {
 		//implement controls here
 		
 		List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaire(meanOfPayment);
-		return new ResponseEntity<>(versements, HttpStatus.FOUND);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
+		return ResponseEntity.ok().headers(headers).body(versements);
 	}
 }
