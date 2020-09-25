@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1380,11 +1381,26 @@ public class PaymentResource {
 	  }
 	
 	@GetMapping("/findPaymentReconciledByMeanOfPayment/{meanOfPayment}")
-	public ResponseEntity<List<Payment>> findPaymentReconciledByMeanOfPayment(@PathVariable MeansOfPayment meanOfPayment){
+	public ResponseEntity<Map<String, List<Payment>>> findPaymentReconciledByMeanOfPayment(@PathVariable MeansOfPayment meanOfPayment){
 		//implement controls here
 		
-		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
-		return new ResponseEntity<>(payments, HttpStatus.FOUND);
+//		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
+		List<Statut> AllStatus = new ArrayList<Statut>();
+		Map<String, List<Payment>> listePaymentByMeansOfPayment = new HashMap<String, List<Payment>>();
+		
+		for (Statut statut : Statut.values()) {
+			AllStatus.add(statut);
+		}
+		
+		AllStatus.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
+				paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment)));
+		
+//		return new ResponseEntity<>(payments, HttpStatus.FOUND);
+//		List<Payment> payments = paymentService.findByStatutAndMeansOfPayment(Statut.RECONCILED, meanOfPayment);
+		
+		HttpHeaders headers = PaginationUtil
+				.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), null);
+		return ResponseEntity.ok().headers(headers).body(listePaymentByMeansOfPayment);
 	}
 	
 	@GetMapping("/summReversementByMeansOfPayment/{meanOfPayment}")
