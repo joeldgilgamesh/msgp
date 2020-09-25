@@ -52,8 +52,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
     
     
-    @Query("SELECT p FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment AND p.idDetVers is not null")
-    List<Payment> findByStatutANDMeansOfPayment(@Param("status") Statut status, @Param("MeansOfPayment") MeansOfPayment MeansOfPayment); //les paiement reconcilié d'un moyen de paiement
+    @Query("SELECT p FROM Payment p WHERE p.statut = :status AND (p.idDetVers is not null AND p.meansOfPayment = :meansOfPayment)")
+    List<Payment> findByStatutANDMeansOfPayment(@Param("status") Statut status, @Param("meansOfPayment") MeansOfPayment meansOfPayment); //les paiement reconcilié d'un moyen de paiement
     
     
 //    List<Payment> findByStatutAndMeansOfPayment(@Param("status") Statut status, @Param("MeansOfPayment") MeansOfPayment MeansOfPayment);
