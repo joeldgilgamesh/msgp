@@ -1408,20 +1408,18 @@ public class PaymentResource {
 		//implement controls here
 		
 		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		List<MeansOfPayment> AllMeans = new ArrayList<MeansOfPayment>();
 //		ResponseSumm response = new ResponseSumm();
 		Double amount, amounttosend;
 		
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			
-//			amount = paymentService.summReversementByMeansOfPayment(meansOfPayment);
-//			amounttosend = amount != null ? amount : 0d;
-//			
-//			response.setAmount(amounttosend);
-//			response.setMeansOfPayment(meansOfPayment);
-//			
-//			JSONObject allSumm = new JSONObject(response);
-//			listePaymentSummByMeansOfPayment.add(allSumm);
-//		}
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentSummByMeansOfPayment.put(meansOfPaymemnt.name(), 
+				paymentService.summReversementByMeansOfPayment(meansOfPaymemnt)));
+				
+		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			ResponseSumm response = new ResponseSumm();
