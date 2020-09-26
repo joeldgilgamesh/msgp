@@ -4,10 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +66,7 @@ import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
@@ -1409,18 +1408,19 @@ public class PaymentResource {
 		//implement controls here
 		
 		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		ResponseSumm response = new ResponseSumm();
 		Double amount, amounttosend;
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			Map<Object, Object> element = new HashMap<>();
 			
-			element.put("meansOfPayment", meansOfPayment.name());
 			amount = paymentService.summReversementByMeansOfPayment(meansOfPayment);
 			amounttosend = amount != null ? amount : 0d;
-			element.put("Montant", amounttosend);
 			
-			JSONObject elt = new JSONObject(element);
-			listePaymentSummByMeansOfPayment.add(elt);
+			response.setAmount(amounttosend);
+			response.setMeansOfPayment(meansOfPayment);
+			
+			JSONObject allSumm = new JSONObject(response);
+			listePaymentSummByMeansOfPayment.add(allSumm);
 		}
 		
 		HttpHeaders headers = new HttpHeaders();

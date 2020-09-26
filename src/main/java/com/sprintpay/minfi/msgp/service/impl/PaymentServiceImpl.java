@@ -1,18 +1,13 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +17,6 @@ import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
-import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
@@ -227,18 +221,25 @@ public class PaymentServiceImpl implements PaymentService {
 //	public void test() {
 //		
 //		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+//		ResponseSumm response = new ResponseSumm();
 //		Double amount, amounttosend;
 //		
 //		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			Map<Object, Object> element = new HashMap<>();
+////			Map<Object, Object> element = new HashMap<>();
 //			
-//			element.put("meansOfPayment", meansOfPayment.name());
+////			element.put("meansOfPayment", meansOfPayment.name());
 //			amount = paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
 //			amounttosend = amount != null ? amount : 0d;
-//			element.put("Montant", amounttosend);
+////			element.put("Montant", amounttosend);
 //			
-//			JSONObject elt = new JSONObject(element);
+//			response.setAmount(amounttosend);
+//			response.setMeansOfPayment(meansOfPayment);
+//			
+////			JSONObject elt = new JSONObject(element);
+////			listePaymentSummByMeansOfPayment.add(elt);
+//			JSONObject elt = new JSONObject(response);
 //			listePaymentSummByMeansOfPayment.add(elt);
+////			listePaymentSummByMeansOfPayment.add(response);
 //		}
 //		
 //		System.out.println("******************************-------------------------------");
