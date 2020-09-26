@@ -1405,22 +1405,38 @@ public class PaymentResource {
 	}
 	
 	@GetMapping("/summReversementByMeansOfPayment")
-	public ResponseEntity<List<Map<String, Double>>> summReversementByMeansOfPayment(){
+	public ResponseEntity<List<JSONObject>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
-		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		List<Map<String, Double>> listePaymentSummByMeansOfPayment = new ArrayList<Map<String,Double>>();
-		Map<String, Double> element = new HashMap<String, Double>();
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			AllMeans.add(meansOfPayment);
-		}
+//		List<MeansOfPayment> AllMeans = new ArrayList<>();
+//		List<Map<String, Double>> listePaymentSummByMeansOfPayment = new ArrayList<Map<String,Double>>();
+//		Map<String, Double> element = new HashMap<String, Double>();
+//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+//			AllMeans.add(meansOfPayment);
+//		}
+//		
+//		AllMeans.stream().forEach(meansOfPaymemnt -> 
+//		{
+//			element.put(meansOfPaymemnt.name(), 
+//					paymentService.summReversementByMeansOfPayment(meansOfPaymemnt));
+//			listePaymentSummByMeansOfPayment.add(element);
+//		});
 		
-		AllMeans.stream().forEach(meansOfPaymemnt -> 
-		{
-			element.put(meansOfPaymemnt.name(), 
-					paymentService.summReversementByMeansOfPayment(meansOfPaymemnt));
-			listePaymentSummByMeansOfPayment.add(element);
-		});
+		
+//		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+//		Map<String, Double> element = new HashMap<String, Double>();
+//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+//			AllMeans.add(meansOfPayment);
+//		}
+		
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			Map<String, Object> element = new HashMap<>();
+			element.put("MeansOfPayment", meansOfPayment.name());
+			element.put("Montant", paymentService.summReversementByMeansOfPayment(meansOfPayment));
+			JSONObject elt = new JSONObject(element);
+			listePaymentSummByMeansOfPayment.add(elt);
+		}
 		
 		
 		HttpHeaders headers = new HttpHeaders();
