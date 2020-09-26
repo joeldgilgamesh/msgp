@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1404,17 +1405,23 @@ public class PaymentResource {
 	}
 	
 	@GetMapping("/summReversementByMeansOfPayment")
-	public ResponseEntity<Map<String, Double>> summReversementByMeansOfPayment(){
+	public ResponseEntity<List<Map<String, Double>>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
 		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		Map<String, Double> listePaymentSummByMeansOfPayment = new HashMap<String, Double>();
+		List<Map<String, Double>> listePaymentSummByMeansOfPayment = new ArrayList<Map<String,Double>>();
+		Map<String, Double> element = new HashMap<String, Double>();
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			AllMeans.add(meansOfPayment);
 		}
 		
-		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentSummByMeansOfPayment.put(meansOfPaymemnt.name(), 
-				paymentService.summReversementByMeansOfPayment(meansOfPaymemnt)));
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			element.put(meansOfPaymemnt.name(), 
+					paymentService.summReversementByMeansOfPayment(meansOfPaymemnt));
+			listePaymentSummByMeansOfPayment.add(element);
+		});
+		
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());
