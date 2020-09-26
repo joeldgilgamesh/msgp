@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +68,6 @@ import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
-import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
@@ -1407,33 +1408,23 @@ public class PaymentResource {
 	public ResponseEntity<List<JSONObject>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
-		List<MeansOfPayment> AllMeans = new ArrayList<MeansOfPayment>();
-//		ResponseSumm response = new ResponseSumm();
-		Double amount, amounttosend;
+		Map<String, Object> element = new HashMap<>();
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			AllMeans.add(meansOfPayment);
 		}
 		
-		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentSummByMeansOfPayment.put(meansOfPaymemnt.name(), 
-				paymentService.summReversementByMeansOfPayment(meansOfPaymemnt)));
-				
-		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			element.put("MeansOfPayment", meansOfPaymemnt);
+			Double amount = paymentService.summReversementByMeansOfPayment(meansOfPaymemnt);
+			Double amountSend = amount != null ? amount : 0d;
+			element.put("Amount", amountSend);
+			listePaymentSummByMeansOfPayment.add(new JSONObject(element));
+		});
 		
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			ResponseSumm response = new ResponseSumm();
-			
-//			element.put("meansOfPayment", meansOfPayment.name());
-			amount = paymentService.summReversementByMeansOfPayment(meansOfPayment);
-			amounttosend = amount != null ? amount : 0d;
-//			element.put("Montant", amounttosend);
-			
-			response.setAmount(amounttosend);
-			response.setMeansOfPayment(meansOfPayment);
-			JSONObject elt = new JSONObject(response);
-			listePaymentSummByMeansOfPayment.add(elt);
-		}
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());
