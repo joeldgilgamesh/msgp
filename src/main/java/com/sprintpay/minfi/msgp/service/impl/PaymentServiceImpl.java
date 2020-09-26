@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -230,17 +231,28 @@ public class PaymentServiceImpl implements PaymentService {
 //		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
 //		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY).size());
 		
-		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		Map<String, Double> listePaymentByMeansOfPayment = new HashMap<String, Double>();
+//		List<MeansOfPayment> AllMeans = new ArrayList<>();
+//		Map<String, Double> listePaymentByMeansOfPayment = new HashMap<String, Double>();
+//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+//			AllMeans.add(meansOfPayment);
+//		}
+//		
+//		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
+//				paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt)));
+		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		Double amount, amounttosend;
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			AllMeans.add(meansOfPayment);
+			Map<Object, Object> element = new HashMap<>();
+			element.put("meansOfPayment", meansOfPayment.name());
+			amount = paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
+			amounttosend = amount != null ? amount : 0d;
+			element.put("Montant", amounttosend);
+			JSONObject elt = new JSONObject(element);
+			listePaymentSummByMeansOfPayment.add(elt);
 		}
 		
-		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
-				paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt)));
-		
 		System.out.println("******************************-------------------------------");
-		System.out.println(listePaymentByMeansOfPayment);
+		System.out.println(listePaymentSummByMeansOfPayment);
 		
 	}
 

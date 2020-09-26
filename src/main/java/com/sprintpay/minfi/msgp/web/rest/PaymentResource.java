@@ -1425,15 +1425,14 @@ public class PaymentResource {
 		
 //		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
-//		Map<String, Double> element = new HashMap<String, Double>();
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
-//		}
+		Double amount, amounttosend;
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			Map<String, Object> element = new HashMap<>();
-			element.put("MeansOfPayment", meansOfPayment.name());
-			element.put("Montant", paymentService.summReversementByMeansOfPayment(meansOfPayment));
+			Map<Object, Object> element = new HashMap<>();
+			element.put("meansOfPayment", meansOfPayment.name());
+			amount = paymentService.summReversementByMeansOfPayment(meansOfPayment);
+			amounttosend = amount != null ? amount : 0d;
+			element.put("Montant", amounttosend);
 			JSONObject elt = new JSONObject(element);
 			listePaymentSummByMeansOfPayment.add(elt);
 		}
