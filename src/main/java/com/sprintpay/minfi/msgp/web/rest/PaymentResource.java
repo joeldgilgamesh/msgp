@@ -1408,35 +1408,20 @@ public class PaymentResource {
 	public ResponseEntity<List<JSONObject>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
-//		List<Map<String, Double>> listePaymentSummByMeansOfPayment = new ArrayList<Map<String,Double>>();
-//		Map<String, Double> element = new HashMap<String, Double>();
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
-//		}
-//		
-//		AllMeans.stream().forEach(meansOfPaymemnt -> 
-//		{
-//			element.put(meansOfPaymemnt.name(), 
-//					paymentService.summReversementByMeansOfPayment(meansOfPaymemnt));
-//			listePaymentSummByMeansOfPayment.add(element);
-//		});
-		
-		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
 		Double amount, amounttosend;
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			Map<Object, Object> element = new HashMap<>();
+			
 			element.put("meansOfPayment", meansOfPayment.name());
 			amount = paymentService.summReversementByMeansOfPayment(meansOfPayment);
 			amounttosend = amount != null ? amount : 0d;
 			element.put("Montant", amounttosend);
+			
 			JSONObject elt = new JSONObject(element);
 			listePaymentSummByMeansOfPayment.add(elt);
 		}
-		
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());

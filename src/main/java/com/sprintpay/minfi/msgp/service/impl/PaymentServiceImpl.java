@@ -223,37 +223,27 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-	@Scheduled(fixedDelay = 60000)
-	public void test() {
-//		System.out.println("------------------------------------ resultat de test de summReversementByMeansOfPayment/{meanOfPayment} ------------------------------------ ");
-//		System.out.println(paymentRepository.summReversementByMeansOfPayment(MeansOfPayment.ORANGE_MONEY));
+//	@Scheduled(fixedDelay = 60000)
+//	public void test() {
 //		
-//		System.out.println("------------------------------------ resultat de test de findByStatutAndMeansOfPayment/{meanOfPayment} ------------------------------------ ");
-//		System.out.println(paymentRepository.findByStatutAndMeansOfPayment(Statut.RECONCILED, MeansOfPayment.ORANGE_MONEY).size());
-		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
-//		Map<String, Double> listePaymentByMeansOfPayment = new HashMap<String, Double>();
+//		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+//		Double amount, amounttosend;
+//		
 //		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
+//			Map<Object, Object> element = new HashMap<>();
+//			
+//			element.put("meansOfPayment", meansOfPayment.name());
+//			amount = paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
+//			amounttosend = amount != null ? amount : 0d;
+//			element.put("Montant", amounttosend);
+//			
+//			JSONObject elt = new JSONObject(element);
+//			listePaymentSummByMeansOfPayment.add(elt);
 //		}
 //		
-//		AllMeans.stream().forEach(meansOfPaymemnt -> listePaymentByMeansOfPayment.put(meansOfPaymemnt.name(), 
-//				paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt)));
-		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
-		Double amount, amounttosend;
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			Map<Object, Object> element = new HashMap<>();
-			element.put("meansOfPayment", meansOfPayment.name());
-			amount = paymentRepository.summReversementByMeansOfPayment(meansOfPayment);
-			amounttosend = amount != null ? amount : 0d;
-			element.put("Montant", amounttosend);
-			JSONObject elt = new JSONObject(element);
-			listePaymentSummByMeansOfPayment.add(elt);
-		}
-		
-		System.out.println("******************************-------------------------------");
-		System.out.println(listePaymentSummByMeansOfPayment);
-		
-	}
+//		System.out.println("******************************-------------------------------");
+//		System.out.println(listePaymentSummByMeansOfPayment);
+//		
+//	}
 
 }
