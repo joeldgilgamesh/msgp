@@ -1404,7 +1404,7 @@ public class PaymentResource {
 	}
 	
 	@GetMapping("/summReversementByMeansOfPayment")
-	public ResponseEntity<List<JSONObject>> summReversementByMeansOfPayment(){
+	public ResponseEntity<List<ResponseSumm>> summReversementByMeansOfPayment(){
 		//implement controls here
 		
 		List<MeansOfPayment> AllMeans = new ArrayList<>();
