@@ -225,32 +225,23 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
-//		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
-//		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
-////		List<Map<String, Object>> listePaymentSummByMeansOfPayment = new ArrayList<>();
-//		Map<String, Object> element = new HashMap<>();
-//		
-//		
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
-//		}
-//		
-//		AllMeans.stream().forEach(meansOfPaymemnt -> 
-//		{
-//			element.put("MeansOfPayment", meansOfPaymemnt);
-//			Double amount = paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt);
-//			Double amountSend = amount != null ? amount : 0d;
-////			Double amountSend = null;
-//			element.put("Amount", amountSend);
-////			element2.put("MeansOfPayment", meansOfPaymemnt);
-////			element2.put("amount", element);
-//			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
-////			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
-//		});
-//		 System.out.println(listePaymentSummByMeansOfPayment);
-//	}
+	@Scheduled(fixedDelay = 60000)
+	public void test() {
+		
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			Double amount = paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt);
+			Double amountSend = amount != null ? amount : 0d;
+			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
+		});
+		 System.out.println(listePaymentSummByMeansOfPayment);
+	}
 
 }
