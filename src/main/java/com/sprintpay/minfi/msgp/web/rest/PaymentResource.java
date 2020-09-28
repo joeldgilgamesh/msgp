@@ -66,6 +66,7 @@ import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
@@ -1420,7 +1421,8 @@ public class PaymentResource {
 			Double amount = paymentService.summReversementByMeansOfPayment(meansOfPaymemnt);
 			Double amountSend = amount != null ? amount : 0d;
 			element.put("Amount", amountSend);
-			listePaymentSummByMeansOfPayment.add(new JSONObject(element));
+//			listePaymentSummByMeansOfPayment.add(new JSONObject(element));
+			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
 		});
 		
 		

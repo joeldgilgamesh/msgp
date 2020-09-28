@@ -1,13 +1,20 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.el.ELManager;
+
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +27,7 @@ import com.sprintpay.minfi.msgp.service.PaymentService;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 
 /**
  * Service Implementation for managing {@link Payment}.
@@ -217,26 +225,32 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
-//		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
-//		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
-//		Map<String, Object> element = new HashMap<>();
-//		
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
-//		}
-//		
-//		AllMeans.stream().forEach(meansOfPaymemnt -> 
-//		{
-//			element.put("MeansOfPayment", meansOfPaymemnt);
-//			Double amount = paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt);
-//			Double amountSend = amount != null ? amount : 0d;
-//			element.put("Amount", amountSend);
-//			listePaymentSummByMeansOfPayment.add(new JSONObject(element));
-//		});
-//		 System.out.println(listePaymentSummByMeansOfPayment);
-//	}
+	@Scheduled(fixedDelay = 60000)
+	public void test() {
+		
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+//		List<Map<String, Object>> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		Map<String, Object> element = new HashMap<>();
+		
+		
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			element.put("MeansOfPayment", meansOfPaymemnt);
+			Double amount = paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt);
+			Double amountSend = amount != null ? amount : 0d;
+//			Double amountSend = null;
+			element.put("Amount", amountSend);
+//			element2.put("MeansOfPayment", meansOfPaymemnt);
+//			element2.put("amount", element);
+			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
+//			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
+		});
+		 System.out.println(listePaymentSummByMeansOfPayment);
+	}
 
 }
