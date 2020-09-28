@@ -225,24 +225,5 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
-//		
-//		List<MeansOfPayment> AllMeans = new ArrayList<>();
-//		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
-//		
-//		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-//			AllMeans.add(meansOfPayment);
-//		}
-//		
-//		AllMeans.stream().forEach(meansOfPaymemnt -> 
-//		{
-//			Double amount = paymentRepository.summReversementByMeansOfPayment(meansOfPaymemnt);
-//			Double amountSend = amount != null ? amount : 0d;
-//			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
-//		});
-//		 System.out.println(listePaymentSummByMeansOfPayment);
-//	System.out.println(listePaymentSummByMeansOfPayment);
-//	}
 
 }
