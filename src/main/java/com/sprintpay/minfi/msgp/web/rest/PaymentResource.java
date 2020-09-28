@@ -1409,7 +1409,6 @@ public class PaymentResource {
 		
 		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
-		Map<String, Object> element = new HashMap<>();
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			AllMeans.add(meansOfPayment);
@@ -1417,12 +1416,9 @@ public class PaymentResource {
 		
 		AllMeans.stream().forEach(meansOfPaymemnt -> 
 		{
-			element.put("MeansOfPayment", meansOfPaymemnt);
 			Double amount = paymentService.summReversementByMeansOfPayment(meansOfPaymemnt);
 			Double amountSend = amount != null ? amount : 0d;
-			element.put("Amount", amountSend);
 			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
-//			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
 		});
 		
 		
