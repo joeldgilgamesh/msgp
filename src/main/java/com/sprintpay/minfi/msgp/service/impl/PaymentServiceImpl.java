@@ -242,6 +242,7 @@ public class PaymentServiceImpl implements PaymentService {
 //			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
 //		});
 //		 System.out.println(listePaymentSummByMeansOfPayment);
+//	System.out.println(listePaymentSummByMeansOfPayment);
 //	}
 
 }
