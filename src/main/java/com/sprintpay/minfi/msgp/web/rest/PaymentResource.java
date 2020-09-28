@@ -1408,7 +1408,7 @@ public class PaymentResource {
 		//implement controls here
 		
 		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		List<JSONObject> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
 		Map<String, Object> element = new HashMap<>();
 		
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
@@ -1421,8 +1421,8 @@ public class PaymentResource {
 			Double amount = paymentService.summReversementByMeansOfPayment(meansOfPaymemnt);
 			Double amountSend = amount != null ? amount : 0d;
 			element.put("Amount", amountSend);
-//			listePaymentSummByMeansOfPayment.add(new JSONObject(element));
-			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
+			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
+//			listePaymentSummByMeansOfPayment.add(new JSONObject(new ResponseSumm(meansOfPaymemnt, amountSend)));
 		});
 		
 		
