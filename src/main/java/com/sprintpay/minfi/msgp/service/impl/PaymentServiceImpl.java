@@ -225,5 +225,13 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
+	@Override
+	public Double summReversementByMeansOfPaymentByOrganisation(MeansOfPayment meansOfPaymemnt, Long idOrg) {
+		// TODO Auto-generated method stub
+		Double value = paymentRepository.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idOrg);
+		Double resp = (value != null ? value : 0d);
+		return resp;
+	}
+
 
 }

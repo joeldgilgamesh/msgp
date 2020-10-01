@@ -111,11 +111,12 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 		return detailVersementIntermediaireRepository.findDetailVersementIntermediaire(meansOfPayment);
 	}
 
-//	@Scheduled(fixedDelay = 60000)
-//	public void test() {
-//		System.out.println("------------------------------------ resultat de test de findDetailVersementIntermediaire/{meanOfPayment} ------------------------------------ ");
-//		System.out.println(detailVersementIntermediaireRepository.findDetailVersementIntermediaire(MeansOfPayment.ORANGE_MONEY).size());
-//
-//	}
+	@Scheduled(fixedDelay = 60000)
+	public void test() {
+		System.out.println("------------------------------------ resultat de test de findDetailVersementIntermediaire/{meanOfPayment} ------------------------------------ ");
+		System.out.println(detailVersementIntermediaireRepository.findDetailVersementIntermediaire(MeansOfPayment.YUP).size());
+		System.out.println(detailVersementIntermediaireRepository.findDetailVersementIntermediaire(MeansOfPayment.YUP));
+
+	}
 
 }

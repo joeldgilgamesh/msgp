@@ -130,4 +130,6 @@ public interface PaymentService {
     List<Payment> findByStatutAndMeansOfPayment(Statut status, MeansOfPayment MeansOfPayment);
     
     Double summReversementByMeansOfPayment(MeansOfPayment meansOfPayment);
+
+	Double summReversementByMeansOfPaymentByOrganisation(MeansOfPayment meansOfPaymemnt, Long idOrg);
 }

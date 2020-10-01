@@ -1426,6 +1426,30 @@ public class PaymentResource {
 		headers.set("Status", HttpStatus.OK.name());
 		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
 	}
+	
+	@GetMapping("/summReversementByMeansOfPaymentByOrganisation/{idOrg}")
+	public ResponseEntity<List<ResponseSumm>> summReversementByMeansOfPaymentByOrganisation(@PathVariable Long idOrg){
+		//implement controls here
+		
+		List<MeansOfPayment> AllMeans = new ArrayList<>();
+		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
+		
+		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+			AllMeans.add(meansOfPayment);
+		}
+		
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idOrg);
+			Double amountSend = amount != null ? amount : 0d;
+			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
+		});
+		
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
+		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
+	}
 
  }
 

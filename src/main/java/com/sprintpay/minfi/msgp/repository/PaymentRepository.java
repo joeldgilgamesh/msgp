@@ -61,5 +61,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND ((p.idDetVers is not null AND p.meansOfPayment = :meansOfPayment))")
     Double summReversementByMeansOfPayment(@Param("meansOfPayment") MeansOfPayment meansOfPayment); //la somme des reversements des paiement reconcilié d'un moyen de paiement
     
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND ((p.idDetVers is not null AND ((p.meansOfPayment = :meansOfPayment AND p.idOrganisation = :idOrg))))")
+    Double summReversementByMeansOfPaymentByOrganisation(@Param("meansOfPayment") MeansOfPayment meansOfPayment, @Param("idOrg") Long idOrg); //la somme des reversements des paiement reconcilié d'un moyen de paiement et dune organisation
+    
 
 }
