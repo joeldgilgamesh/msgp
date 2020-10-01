@@ -119,4 +119,11 @@ public class DetailVersementIntermediaireServiceImpl implements DetailVersementI
 
 	}
 
+	@Override
+	public List<DetailVersementIntermediaire> findDetailVersementIntermediaireByOrganisation(
+			MeansOfPayment meanOfPayment, Long idOrg) {
+		// TODO Auto-generated method stub
+		return detailVersementIntermediaireRepository.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idOrg);
+	}
+
 }

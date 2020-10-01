@@ -68,4 +68,7 @@ public interface DetailVersementIntermediaireService {
 	 * @return
 	 */
 	List<DetailVersementIntermediaire> findDetailVersementIntermediaire(MeansOfPayment meansOfPayment);
+
+	List<DetailVersementIntermediaire> findDetailVersementIntermediaireByOrganisation(MeansOfPayment meanOfPayment,
+			Long idOrg);
 }

@@ -22,4 +22,7 @@ public interface DetailVersementIntermediaireRepository extends JpaRepository<De
     
     @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = 'RECONCILED' AND p.meansOfPayment = :meansOfPayment) ")
     List<DetailVersementIntermediaire> findDetailVersementIntermediaire(@Param("meansOfPayment") MeansOfPayment meansOfPayment);
+    
+    @Query("SELECT dt FROM DetailVersementIntermediaire dt WHERE dt.id IN (SELECT p.idDetVers FROM Payment p WHERE p.statut = 'RECONCILED' AND ((p.meansOfPayment = :meansOfPayment AND p.idOrganisation = :idOrg)))")
+    List<DetailVersementIntermediaire> findDetailVersementIntermediaireByOrganisation(@Param("meansOfPayment") MeansOfPayment meansOfPayment, @Param("idOrg") Long idOrg);
 }

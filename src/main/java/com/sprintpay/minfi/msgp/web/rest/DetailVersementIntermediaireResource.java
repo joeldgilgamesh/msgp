@@ -377,4 +377,14 @@ public class DetailVersementIntermediaireResource {
 		headers.set("Status", HttpStatus.OK.name());
 		return ResponseEntity.ok().headers(headers).body(versements);
 	}
+	
+	@GetMapping("/findDetailVersementIntermediaireByOrganisation/{meanOfPayment}/{idOrg}")
+	public ResponseEntity<List<DetailVersementIntermediaire>> findDetailVersementIntermediaireByOrganisation(@PathVariable MeansOfPayment meanOfPayment, @PathVariable Long idOrg){
+		//implement controls here
+		
+		List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idOrg);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
+		return ResponseEntity.ok().headers(headers).body(versements);
+	}
 }
