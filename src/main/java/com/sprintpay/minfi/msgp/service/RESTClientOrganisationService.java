@@ -1,5 +1,6 @@
 package com.sprintpay.minfi.msgp.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
@@ -17,5 +18,8 @@ public interface RESTClientOrganisationService {
 
     @GetMapping("/api/resumeOrganisation/{id}")
     Map<String, Object> findOrganisationById(@PathVariable("id") Long id);
+    
+    @GetMapping("/api/organisationByParent/{parent}")
+    List<Object> getOrganisationByParent(@PathVariable("parent") Long parent);
 
 }

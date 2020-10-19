@@ -1,33 +1,29 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.el.ELManager;
-
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.sprintpay.minfi.msgp.domain.DetailVersementIntermediaire;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
-import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 
 /**
  * Service Implementation for managing {@link Payment}.
@@ -39,6 +35,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
+    @Autowired
+    private RESTClientOrganisationService restClientOrganisationService;
 
     public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
         this.paymentRepository = paymentRepository;
@@ -233,5 +231,20 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
+//	@Scheduled(fixedDelay = 6000)
+	public void testEndpoint() {
+		
+		try {
+			List<Object> organisations = restClientOrganisationService.getOrganisationByParent(4L);
+			System.out.println("************************* liste des organisations ******************************");
+			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
+		} catch (HystrixRuntimeException e) {
+			// TODO: handle exception
+			System.out.println("************************* liste des organisations ******************************");
+			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
+		}
+		
+		
+	}
 
 }
