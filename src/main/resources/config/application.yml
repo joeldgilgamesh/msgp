@@ -58,7 +58,7 @@ hystrix:
           strategy: SEMAPHORE
           # See https://github.com/spring-cloud/spring-cloud-netflix/issues/1330
           thread:
-               timeoutInMilliseconds: 360000
+               timeoutInMilliseconds: 160000000
   shareSecurityContext: true
 
 management:

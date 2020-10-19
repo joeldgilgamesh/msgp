@@ -231,7 +231,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-//	@Scheduled(fixedDelay = 6000)
+	@Scheduled(fixedDelay = 6000)
 	public void testEndpoint() {
 		
 		try {
