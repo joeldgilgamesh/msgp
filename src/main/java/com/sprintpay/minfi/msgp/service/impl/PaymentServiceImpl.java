@@ -231,20 +231,20 @@ public class PaymentServiceImpl implements PaymentService {
 		return resp;
 	}
 
-	@Scheduled(fixedDelay = 6000)
-	public void testEndpoint() {
-		
-		try {
-			List<Object> organisations = restClientOrganisationService.getOrganisationByParent(4L);
-			System.out.println("************************* liste des organisations ******************************");
-			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
-		} catch (HystrixRuntimeException e) {
-			// TODO: handle exception
-			System.out.println("************************* liste des organisations ******************************");
-			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
-		}
-		
-		
-	}
+//	@Scheduled(fixedDelay = 6000)
+//	public void testEndpoint() {
+//		
+//		try {
+//			List<Object> organisations = restClientOrganisationService.getOrganisationByParent(4L);
+//			System.out.println("************************* liste des organisations ******************************");
+//			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
+//		} catch (HystrixRuntimeException e) {
+//			// TODO: handle exception
+//			System.out.println("************************* liste des organisations ******************************");
+//			System.out.println(restClientOrganisationService.getOrganisationByParent(4L));
+//		}
+//		
+//		
+//	}
 
 }

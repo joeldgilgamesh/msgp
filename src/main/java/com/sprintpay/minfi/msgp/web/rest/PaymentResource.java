@@ -1063,6 +1063,7 @@ public class PaymentResource {
 		log.info("======== JUSTIF 10============");
 		justificatifPaiementDTO.setImputations(listImput);
 		log.info("======== JUSTIF 11============");
+		System.out.println(justificatifPaiementDTO);
 		restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
 		log.info("======== JUSTIF 12============");
 
