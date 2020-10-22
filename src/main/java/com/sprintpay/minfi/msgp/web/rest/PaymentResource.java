@@ -954,8 +954,6 @@ public class PaymentResource {
 		if (!refEmi.equals("null")) {
 			// update emission status
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
-			System.out.println("**************************** retour camcis ou fiscalis *****************************");
-			System.out.println(retourPaiFiscalis);
 			// create historique emission
 			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
 					payment.getIdEmission());
