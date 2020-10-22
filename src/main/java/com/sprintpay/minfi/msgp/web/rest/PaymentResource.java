@@ -954,6 +954,7 @@ public class PaymentResource {
 		if (!refEmi.equals("null")) {
 			// update emission status
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
+			
 			// create historique emission
 			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
 					payment.getIdEmission());
@@ -961,6 +962,12 @@ public class PaymentResource {
 
 		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
+		
+		if (retourPaiFiscalis == null) {
+			result.put("paymentMessageStatus", "payment Failed");
+			result.put("suggestion", "you have to generate manualy reçu or quittance");
+			return new ResponseEntity<>(result, HttpStatus.OK);
+		}
 
 		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
