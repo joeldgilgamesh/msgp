@@ -843,14 +843,14 @@ public class PaymentResource {
 			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
-				result.put("paymentMessageStatus", "payment failed -->> Emission Not Exist");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Does Not Exist");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
 			if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
-				result.put("paymentMessageStatus", "payment failed -->> Emission Not Have Reference");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Does Not Have Reference");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
 
@@ -858,7 +858,7 @@ public class PaymentResource {
 
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
-				result.put("paymentMessageStatus", "payment failed -->> Paiement Reject");
+				result.put("paymentMessageStatus", "payment failed -->> Amount not correct - Paiement Rejected");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
 
