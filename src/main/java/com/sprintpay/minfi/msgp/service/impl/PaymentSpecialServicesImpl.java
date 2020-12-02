@@ -139,6 +139,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			result = "eucmr";
 			break;
 			
+		case "EXPRESS_UNION2":
+			result = "eucmr2";
+			break;	
+			
 		case "MASTER_CARD":
 			result = "card";
 			break;

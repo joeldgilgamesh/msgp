@@ -223,7 +223,7 @@ public class PaymentResource {
 			}
 
 			// controle du depassement du montant a payer
-			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
+			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
 					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
 				result.put("Reject", "Depassement de montant, le montant doit etre compris entre 0 et 500mill");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
@@ -351,6 +351,7 @@ public class PaymentResource {
 		case "mtncmr2":
 		case "yup":
 		case "eucmr":
+		case "eucmr2":
 		case "visionfinancecmr":
 			requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf(paymentDTO.getAmount()),
 					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
