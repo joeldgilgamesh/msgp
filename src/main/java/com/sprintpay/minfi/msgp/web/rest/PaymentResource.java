@@ -231,7 +231,7 @@ public class PaymentResource {
 		}
 
 		// controle du numero de telephone, selon le moyen de paiement
-		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
+		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
 			result.put("Reject", "Phone Number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
