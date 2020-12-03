@@ -835,8 +835,6 @@ public class PaymentResource {
 		paymentDTO.setStatut(Statut.VALIDATED);
 		paymentDTO.setCode(UUID.randomUUID().toString());
 		paymentDTO.setNiu(niu);
-		
-		System.out.println("********NIU*******"+niu);
 
 		PaymentDTO paymentDTO2;
 
