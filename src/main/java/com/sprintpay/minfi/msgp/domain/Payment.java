@@ -73,8 +73,6 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
     @Column(name = "ref_transaction")
     private String refTransaction;
     
-    @Column(name = "niu")
-    private String niu;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -240,14 +238,6 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
         return this;
     }
 	
-	public String getNiu() {
-		return niu;
-	}
-
-	public void setNiu(String niu) {
-		this.niu = niu;
-	}
-
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
 
@@ -278,7 +268,6 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
             ", idEmission=" + getIdEmission() +
             ", idRecette=" + getIdRecette() +
             ", idOrganisation=" + getIdOrganisation() +
-            ", niu=" + getNiu() +
             "}";
     }
 }

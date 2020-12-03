@@ -248,7 +248,6 @@ public class PaymentResource {
 		// complete datas paymentDTO
 		paymentDTO.setStatut(Statut.DRAFT);
 		paymentDTO.setCode(UUID.randomUUID().toString());
-		paymentDTO.setNiu(niu);
 		
 		PaymentDTO paymentDTO2;
 
@@ -834,7 +833,6 @@ public class PaymentResource {
 		// complete datas paymentDTO
 		paymentDTO.setStatut(Statut.VALIDATED);
 		paymentDTO.setCode(UUID.randomUUID().toString());
-		paymentDTO.setNiu(niu);
 
 		PaymentDTO paymentDTO2;
 
