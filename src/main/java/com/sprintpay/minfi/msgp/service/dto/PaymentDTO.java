@@ -41,6 +41,8 @@ public class PaymentDTO implements Serializable {
     private Long idDetVersId;
     
     private String refTransaction;
+    
+    private String niu;
 
     public Long getId() {
         return id;
@@ -130,6 +132,14 @@ public class PaymentDTO implements Serializable {
 		this.refTransaction = refTransaction;
 	}
 
+	public String getNiu() {
+		return niu;
+	}
+
+	public void setNiu(String niu) {
+		this.niu = niu;
+	}
+
 	@Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -164,6 +174,7 @@ public class PaymentDTO implements Serializable {
             ", idOrganisation=" + getIdOrganisation() +
             ", idTransaction=" + getIdTransaction() +
             ", idDetVersId=" + getIdDetVersId() +
+            ", niu=" + getNiu() +
             "}";
     }
 }
