@@ -250,8 +250,6 @@ public class PaymentResource {
 		paymentDTO.setCode(UUID.randomUUID().toString());
 		paymentDTO.setNiu(niu);
 		
-		System.out.println("********NIU*******"+niu);
-
 		PaymentDTO paymentDTO2;
 
 		// case emission
@@ -836,6 +834,9 @@ public class PaymentResource {
 		// complete datas paymentDTO
 		paymentDTO.setStatut(Statut.VALIDATED);
 		paymentDTO.setCode(UUID.randomUUID().toString());
+		paymentDTO.setNiu(niu);
+		
+		System.out.println("********NIU*******"+niu);
 
 		PaymentDTO paymentDTO2;
 
