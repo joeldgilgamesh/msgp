@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface RESTClientUAAService {
 
 	@GetMapping("/api/users/niu/{niu}")
-	ResponseEntity<Object> getNiuContribuablesEnregistres(@PathVariable ("niu") String niu);
+	Optional<UserDTO> getNiuContribuablesEnregistres(@PathVariable ("niu") String niu);
 
     @GetMapping("/api/users/search/{login}")
     Optional<UserDTO> searchUser(@PathVariable("login") String login);

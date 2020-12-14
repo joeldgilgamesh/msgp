@@ -42,4 +42,7 @@ public interface RESTClientEmissionService {
 
 		@GetMapping("/api/emissionsContri/{niu}")
 		List<String> getEmissionsContri(@PathVariable ("niu") String niu);
+		
+		@GetMapping("/api/emission-temps/all")
+		List<Map<String, Object>> getAllEmissionTemps();
 }
