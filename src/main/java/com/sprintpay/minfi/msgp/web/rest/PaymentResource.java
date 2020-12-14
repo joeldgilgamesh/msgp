@@ -240,7 +240,7 @@ public class PaymentResource {
 	    String month = ""+object.charAt(4)+ object.charAt(5);
 	    String day = ""+object.charAt(6)+ object.charAt(7);
 	    
-	    String date = month+"/"+day+"/"+year;
+	    String date = month+"/"+day+"/"+year+" 00:00:00";
 	   
 		return date;
 	}
