@@ -9,26 +9,18 @@ import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import feign.hystrix.FallbackFactory;
 
 @Component
-public class MsuaaFallback implements FallbackFactory<RESTClientUAAService>{
+public class MsuaaFallback implements RESTClientUAAService{
 	
 	@Override
-	public RESTClientUAAService create(Throwable cause) {
-		return new RESTClientUAAService() {
+	public Optional<UserDTO> getNiuContribuablesEnregistres(String niu) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-			@Override
-			public Optional<UserDTO> getNiuContribuablesEnregistres(String niu) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Optional<UserDTO> searchUser(String login) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			
-		};
-	}	
+	@Override
+	public Optional<UserDTO> searchUser(String login) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
