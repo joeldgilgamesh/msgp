@@ -17,7 +17,7 @@ import com.sprintpay.minfi.msgp.service.dto.EmissionDTO;
 import com.sprintpay.minfi.msgp.service.dto.EmissionHistoriqueDTO;
 import com.sprintpay.minfi.msgp.utils.RetPaiFiscalis;
 
-@AuthorizedFeignClient(name = "spminfimsged")
+@AuthorizedFeignClient(name = "spminfimsged", fallback=MsgedFallback.class)
 @Service
 public interface RESTClientEmissionService {
 
