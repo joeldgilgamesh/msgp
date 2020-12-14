@@ -146,7 +146,7 @@ public class PaymentResource {
 	 *
 	 * @param none.
 	 */
-	@Scheduled(cron = "* * 12 * * ?") // everyday at noon 12pm
+	@Scheduled(cron = "*/3 * * * * ?") // everyday at noon 12pm
 	public void paymentDuedateNotif() {
 		
 		// first we get the list of all emissons temp created less than one month from db
