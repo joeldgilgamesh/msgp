@@ -9,7 +9,7 @@ import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import feign.hystrix.FallbackFactory;
 
 @Component
-public class MsUaaFallback implements FallbackFactory<RESTClientUAAService>{
+public class MsuaaFallback implements FallbackFactory<RESTClientUAAService>{
 	
 	@Override
 	public RESTClientUAAService create(Throwable cause) {

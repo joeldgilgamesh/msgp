@@ -1,7 +1,6 @@
 package com.sprintpay.minfi.msgp.service;
 
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +9,7 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 
 import java.util.Optional;
 
-@AuthorizedFeignClient(name = "spminfimsuaa" , fallback=MsUaaFallback.class)
+@AuthorizedFeignClient(name = "spminfimsuaa", fallback=MsuaaFallback.class)
 @Service
 public interface RESTClientUAAService {
 
