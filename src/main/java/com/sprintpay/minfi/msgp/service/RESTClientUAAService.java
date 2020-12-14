@@ -9,7 +9,7 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 
 import java.util.Optional;
 
-@AuthorizedFeignClient(name = "spminfimsuaa", fallback=MsuaaFallback.class)
+@AuthorizedFeignClient(name = "spminfimsuaa")
 @Service
 public interface RESTClientUAAService {
 
