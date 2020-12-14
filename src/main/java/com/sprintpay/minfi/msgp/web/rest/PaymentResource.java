@@ -194,6 +194,7 @@ public class PaymentResource {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						log.info("\n==============> DUEDATE.."+duedate);
 		            	long diff = today.getTime() - duedate.getTime();
 		            	int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
 		            	
