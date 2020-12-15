@@ -1566,7 +1566,6 @@ public class PaymentResource {
 		
 		if (listids != null) {
 			listids.stream().forEach(org -> {
-				System.out.println("//==========================>"+org.get("id"));
 				childids.add(Long.parseLong(org.get("id").toString()));
 			});
 		}
@@ -1577,17 +1576,20 @@ public class PaymentResource {
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			AllMeans.add(meansOfPayment);
 		}
-		
-		for (Long idorg : childids) {
+				
+		//iterate by meansofpayment
+		AllMeans.stream().forEach(meansOfPaymemnt -> 
+		{
+			Double amountSend = 0d;
 			
-			//iterate by meansofpayment
-			AllMeans.stream().forEach(meansOfPaymemnt -> 
-			{
+			// iteration by organization
+			for (Long idorg : childids) {
 				Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idorg);
-				Double amountSend = amount != null ? amount : 0d;
-				listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
-			});
-		}
+				amountSend = amount != null ? (amountSend+amount) : 0d;
+			}
+			
+			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
+		});
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());
