@@ -20,6 +20,6 @@ public interface RESTClientOrganisationService {
     Map<String, Object> findOrganisationById(@PathVariable("id") Long id);
     
     @GetMapping("/api/organisationByParent/{parent}")
-    List<Object> getOrganisationByParent(@PathVariable("parent") Long parent);
+    List<Map<String, Object>> getOrganisationByParent(@PathVariable("parent") Long parent);
 
 }

@@ -1560,16 +1560,14 @@ public class PaymentResource {
 		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
 		
 		//first select all the child organization of the current org
-		List<Object> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
+		List<Map<String, Object>> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
 		
 		List<Long> childids = new ArrayList<Long>(); 
 		
 		if (listids != null) {
 			listids.stream().forEach(org -> {
-				System.out.println("//==========================>"+org.toString());
-				JSONObject json = new JSONObject(org.toString());
-				System.out.println("//=============HDHHDHD============>"+json.toString());
-				childids.add(json.getLong("id"));
+				System.out.println("//==========================>"+org.get("id"));
+				childids.add(Long.parseLong(org.get("id").toString()));
 			});
 		}
 		// add current id parent
@@ -1598,77 +1596,62 @@ public class PaymentResource {
 	
 	
 	
-	@GetMapping("/summReversementByMeansOfPaymentByOrganisationByParent/{parent}")
-	public ResponseEntity<List<ResponseSumm>> summReversementByMeansOfPaymentByOrganisationByParent(@PathVariable String parent){
-		
-		//some control here
-		HttpHeaders headers = new HttpHeaders();
-		if (!parent.matches("DGD|DGI")) {
-			headers.set("Status", HttpStatus.NOT_FOUND.name());
-			return ResponseEntity.ok().headers(headers).body(new ArrayList<>());
-		}
-		
-		Long idParent = null;
-		switch (parent) {
-		case "DGD":
-			idParent = 4L;
-			break;
-			
-		case "DGI":
-			idParent = 3L;
-			break;
-			
-		default:
-			break;
-		}
-		
-
-		List<MeansOfPayment> AllMeans = new ArrayList<>();
-		List<Long> idOrgList = new ArrayList<Long>();
-		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
-		List<ResponseSumm> listePaymentSummByMeansOfPaymentFinal = new ArrayList<>();
-		
-		//call ms organisation to get all organisation and retrieve all idOrganisation and construct Array of idOrganisation
-		List<Object> listIdOrg = restClientOrganisationService.getOrganisationByParent(idParent);
-		
-		if (listIdOrg != null) {
-			listIdOrg.stream().forEach(org -> {
-				JSONObject json = new JSONObject(org);
-				idOrgList.add(json.getLong("id"));
-			});
-		}
-				
-		//parcourir le tableau des idorganisation et lancer l'action a traiter
-		
-		
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			AllMeans.add(meansOfPayment);
-		}
-		
-		
-		for (Long idOrg : idOrgList) {
-			
-			AllMeans.stream().forEach(meansOfPaymemnt -> 
-			{
-				Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idOrg);
-				Double amountSend = amount != null ? amount : 0d;
-				listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
-			});
-		}
-		
-		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
-			listePaymentSummByMeansOfPayment.stream().forEach(payment -> {
-				Double amount = 0d;
-				if (payment.getMeansOfPayment().equals(meansOfPayment)) {
-					amount += payment.getAmount();
-				}
-				listePaymentSummByMeansOfPaymentFinal.add(new ResponseSumm(meansOfPayment, amount));
-			});
-		}
-		
-		headers.set("Status", HttpStatus.OK.name());
-		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPaymentFinal);
-	}
+	/*
+	 * @GetMapping(
+	 * "/summReversementByMeansOfPaymentByOrganisationByParent/{parent}") public
+	 * ResponseEntity<List<ResponseSumm>>
+	 * summReversementByMeansOfPaymentByOrganisationByParent(@PathVariable String
+	 * parent){
+	 * 
+	 * //some control here HttpHeaders headers = new HttpHeaders(); if
+	 * (!parent.matches("DGD|DGI")) { headers.set("Status",
+	 * HttpStatus.NOT_FOUND.name()); return
+	 * ResponseEntity.ok().headers(headers).body(new ArrayList<>()); }
+	 * 
+	 * Long idParent = null; switch (parent) { case "DGD": idParent = 4L; break;
+	 * 
+	 * case "DGI": idParent = 3L; break;
+	 * 
+	 * default: break; }
+	 * 
+	 * 
+	 * List<MeansOfPayment> AllMeans = new ArrayList<>(); List<Long> idOrgList = new
+	 * ArrayList<Long>(); List<ResponseSumm> listePaymentSummByMeansOfPayment = new
+	 * ArrayList<>(); List<ResponseSumm> listePaymentSummByMeansOfPaymentFinal = new
+	 * ArrayList<>();
+	 * 
+	 * //call ms organisation to get all organisation and retrieve all
+	 * idOrganisation and construct Array of idOrganisation List<Object> listIdOrg =
+	 * restClientOrganisationService.getOrganisationByParent(idParent);
+	 * 
+	 * if (listIdOrg != null) { listIdOrg.stream().forEach(org -> { JSONObject json
+	 * = new JSONObject(org); idOrgList.add(json.getLong("id")); }); }
+	 * 
+	 * //parcourir le tableau des idorganisation et lancer l'action a traiter
+	 * 
+	 * 
+	 * for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+	 * AllMeans.add(meansOfPayment); }
+	 * 
+	 * 
+	 * for (Long idOrg : idOrgList) {
+	 * 
+	 * AllMeans.stream().forEach(meansOfPaymemnt -> { Double amount =
+	 * paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt,
+	 * idOrg); Double amountSend = amount != null ? amount : 0d;
+	 * listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt,
+	 * amountSend)); }); }
+	 * 
+	 * for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
+	 * listePaymentSummByMeansOfPayment.stream().forEach(payment -> { Double amount
+	 * = 0d; if (payment.getMeansOfPayment().equals(meansOfPayment)) { amount +=
+	 * payment.getAmount(); } listePaymentSummByMeansOfPaymentFinal.add(new
+	 * ResponseSumm(meansOfPayment, amount)); }); }
+	 * 
+	 * headers.set("Status", HttpStatus.OK.name()); return
+	 * ResponseEntity.ok().headers(headers).body(
+	 * listePaymentSummByMeansOfPaymentFinal); }
+	 */
 
  }
 
