@@ -146,13 +146,16 @@ public class PaymentResource {
 	 *
 	 * @param none.
 	 */
-	@Scheduled(cron = "* * 12 * * ?") // everyday at noon 12pm
+	@Scheduled(cron = "* 30 12 * * ?") // everyday at noon 12pm
 	public void paymentDuedateNotif() {
 		
 		// first we get the list of all emissons temp created less than one month from db
 		 List<Map<String, Object>> emissionsTemps = restClientEmissionService.getAllEmissionTemps();
 		 
 		 System.out.println("\n==============> Reading list..");
+		 
+		 if(emissionsTemps!= null) {
+			 
 		 
 	        for (Map<String, Object> emission : emissionsTemps) {
 	        	
@@ -234,6 +237,7 @@ public class PaymentResource {
 		            }
 	        	}    
 	        }
+		 } 
 	}
 
 	private String converDate(String object) {
@@ -1559,7 +1563,7 @@ public class PaymentResource {
 		List<Object> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
 		
 		List<Long> childids = new ArrayList<Long>(); 
-		
+		System.out.println("//==========================>"+listids.toString());
 		if (listids != null) {
 			listids.stream().forEach(org -> {
 				JSONObject json = new JSONObject(org);
