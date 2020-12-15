@@ -146,7 +146,7 @@ public class PaymentResource {
 	 *
 	 * @param none.
 	 */
-	@Scheduled(cron = "*/3 * * * * ?") // everyday at noon 12pm
+	@Scheduled(cron = "* * 12 * * ?") // everyday at noon 12pm
 	public void paymentDuedateNotif() {
 		
 		// first we get the list of all emissons temp created less than one month from db
@@ -1555,22 +1555,42 @@ public class PaymentResource {
 		List<MeansOfPayment> AllMeans = new ArrayList<>();
 		List<ResponseSumm> listePaymentSummByMeansOfPayment = new ArrayList<>();
 		
+		//first select all the child organization of the current org
+		List<Object> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
+		
+		List<Long> childids = new ArrayList<Long>(); 
+		
+		if (listids != null) {
+			listids.stream().forEach(org -> {
+				JSONObject json = new JSONObject(org);
+				childids.add(json.getLong("id"));
+			});
+		}
+		// add current id parent
+		childids.add(idOrg);
+		
+		// add all meansofpayment into a table
 		for (MeansOfPayment meansOfPayment : MeansOfPayment.values()) {
 			AllMeans.add(meansOfPayment);
 		}
 		
-		AllMeans.stream().forEach(meansOfPaymemnt -> 
-		{
-			Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idOrg);
-			Double amountSend = amount != null ? amount : 0d;
-			listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
-		});
-		
+		for (Long idorg : childids) {
+			
+			//iterate by meansofpayment
+			AllMeans.stream().forEach(meansOfPaymemnt -> 
+			{
+				Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idorg);
+				Double amountSend = amount != null ? amount : 0d;
+				listePaymentSummByMeansOfPayment.add(new ResponseSumm(meansOfPaymemnt, amountSend));
+			});
+		}
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());
 		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
 	}
+	
+	
 	
 	@GetMapping("/summReversementByMeansOfPaymentByOrganisationByParent/{parent}")
 	public ResponseEntity<List<ResponseSumm>> summReversementByMeansOfPaymentByOrganisationByParent(@PathVariable String parent){
