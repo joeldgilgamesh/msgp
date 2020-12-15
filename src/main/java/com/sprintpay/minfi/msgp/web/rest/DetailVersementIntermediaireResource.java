@@ -401,9 +401,7 @@ public class DetailVersementIntermediaireResource {
 		
 		List<Long> childids = new ArrayList<Long>(); 
 		
-		List<DetailVersementIntermediaire> versements = new ArrayList<DetailVersementIntermediaire>();
-		
-		List<DetailVersementIntermediaire> listversements = new ArrayList<DetailVersementIntermediaire>();
+		List<DetailVersementIntermediaire> listversements = new ArrayList<>();
 		
 		if (listids != null) {
 			listids.stream().forEach(org -> {
@@ -416,9 +414,9 @@ public class DetailVersementIntermediaireResource {
 		// iteration by organization
 		for (Long idorg : childids) {
 			
-			versements = detailVersementIntermediaireService.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idorg);
+			List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idorg);
 			//add list to list
-			listversements.addAll(versements);
+			versements.stream().forEach(det -> {listversements.add(det);});
 		}
 		
 		HttpHeaders headers = new HttpHeaders();
