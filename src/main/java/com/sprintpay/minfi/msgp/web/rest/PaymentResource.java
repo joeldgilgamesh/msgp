@@ -176,7 +176,7 @@ public class PaymentResource {
 	        	
 	        	if(user != null && !user.isEmpty()) {
 	        		Long userid = user.get().getId();
-	        	
+	        		log.info("\n==============> USER.."+user.get());
 		        	//Si date liquidation non vide
 	        		
 		            if(emission.get("dateLiquidation") != null) {
