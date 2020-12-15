@@ -1566,8 +1566,9 @@ public class PaymentResource {
 		
 		if (listids != null) {
 			listids.stream().forEach(org -> {
+				System.out.println("//==========================>"+org.toString());
 				JSONObject json = new JSONObject(org);
-				System.out.println("//==========================>"+json.toString());
+				System.out.println("//=============HDHHDHD============>"+json.toString());
 				//childids.add(json.getLong("id"));
 			});
 		}
