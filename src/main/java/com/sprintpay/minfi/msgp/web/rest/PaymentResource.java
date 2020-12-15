@@ -173,6 +173,7 @@ public class PaymentResource {
 	        	//check for current user details with his niu from emission
 	        	Optional<UserDTO> user = restClientUAAService.getNiuContribuablesEnregistres(niu);
 	        	log.info("\n==============> NIU.."+niu);
+	        	log.info("\n==============> USER.."+user.get());
 	        	
 	        	if(user != null && !user.isEmpty()) {
 	        		Long userid = user.get().getId();
