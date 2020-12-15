@@ -1563,11 +1563,12 @@ public class PaymentResource {
 		List<Object> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
 		
 		List<Long> childids = new ArrayList<Long>(); 
-		System.out.println("//==========================>"+listids.toString());
+		
 		if (listids != null) {
 			listids.stream().forEach(org -> {
 				JSONObject json = new JSONObject(org);
-				childids.add(json.getLong("id"));
+				System.out.println("//==========================>"+json.toString());
+				//childids.add(json.getLong("id"));
 			});
 		}
 		// add current id parent
