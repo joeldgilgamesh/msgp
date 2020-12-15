@@ -1552,6 +1552,13 @@ public class PaymentResource {
 		return ResponseEntity.ok().headers(headers).body(listePaymentSummByMeansOfPayment);
 	}
 	
+	
+	/**
+	 * This method return the sum of payments by meansofpayment reconciled
+	 * by organization with its children organizations.
+	 *
+	 * @param none.
+	 */
 	@GetMapping("/summReversementByMeansOfPaymentByOrganisation/{idOrg}")
 	public ResponseEntity<List<ResponseSumm>> summReversementByMeansOfPaymentByOrganisation(@PathVariable Long idOrg){
 		//implement controls here
@@ -1581,10 +1588,11 @@ public class PaymentResource {
 		AllMeans.stream().forEach(meansOfPaymemnt -> 
 		{
 			Double amountSend = 0d;
+			Double amount = 0d;
 			
 			// iteration by organization
 			for (Long idorg : childids) {
-				Double amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idorg);
+				amount = paymentService.summReversementByMeansOfPaymentByOrganisation(meansOfPaymemnt, idorg);
 				amountSend = amount != null ? (amountSend+amount) : 0d;
 			}
 			

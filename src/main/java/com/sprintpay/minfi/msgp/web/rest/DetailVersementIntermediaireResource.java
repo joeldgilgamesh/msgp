@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.service.DetailVersementIntermediaireService;
 import com.sprintpay.minfi.msgp.service.PaymentService;
 import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
+import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
@@ -47,6 +49,7 @@ import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.DetailVersementIntermediaireMapper;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+import com.sprintpay.minfi.msgp.utils.ResponseSumm;
 import com.sprintpay.minfi.msgp.web.rest.errors.BadRequestAlertException;
 
 import feign.FeignException;
@@ -86,6 +89,8 @@ public class DetailVersementIntermediaireResource {
 	private final RESTClientUAAService restClientUAAService;
 	
 	private final DetailVersementIntermediaireMapper detailversementMapper;
+	
+	private final RESTClientOrganisationService restClientOrganisationService;
 
     private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
 
@@ -95,7 +100,8 @@ public class DetailVersementIntermediaireResource {
 	public DetailVersementIntermediaireResource(DetailVersementIntermediaireService detailVersementIntermediaireService,
                                                 PaymentService paymentService, RESTClientSystacSygmaService restClientSystacSygmaService,
                                                 ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
-                                                RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService, KafkaTemplate<String, NotificationDTO> kafkaTemplate, DetailVersementIntermediaireMapper detailversementMapper) {
+                                                RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService, 
+                                                RESTClientOrganisationService restClientOrganisationService, KafkaTemplate<String, NotificationDTO> kafkaTemplate, DetailVersementIntermediaireMapper detailversementMapper) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
 		this.restClientSystacSygmaService = restClientSystacSygmaService;
@@ -103,6 +109,7 @@ public class DetailVersementIntermediaireResource {
 		this.restClientQuittanceService = restClientQuittanceService;
 		this.restClientNotificationService = restClientNotificationService;
 		this.restClientUAAService = restClientUAAService;
+		this.restClientOrganisationService = restClientOrganisationService;
 		this.detailversementMapper = detailversementMapper;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -378,13 +385,44 @@ public class DetailVersementIntermediaireResource {
 		return ResponseEntity.ok().headers(headers).body(versements);
 	}
 	
+	
+	/**
+	 * This method return the list of payments reconciled by meanofpayments
+	 * by organization with its children organizations.
+	 *
+	 * @param none.
+	 */
 	@GetMapping("/findDetailVersementIntermediaireByOrganisation/{meanOfPayment}/{idOrg}")
 	public ResponseEntity<List<DetailVersementIntermediaire>> findDetailVersementIntermediaireByOrganisation(@PathVariable MeansOfPayment meanOfPayment, @PathVariable Long idOrg){
 		//implement controls here
 		
-		List<DetailVersementIntermediaire> versements = detailVersementIntermediaireService.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idOrg);
+		//first select all the child organization of the current org
+		List<Map<String, Object>> listids = restClientOrganisationService.getOrganisationByParent(idOrg);
+		
+		List<Long> childids = new ArrayList<Long>(); 
+		
+		List<DetailVersementIntermediaire> versements = new ArrayList<DetailVersementIntermediaire>();
+		
+		List<DetailVersementIntermediaire> listversements = new ArrayList<DetailVersementIntermediaire>();
+		
+		if (listids != null) {
+			listids.stream().forEach(org -> {
+				childids.add(Long.parseLong(org.get("id").toString()));
+			});
+		}
+		// add current id parent
+		childids.add(idOrg);
+		
+		// iteration by organization
+		for (Long idorg : childids) {
+			
+			versements = detailVersementIntermediaireService.findDetailVersementIntermediaireByOrganisation(meanOfPayment, idorg);
+			//add list to list
+			listversements.addAll(versements);
+		}
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Status", HttpStatus.OK.name());
-		return ResponseEntity.ok().headers(headers).body(versements);
+		return ResponseEntity.ok().headers(headers).body(listversements);
 	}
 }
