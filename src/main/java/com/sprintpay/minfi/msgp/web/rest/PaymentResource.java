@@ -58,6 +58,7 @@ import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
+import com.sprintpay.minfi.msgp.service.RESTClientReportService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
@@ -108,6 +109,7 @@ public class PaymentResource {
 	private final RESTClientRNFService restClientRNFService;
 	private final RESTClientOrganisationService restClientOrganisationService;
 	private final RESTClientNotificationService restClientNotificationService;
+	private final RESTClientReportService restClientReportService;
 	private final ApplicationProperties app;
 
     private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
@@ -123,6 +125,7 @@ public class PaymentResource {
                            RESTClientUAAService restClientUAAService, RESTClientRNFService restClientRNFService,
                            RESTClientOrganisationService restClientOrganisationService,
                            RESTClientNotificationService restClientNotificationService,
+                           RESTClientReportService restClientReportService,
                            ApplicationProperties app, KafkaTemplate<String, NotificationDTO> kafkaTemplate) {
 		this.paymentService = paymentService;
 		this.historiquePaymentService = historiquePaymentService;
@@ -136,9 +139,22 @@ public class PaymentResource {
 		this.restClientRNFService = restClientRNFService;
 		this.restClientOrganisationService = restClientOrganisationService;
 		this.restClientNotificationService = restClientNotificationService;
+		this.restClientReportService = restClientReportService;
 		this.app = app;
         this.kafkaTemplate = kafkaTemplate;
     }
+	
+	
+	
+	@PostMapping("/repartitionByOrganizationByPeriod")
+	public ResponseEntity<Map<String, Object>> repartitionByOrganisation(@RequestBody Map<String, String> object) {
+		
+		Map<String, Object> list = restClientReportService.repartitionByOrganisation(object);
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Status", HttpStatus.OK.name());
+		return ResponseEntity.ok().headers(headers).body(list);
+		
+	}
 	
 	
 	/**

@@ -49,9 +49,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<Payment> findRNFByCreatedBy(@Param("user") String username, Pageable pageable);
     
     
-    
-    
-    
     @Query("SELECT p FROM Payment p WHERE p.statut = :status AND (p.idDetVers is not null AND p.meansOfPayment = :meansOfPayment)")
     List<Payment> findByStatutANDMeansOfPayment(@Param("status") Statut status, @Param("meansOfPayment") MeansOfPayment meansOfPayment); //les paiement reconcilié d'un moyen de paiement
     
@@ -63,6 +60,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.statut = 'RECONCILED' AND ((p.idDetVers is not null AND ((p.meansOfPayment = :meansOfPayment AND p.idOrganisation = :idOrg))))")
     Double summReversementByMeansOfPaymentByOrganisation(@Param("meansOfPayment") MeansOfPayment meansOfPayment, @Param("idOrg") Long idOrg); //la somme des reversements des paiement reconcilié d'un moyen de paiement et dune organisation
-    
-
+    		
 }
