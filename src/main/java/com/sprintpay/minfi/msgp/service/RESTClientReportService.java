@@ -12,7 +12,7 @@ import com.sprintpay.minfi.msgp.client.AuthorizedFeignClient;
 @Service
 public interface RESTClientReportService {
 	
-	@PostMapping("/repartitionByOrganizationByPeriod")
+	@PostMapping("/api/repartitionByOrganizationByPeriod")
 	Map<String, Object> repartitionByOrganisation(@RequestBody Map<String, String> object);
 
 }
