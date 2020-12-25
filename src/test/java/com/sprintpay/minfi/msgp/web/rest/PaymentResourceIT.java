@@ -50,6 +50,7 @@ import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientRNFService;
+import com.sprintpay.minfi.msgp.service.RESTClientReportService;
 import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.AddedParamsPaymentDTO;
@@ -152,6 +153,8 @@ public class PaymentResourceIT {
 
     @MockBean
     private RESTClientNotificationService restClientNotificationService;
+    
+    private RESTClientReportService  restClientReportService;
 
     @Autowired
     private KafkaTemplate<String, NotificationDTO> kafkaTemplate;
@@ -163,7 +166,7 @@ public class PaymentResourceIT {
         															detailVersementIntermediaireService, restClientTransactionService,
         															restClientEmissionService, paymentSpecialServices, restClientQuittanceService,
         															paymentMapper, restClientUAAService, restClientRNFService, restClientOrganisationService,
-        															restClientNotificationService, null, kafkaTemplate);
+        															restClientNotificationService, restClientReportService, null, kafkaTemplate);
         this.restPaymentMockMvc = MockMvcBuilders.standaloneSetup(paymentResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
