@@ -268,9 +268,7 @@ public class DetailVersementIntermediaireResource {
 				userDTO.orElse(new UserDTO());
 				NotificationDTO notificationPayment = new NotificationDTO(null,
 						"La quittance est disponible pour le payment N° [" + payment2.getId() + "] d'un montant de "
-								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name()
-								+ "<a href='/client/voirJustificatif/quittance/" + payment2.getId()
-								+ "'>Afficher la quittance</a>",
+								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name(),
 						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 				//restClientNotificationService.createNotification(notificationPayment);
                 kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);

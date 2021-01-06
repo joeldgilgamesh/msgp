@@ -688,8 +688,7 @@ public class PaymentResource {
 				NotificationDTO notificationPayment = new NotificationDTO(null,
 						"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
 								+ " effectué via " + payment.getMeansOfPayment().name()
-								+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
-								+ "'>Afficher le reçu</a>",
+								+ " a réussi.",
 						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 				//restClientNotificationService.createNotification(notificationPayment);
                 kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
@@ -1226,8 +1225,7 @@ public class PaymentResource {
 			NotificationDTO notificationPayment = new NotificationDTO(null,
 					"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
 							+ " effectué via " + payment.getMeansOfPayment().name()
-							+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
-							+ "'>Afficher le reçu</a>",
+							+ " a réussi.",
 					userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 			//restClientNotificationService.createNotification(notificationPayment);
             kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
@@ -1505,8 +1503,7 @@ public class PaymentResource {
 			NotificationDTO notificationPayment = new NotificationDTO(null,
 					"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
 							+ " effectué via " + payment.getMeansOfPayment().name()
-							+ " a réussi <a href='/client/voirJustificatif/recu/" + payment.getId()
-							+ "'>Afficher le reçu</a>",
+							+ " a réussi.",
 					userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
 			restClientNotificationService.createNotification(notificationPayment);
 			log.info("======== CHECK 4============");
