@@ -85,7 +85,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 	}
 	
 	public Map<String, String> buildRequestWithoutApi(String code, String clientID, 
-			String debitInfo, String amount, String firstname, String lastname){
+			String debitInfo, String amount, String firstname, String lastname, String partnerTrxId){
 		
 		Map<String, String> request = new HashMap<String, String>();
 		request.put("clientId", clientID);
@@ -94,6 +94,7 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
     	request.put("firstname", firstname);
     	request.put("lastname", lastname);
     	request.put("amount", amount);
+    	request.put("partnerTrxId", partnerTrxId);
     	
     	return request;
 	}
@@ -165,6 +166,10 @@ public class PaymentSpecialServicesImpl implements PaymentSpecialServices {
 			
 		case "ECOBANK2":
 			result = "ecobankcmr2";
+			break;
+			
+		case "ECOBANK_ACCOUNT":
+			result = "ecobankcmr3";
 			break;
 			
 		case "VISION_FINANCE":
