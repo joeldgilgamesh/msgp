@@ -9,7 +9,7 @@ import java.util.List;
  */
 public enum MeansOfPayment {
     MOBILE_MONEY, MOBILE_MONEY2, ORANGE_MONEY, ORANGE_MONEY2, YUP, EXPRESS_UNION, EXPRESS_UNION2, VISA, MASTER_CARD, AFRILAND, UBA, ECOBANK, ECOBANK2
-    , CCA_BANK, VISION_FINANCE, EXPRESS_EXCHANGE;
+    , ECOBANK_ACCOUNT, CCA_BANK, VISION_FINANCE, EXPRESS_EXCHANGE;
 	
 	public List<String> getAll() {
 		List<String> liste = new ArrayList<String>();
