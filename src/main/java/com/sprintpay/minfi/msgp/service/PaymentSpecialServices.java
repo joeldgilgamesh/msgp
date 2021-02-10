@@ -52,7 +52,7 @@ public interface PaymentSpecialServices {
 	 * @return
 	 */
 	Map<String, String> buildRequestWithoutApi(String code, String clientID, 
-			String debitInfo, String amount, String firstname, String lastname, String partnerTrxId);
+			String debitInfo, String amount, String firstname, String lastname);
 	
 	/**
 	 * 
