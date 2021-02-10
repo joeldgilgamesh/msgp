@@ -1033,7 +1033,7 @@ public class PaymentResource {
 			// complete datas payment with idEmission create, and save payment
 			paymentDTO.setIdEmission(emissionDTO2.getId());
 			paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
-			paymentDTO2 = paymentService.save(paymentDTO);
+			
 		} else {// case recette non fiscale, create payment directly with idRecette in
 				// PaymentDTO entry
 
@@ -1046,26 +1046,30 @@ public class PaymentResource {
 
 //			paymentDTO2 = paymentService.save(paymentDTO);
 			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
-			if (resultRecette != null) {
-				paymentDTO2 = paymentService.save(paymentDTO);
-			} else {
+			if (resultRecette == null) {
+			
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
 				result.put("paymentMessageStatus", "payment failed -->> Recette Not Found");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
-
+			//paymentDTO2 = paymentService.save(paymentDTO);
 		}
-
-		// create historique payment
-		historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
-				paymentMapper.toEntity(paymentDTO2));
-
+		
+	
 		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
 				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
 						String.valueOf((int) Math.round(paymentDTO.getAmount())),
-						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname()), app.getSecret());
+						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
 
+		paymentDTO.setRefTransaction(res.get("transactionid"));
+		paymentDTO2 = paymentService.save(paymentDTO);
+		
+		// create historique payment
+				historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
+						paymentMapper.toEntity(paymentDTO2));
+
+		
 		//generated recu
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
