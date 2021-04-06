@@ -45,4 +45,7 @@ public interface RESTClientEmissionService {
 		
 		@GetMapping("/api/emission-temps/all")
 		List<Map<String, Object>> getAllEmissionTemps();
+		
+		@GetMapping("/api/emission/check/{niu}/{refEmis}")
+		boolean checkEmission(@PathVariable ("niu") String niu, @PathVariable ("refEmis") String refEmis);
 }

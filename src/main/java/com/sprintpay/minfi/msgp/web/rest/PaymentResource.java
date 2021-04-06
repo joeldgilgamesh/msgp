@@ -509,16 +509,41 @@ public class PaymentResource {
 			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 		}
 
-//    	if (MeansOfPayment.AFRILAND.getAll().stream().filter(langage -> langage.equals(paymentDTO.getMeansOfPayment().toString())).count() != 0)
-
-		resultTransaction = restClientTransactionService.getTransaction(
-				paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
-
-		result.put("paymentDTO", paymentDTO2);
-		result.put("resultTransaction", resultTransaction);
-
-		return new ResponseEntity<>(result, HttpStatus.OK);
+		
+		// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
+		// case of CAMCIS only
+		if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+				&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+				&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+			 if(restClientEmissionService.checkEmission(niu, refEmi)) {
+	
+				resultTransaction = restClientTransactionService.getTransaction(
+						paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
+		
+				result.put("paymentDTO", paymentDTO2);
+				result.put("resultTransaction", resultTransaction);
+				
+				return new ResponseEntity<>(result, HttpStatus.OK);
+			 
+			 }else {
+				 result.put("Reject", "Payment can't be done - refEmission Not Found");
+				 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			 }
+			 
+		// Other Emission
+    	}else {
+    		
+    		resultTransaction = restClientTransactionService.getTransaction(
+					paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
+	
+			result.put("paymentDTO", paymentDTO2);
+			result.put("resultTransaction", resultTransaction);
+			
+			return new ResponseEntity<>(result, HttpStatus.OK);
+    	}
 	}
+    
+    
 
 	@PostMapping("/callbackTransaction/{codePaiement}/{status_code}")
 	public ResponseEntity<String> callbackTransaction(@Valid @RequestBody TransactionDTO transactionDTO,
