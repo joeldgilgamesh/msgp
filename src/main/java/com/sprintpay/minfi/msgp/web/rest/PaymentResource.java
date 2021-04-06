@@ -1081,15 +1081,44 @@ public class PaymentResource {
 			//paymentDTO2 = paymentService.save(paymentDTO);
 		}
 		
-	
-		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
-				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
-						String.valueOf((int) Math.round(paymentDTO.getAmount())),
-						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
-
-		paymentDTO.setRefTransaction(res.get("transactionid"));
-		paymentDTO2 = paymentService.save(paymentDTO);
 		
+		// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
+		// case of CAMCIS only
+		if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+				&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+				&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+			 if(restClientEmissionService.checkEmission(niu, refEmi)) {
+	
+				 Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
+							paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
+									String.valueOf((int) Math.round(paymentDTO.getAmount())),
+									addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
+
+					paymentDTO.setRefTransaction(res.get("transactionid"));
+					paymentDTO2 = paymentService.save(paymentDTO);
+					
+					result.put("paymentStatus", "VALIDATED");
+					return new ResponseEntity<>(result, HttpStatus.OK);
+			 
+			 }else {
+				 result.put("Reject", "Payment can't be done - refEmission Not Found");
+				 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			 }
+			 
+		// Other Emission
+    	}else {
+    		
+    		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
+					paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
+							String.valueOf((int) Math.round(paymentDTO.getAmount())),
+							addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
+
+			paymentDTO.setRefTransaction(res.get("transactionid"));
+			paymentDTO2 = paymentService.save(paymentDTO);
+			
+			return new ResponseEntity<>(result, HttpStatus.OK);
+    	}
+	
 		// create historique payment
 				historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
 						paymentMapper.toEntity(paymentDTO2));
