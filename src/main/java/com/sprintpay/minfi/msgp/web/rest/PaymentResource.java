@@ -991,7 +991,7 @@ public class PaymentResource {
 		paymentDTO.setCode(UUID.randomUUID().toString());
 
 		PaymentDTO paymentDTO2;
-
+		
 		// case emission
 		if (!refEmi.equals("null")) {
 
@@ -1025,6 +1025,20 @@ public class PaymentResource {
 				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
+			
+			// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
+			// case of CAMCIS only
+			if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+					&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+					&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+				 if(!restClientEmissionService.checkEmission(niu, refEmi)) {
+					 result.put("paymentCode", null);
+					 result.put("paymentStatus", "CANCELED");
+					 result.put("paymentMessageStatus", "Payment can't be done - refEmission Not Found");
+					 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+				 }
+				 
+	    	}
 
 			// initialize datas of emission ot create before save payment
 			EmissionDTO emissionDTO = new EmissionDTO();
@@ -1059,6 +1073,8 @@ public class PaymentResource {
 			paymentDTO.setIdEmission(emissionDTO2.getId());
 			paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
 			
+		
+			
 		} else {// case recette non fiscale, create payment directly with idRecette in
 				// PaymentDTO entry
 
@@ -1078,52 +1094,23 @@ public class PaymentResource {
 				result.put("paymentMessageStatus", "payment failed -->> Recette Not Found");
 				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 			}
-			//paymentDTO2 = paymentService.save(paymentDTO);
+			
+			
 		}
 		
+		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
+				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
+						String.valueOf((int) Math.round(paymentDTO.getAmount())),
+						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
+
+		paymentDTO.setRefTransaction(res.get("transactionid"));
+		paymentDTO2 = paymentService.save(paymentDTO);
 		
-		// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
-		// case of CAMCIS only
-		if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
-				&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
-				&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
-			 if(restClientEmissionService.checkEmission(niu, refEmi)) {
-	
-				 Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
-							paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
-									String.valueOf((int) Math.round(paymentDTO.getAmount())),
-									addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
-
-					paymentDTO.setRefTransaction(res.get("transactionid"));
-					paymentDTO2 = paymentService.save(paymentDTO);
-					
-					result.put("paymentStatus", "VALIDATED");
-					return new ResponseEntity<>(result, HttpStatus.OK);
-			 
-			 }else {
-				 result.put("Reject", "Payment can't be done - refEmission Not Found");
-				 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-			 }
-			 
-		// Other Emission
-    	}else {
-    		
-    		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
-					paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
-							String.valueOf((int) Math.round(paymentDTO.getAmount())),
-							addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
-
-			paymentDTO.setRefTransaction(res.get("transactionid"));
-			paymentDTO2 = paymentService.save(paymentDTO);
-			
-			return new ResponseEntity<>(result, HttpStatus.OK);
-    	}
-	
+		
 		// create historique payment
 				historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
 						paymentMapper.toEntity(paymentDTO2));
-
-		
+				
 		//generated recu
 		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
 		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
@@ -1290,13 +1277,13 @@ public class PaymentResource {
             log.info("Notification créé et transmit au broker {}", notificationPayment);
 			log.info("======== CHECK 4============");
 		}
-
-
+		
 		result.put("paymentId", paymentDTO2.getId());
 		result.put("transactionId", res.get("transactionid"));
 		result.put("paymentStatus", paymentDTO2.getStatut());
 		result.put("paymentMessageStatus", "payment successful");
 		return new ResponseEntity<>(result, HttpStatus.OK);
+
 	  }
 	
 	@PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")

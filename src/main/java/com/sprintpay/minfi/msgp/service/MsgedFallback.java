@@ -70,6 +70,12 @@ public class MsgedFallback implements RESTClientEmissionService{
 		 */
 		return null;
 	}
+	
+	@Override
+	public boolean checkEmission(String niu, String refEmis) {
+		// TODO Auto-generated method stub
+		return null != null;
+	}
 
 
 }
