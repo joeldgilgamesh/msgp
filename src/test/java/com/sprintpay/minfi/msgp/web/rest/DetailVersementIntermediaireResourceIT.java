@@ -23,6 +23,7 @@ import com.sprintpay.minfi.msgp.config.ApplicationProperties;
 import com.sprintpay.minfi.msgp.config.SecurityBeanOverrideConfiguration;
 import com.sprintpay.minfi.msgp.domain.Payment;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
 import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
@@ -111,6 +112,9 @@ public class DetailVersementIntermediaireResourceIT {
     private DetailVersementIntermediaireMapper detailversementMapper;
     
     private RESTClientOrganisationService restClientOrganisationService;
+    
+    @Autowired
+    private RESTClientEmissionService restClientEmissionService;
 
     @Autowired
     private KafkaTemplate<String, NotificationDTO> kafkaTemplate;
@@ -119,7 +123,7 @@ public class DetailVersementIntermediaireResourceIT {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         final DetailVersementIntermediaireResource detailVersementIntermediaireResource = new DetailVersementIntermediaireResource(detailVersementIntermediaireService,
-            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService, restClientOrganisationService, kafkaTemplate, detailversementMapper);
+            paymentService, restClientSystacSygmaService, applicationProperties, restClientQuittanceService, restClientNotificationService, restClientUAAService, restClientEmissionService, restClientOrganisationService, kafkaTemplate, detailversementMapper);
         this.restDetailVersementIntermediaireMockMvc = MockMvcBuilders.standaloneSetup(detailVersementIntermediaireResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)

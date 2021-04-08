@@ -404,6 +404,20 @@ public class PaymentResource {
 				result.put("Reject", "Paiement Reject");
 				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 			}
+			
+			// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
+			// case of CAMCIS only
+			if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+					&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+					&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+				 if(!restClientEmissionService.checkEmission(niu, refEmi)) {
+					 result.put("paymentCode", null);
+					 result.put("paymentStatus", "CANCELED");
+					 result.put("paymentMessageStatus", "Payment can't be done - refEmission Not Found");
+					 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+				 }
+				 
+	    	}
 
 			// initialize datas of emission ot create before save payment
 			EmissionDTO emissionDTO = new EmissionDTO();
@@ -508,39 +522,15 @@ public class PaymentResource {
 			result.put("Reject", "MeansOfPayment Not Founds");
 			return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
 		}
+		
+		resultTransaction = restClientTransactionService.getTransaction(
+				paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
 
-		
-		// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
-		// case of CAMCIS only
-		if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
-				&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
-				&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
-			 if(restClientEmissionService.checkEmission(niu, refEmi)) {
-	
-				resultTransaction = restClientTransactionService.getTransaction(
-						paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
-		
-				result.put("paymentDTO", paymentDTO2);
-				result.put("resultTransaction", resultTransaction);
-				
-				return new ResponseEntity<>(result, HttpStatus.OK);
-			 
-			 }else {
-				 result.put("Reject", "Payment can't be done - refEmission Not Found");
-				 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
-			 }
-			 
-		// Other Emission
-    	}else {
-    		
-    		resultTransaction = restClientTransactionService.getTransaction(
-					paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString()), requestBuild);
-	
-			result.put("paymentDTO", paymentDTO2);
-			result.put("resultTransaction", resultTransaction);
-			
-			return new ResponseEntity<>(result, HttpStatus.OK);
-    	}
+		result.put("paymentDTO", paymentDTO2);
+		result.put("resultTransaction", resultTransaction);
+
+		return new ResponseEntity<>(result, HttpStatus.OK);
+    	
 	}
     
     

@@ -77,5 +77,11 @@ public class MsgedFallback implements RESTClientEmissionService{
 		return null != null;
 	}
 
+	@Override
+	public List<String> notifyReconciledEmission(Map<String, Object> datas) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }
