@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -225,9 +226,13 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 		
+		ObjectMapper m1 = new ObjectMapper();
+        List<String> paymentRefs = m1.convertValue(detailVersementIntermediaireDTO.getPaymentRefs(), List.class);
+        Map<String, Object> refs = new HashMap<String,Object>();
+		refs.put("refpayments", paymentRefs);
+		
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
-		ObjectMapper m = new ObjectMapper();
-		List<String> refError = restClientEmissionService.notifyReconciledEmission(m.convertValue(detailVersementIntermediaireDTO, Map.class));
+		List<String> refError = restClientEmissionService.notifyReconciledEmission(refs);
 		if(!refError.isEmpty()) {
 			throw new BadRequestAlertException(
 					"Camcis ventilation Error, try again later", ENTITY_NAME,
