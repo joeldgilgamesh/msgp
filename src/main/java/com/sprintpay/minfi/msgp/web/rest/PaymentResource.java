@@ -579,7 +579,7 @@ public class PaymentResource {
 
 
 				// update emission status
-				retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status, paymentMapper.toDto(payment)).getBody();
+				retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), status, transactionDTO.getCamcisRef(), paymentMapper.toDto(payment)).getBody();
 
 				// create historique emission
 				restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), status.toString(),
@@ -1120,7 +1120,7 @@ public class PaymentResource {
 		// case emission
 		if (!refEmi.equals("null")) {
 			// update emission status
-			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, paymentMapper.toDto(payment)).getBody();
+			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, res.get("camcisref"), paymentMapper.toDto(payment)).getBody();
 			
 			// create historique emission
 			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),

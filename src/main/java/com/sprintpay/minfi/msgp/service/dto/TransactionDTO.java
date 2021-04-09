@@ -27,6 +27,8 @@ public class TransactionDTO implements Serializable {
 
     @NotNull
     private LocalDateTime date;
+    
+    private String camcisRef;
 
 
     public Long getId() {
@@ -100,4 +102,12 @@ public class TransactionDTO implements Serializable {
             ", date='" + getDate() + "'" +
             "}";
     }
+
+	public String getCamcisRef() {
+		return camcisRef;
+	}
+
+	public void setCamcisRef(String camcisRef) {
+		this.camcisRef = camcisRef;
+	}
 }
