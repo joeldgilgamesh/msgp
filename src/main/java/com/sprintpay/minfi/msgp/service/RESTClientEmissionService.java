@@ -50,5 +50,5 @@ public interface RESTClientEmissionService {
 		boolean checkEmission(@PathVariable ("niu") String niu, @PathVariable ("refEmis") String refEmis);
 		
 		@GetMapping("/api/emission/reconciled")
-		List<String> notifyReconciledEmission(Map<String,Object> datas);
+		List<String> notifyReconciledEmission(List<String> references);
 }

@@ -42,6 +42,7 @@ import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
 import com.sprintpay.minfi.msgp.service.RESTClientQuittanceService;
 import com.sprintpay.minfi.msgp.service.RESTClientSystacSygmaService;
+import com.sprintpay.minfi.msgp.service.RESTClientTransactionService;
 import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
 import com.sprintpay.minfi.msgp.service.dto.DetailVersementIntermediaireDTO;
 import com.sprintpay.minfi.msgp.service.dto.JustificatifPaiementDTO;
@@ -95,6 +96,8 @@ public class DetailVersementIntermediaireResource {
 	private final RESTClientOrganisationService restClientOrganisationService;
 	
 	private final RESTClientEmissionService restClientEmissionService;
+	
+	private final RESTClientTransactionService restClientTransactionService;
 
     private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
 
@@ -106,6 +109,7 @@ public class DetailVersementIntermediaireResource {
                                                 ApplicationProperties applicationProperties, RESTClientQuittanceService restClientQuittanceService,
                                                 RESTClientNotificationService restClientNotificationService, RESTClientUAAService restClientUAAService,
                                                 RESTClientEmissionService restClientEmissionService,
+                                                RESTClientTransactionService restClientTransactionService,
                                                 RESTClientOrganisationService restClientOrganisationService, KafkaTemplate<String, NotificationDTO> kafkaTemplate, DetailVersementIntermediaireMapper detailversementMapper) {
 		this.detailVersementIntermediaireService = detailVersementIntermediaireService;
 		this.paymentService = paymentService;
@@ -116,6 +120,7 @@ public class DetailVersementIntermediaireResource {
 		this.restClientUAAService = restClientUAAService;
 		this.restClientOrganisationService = restClientOrganisationService;
 		this.restClientEmissionService = restClientEmissionService;
+		this.restClientTransactionService = restClientTransactionService;
 		this.detailversementMapper = detailversementMapper;
         this.kafkaTemplate = kafkaTemplate;
     }
@@ -226,13 +231,18 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 		
-		ObjectMapper m1 = new ObjectMapper();
-        List<String> paymentRefs = m1.convertValue(detailVersementIntermediaireDTO.getPaymentRefs(), List.class);
-        Map<String, Object> refs = new HashMap<String,Object>();
-		refs.put("refpayments", paymentRefs);
+		//check refpayment from detailversementDTO in transaction and insert them into a list
+		List<String> paymentRefs = new ArrayList<String>();
+		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
+		List<String> references = new ArrayList<String>();
+		for (String ref : paymentRefs) {
+			Map<String, String> transactionId =restClientTransactionService.getTransactionRefOrOrderId(ref);
+			if(transactionId.get("transactionId") != null || !transactionId.get("transactionId").equals(""))
+				references.add(transactionId.get("transactionId"));
+		}
 		
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
-		List<String> refError = restClientEmissionService.notifyReconciledEmission(refs);
+		List<String> refError = restClientEmissionService.notifyReconciledEmission(references);
 		if(!refError.isEmpty()) {
 			throw new BadRequestAlertException(
 					"Camcis ventilation Error, try again later", ENTITY_NAME,
