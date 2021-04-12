@@ -33,7 +33,7 @@ public interface RESTClientTransactionService {
 	Map<String, String> confirmationPaymentUBA(@PathVariable("provider") String provider, 
 			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 	
-	@GetMapping("/api/transactions/{ref}")
+	@GetMapping("/api/transactionsreforid/{ref}")
 	Map<String, String> getTransactionRefOrOrderId(@PathVariable("ref") String ref);
 
 }
