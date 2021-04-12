@@ -242,7 +242,8 @@ public class DetailVersementIntermediaireResource {
 		}
 		
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
-		List<String> refError = restClientEmissionService.notifyReconciledEmission(references);
+		List<String> refError = new ArrayList<String>();
+		refError = restClientEmissionService.notifyReconciledEmission(references);
 		if(!refError.isEmpty()) {
 			throw new BadRequestAlertException(
 					"Camcis ventilation Error, try again later", ENTITY_NAME,
