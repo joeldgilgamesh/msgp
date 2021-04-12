@@ -243,6 +243,7 @@ public class DetailVersementIntermediaireResource {
 		
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
 		List<String> refError = new ArrayList<String>();
+		System.out.println("****/*/*/*/*/*TAB*****"+references.toString());
 		refError = restClientEmissionService.notifyReconciledEmission(references);
 		if(!refError.isEmpty()) {
 			throw new BadRequestAlertException(
