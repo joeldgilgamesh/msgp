@@ -231,7 +231,7 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 		
-		//check refpayment from detailversementDTO in transaction and insert them into a list
+		/*//check refpayment from detailversementDTO in transaction and insert them into a list
 		List<String> paymentRefs = new ArrayList<String>();
 		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
 		List<String> references = new ArrayList<String>();
@@ -243,13 +243,13 @@ public class DetailVersementIntermediaireResource {
 		
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
 		List<String> refError = new ArrayList<String>();
-		System.out.println("****/*/*/*/*/*TAB*****"+references.toString());
+		//System.out.println("*********TAB*****"+references.toString());
 		refError = restClientEmissionService.notifyReconciledEmission(references);
 		if(!refError.isEmpty()) {
 			throw new BadRequestAlertException(
 					"Camcis ventilation Error, try again later", ENTITY_NAME,
 					"Error Camcis Ventilation on payments: "+ refError.toString());
-		}
+		}*/
 		
 		// Save detailVersementIntermediaire
 		DetailVersementIntermediaireDTO result = detailVersementIntermediaireDTO;
