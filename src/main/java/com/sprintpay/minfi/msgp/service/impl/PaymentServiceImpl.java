@@ -1,14 +1,21 @@
 package com.sprintpay.minfi.msgp.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +27,18 @@ import com.sprintpay.minfi.msgp.domain.enumeration.MeansOfPayment;
 import com.sprintpay.minfi.msgp.domain.enumeration.Statut;
 import com.sprintpay.minfi.msgp.repository.PaymentRepository;
 import com.sprintpay.minfi.msgp.service.PaymentService;
+import com.sprintpay.minfi.msgp.service.RESTClientEmissionService;
+import com.sprintpay.minfi.msgp.service.RESTClientNotificationService;
 import com.sprintpay.minfi.msgp.service.RESTClientOrganisationService;
+import com.sprintpay.minfi.msgp.service.RESTClientUAAService;
+import com.sprintpay.minfi.msgp.service.dto.NotificationDTO;
 import com.sprintpay.minfi.msgp.service.dto.PaymentDTO;
 import com.sprintpay.minfi.msgp.service.dto.TransactionDTO;
+import com.sprintpay.minfi.msgp.service.dto.TypeNotificationDTO;
+import com.sprintpay.minfi.msgp.service.dto.UserDTO;
 import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
+
+import feign.FeignException;
 
 /**
  * Service Implementation for managing {@link Payment}.
@@ -31,16 +46,33 @@ import com.sprintpay.minfi.msgp.service.mapper.PaymentMapper;
 @Service
 @Transactional
 public class PaymentServiceImpl implements PaymentService {
+	
+	@Value("${jhipster.clientApp.name}")
+	private String applicationName;
 
     private final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
     @Autowired
     private RESTClientOrganisationService restClientOrganisationService;
+    private final RESTClientEmissionService restClientEmissionService;
+    private final RESTClientUAAService restClientUAAService;
+    private final RESTClientNotificationService restClientNotificationService;
+    
+    private final KafkaTemplate<String, NotificationDTO> kafkaTemplate;
+    
+    @Value("${kafka.servers.topic.notification}")
+    private String topic ;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentMapper paymentMapper, 
+    		RESTClientEmissionService restClientEmissionService, KafkaTemplate<String, NotificationDTO> kafkaTemplate,
+    		RESTClientUAAService restClientUAAService, RESTClientNotificationService restClientNotificationService) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
+        this.restClientEmissionService = restClientEmissionService;
+        this.restClientUAAService = restClientUAAService;
+        this.restClientNotificationService = restClientNotificationService;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
@@ -246,5 +278,115 @@ public class PaymentServiceImpl implements PaymentService {
 //		
 //		
 //	}
+	
+	/**
+	 * This method notify the contribuable when its less or equal to 2 days before the Duedate.
+	 *
+	 * @param none.
+	 */
+	@Scheduled(cron = "* 30 12 * * ?") // everyday at noon 12pm
+	public void paymentDuedateNotif() {
+		
+		// first we get the list of all emissons temp created less than one month from db
+		 List<Map<String, Object>> emissionsTemps = restClientEmissionService.getAllEmissionTemps();
+		 
+		 System.out.println("\n==============> Reading list..");
+		 
+		 if(emissionsTemps!= null) {
+			 
+		 
+	        for (Map<String, Object> emission : emissionsTemps) {
+	        	
+	        	//get the details for notification
+	        	String num = null;
+	        	String amount = null;
+	        	String niu = null;
+	        	if(emission.get("refDeclaration")!=null)
+	        		num = emission.get("refDeclaration").toString();
+	        	else if(emission.get("numeroImposition")!=null)
+	        		num = emission.get("numeroImposition").toString();
+	        	
+	        	if(emission.get("reste")!=null)
+	        		amount = emission.get("reste").toString();
+	        	
+	        	niu = emission.get("niu").toString();
+	        	
+	        	//check for current user details with his niu from emission
+	        	Optional<UserDTO> user = restClientUAAService.getNiuContribuablesEnregistres(niu);
+	        	log.info("\n==============> NIU.."+niu);
+	        	log.info("\n==============> USER.."+user.get());
+	        	
+	        	if(user != null && !user.isEmpty()) {
+	        		Long userid = user.get().getId();
+	        		log.info("\n==============> USER.."+user.get());
+		        	//Si date liquidation non vide
+	        		
+		            if(emission.get("dateLiquidation") != null) {
+		            	
+		            	Date today = new Date();
+		            	String format = "MM/dd/yyyy HH:mm:ss";
+		            	SimpleDateFormat sdf = new SimpleDateFormat(format);
+		            	
+		            	String  date = converDate(emission.get("dateLiquidation").toString());
+			        	Date duedate = null;
+		                
+						try {
+							duedate = sdf.parse(date);
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						log.info("\n==============> DUEDATE.."+duedate);
+		            	long diff = today.getTime() - duedate.getTime();
+		            	int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+		            	
+		            	// if the difference is less than or equal to 2 days
+		                if(diffDays<=2){
+		                	
+		                	// generate notification
+		        			TypeNotificationDTO typeNotificationPayment = null;
+		        			try {
+		        				typeNotificationPayment = restClientNotificationService.getTypeNotification("alerte");
+		        				
+		        			} catch (FeignException e) {
+		        				log.error(e.getMessage());
+		        				e.printStackTrace();
+		        				
+		        			} finally {
+	
+		        				if (typeNotificationPayment == null) {
+		        					typeNotificationPayment = new TypeNotificationDTO(null, "alerte", "Notification de paiement",
+		        							"Alertes des paiements à effectuer", null, "EMAIL", null);
+		        					typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+		        					
+		        				}
+		        				NotificationDTO notificationPayment = new NotificationDTO(null,
+		        						"Votre facture fiscale N° [" +num + "] d'un montant de " + amount
+		        								+ " est déjà disponible."
+		        								+ " Bien vouloir penser à  la solder.",
+		        						userid, applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
+		        				//restClientNotificationService.createNotification(notificationPayment);
+		                        kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+		                        log.info("Notification créé et transmit au broker {}", notificationPayment);
+		        				log.info("======== CHECK 4============");
+		        			}
+		                	
+		                }
+		            }
+	        	}    
+	        }
+		 } 
+	}
+
+	private String converDate(String object) {
+		
+	    String year = ""+object.charAt(0)+ object.charAt(1)+object.charAt(2)+object.charAt(3);
+	    String month = ""+object.charAt(4)+ object.charAt(5);
+	    String day = ""+object.charAt(6)+ object.charAt(7);
+	    
+	    String date = month+"/"+day+"/"+year+" 00:00:00";
+	   
+		return date;
+	}
 
 }
