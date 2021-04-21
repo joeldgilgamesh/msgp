@@ -290,8 +290,6 @@ public class PaymentServiceImpl implements PaymentService {
 		// first we get the list of all emissons temp created less than one month from db
 		 List<Map<String, Object>> emissionsTemps = restClientEmissionService.getAllEmissionTemps();
 		 
-		 System.out.println("\n==============> Reading list..");
-		 
 		 if(emissionsTemps!= null) {
 			 
 		 
@@ -313,12 +311,10 @@ public class PaymentServiceImpl implements PaymentService {
 	        	
 	        	//check for current user details with his niu from emission
 	        	Optional<UserDTO> user = restClientUAAService.getNiuContribuablesEnregistres(niu);
-	        	log.info("\n==============> NIU.."+niu);
-	        	log.info("\n==============> USER.."+user.get());
 	        	
 	        	if(user != null && !user.isEmpty()) {
 	        		Long userid = user.get().getId();
-	        		log.info("\n==============> USER.."+user.get());
+	        		
 		        	//Si date liquidation non vide
 	        		
 		            if(emission.get("dateLiquidation") != null) {
