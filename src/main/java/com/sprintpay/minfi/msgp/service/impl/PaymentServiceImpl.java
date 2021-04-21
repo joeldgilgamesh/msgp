@@ -355,7 +355,7 @@ public class PaymentServiceImpl implements PaymentService {
 		        			} finally {
 	
 		        				if (typeNotificationPayment == null) {
-		        					typeNotificationPayment = new TypeNotificationDTO(null, "alerte", "Notification de paiement",
+		        					typeNotificationPayment = new TypeNotificationDTO(null, "alerte", "Avis de paiement impayes",
 		        							"Alertes des paiements à effectuer", null, "EMAIL", null);
 		        					typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
 		        					
