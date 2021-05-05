@@ -838,7 +838,7 @@ public class PaymentResource {
 			}
 
 			// controle du depassement du montant a payer
-			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
+			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
 					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
 				result.put("paymentCode", null);
 				result.put("paymentStatus", "CANCELED");
@@ -848,7 +848,7 @@ public class PaymentResource {
 		}
 
 		// controle du numero de telephone, selon le moyen de paiement
-		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|ECOBANK|ECOBANK2"))
+		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
 			result.put("paymentCode", null);
 			result.put("paymentStatus", "CANCELED");

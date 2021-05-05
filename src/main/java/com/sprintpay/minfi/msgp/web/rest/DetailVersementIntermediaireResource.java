@@ -231,7 +231,7 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 		
-		/*//check refpayment from detailversementDTO in transaction and insert them into a list
+		//check refpayment from detailversementDTO in transaction and insert them into a list
 		List<String> paymentRefs = new ArrayList<String>();
 		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
 		List<String> references = new ArrayList<String>();
@@ -249,7 +249,7 @@ public class DetailVersementIntermediaireResource {
 			throw new BadRequestAlertException(
 					"Camcis ventilation Error, try again later", ENTITY_NAME,
 					"Error Camcis Ventilation on payments: "+ refError.toString());
-		}*/
+		}
 		
 		// Save detailVersementIntermediaire
 		DetailVersementIntermediaireDTO result = detailVersementIntermediaireDTO;
