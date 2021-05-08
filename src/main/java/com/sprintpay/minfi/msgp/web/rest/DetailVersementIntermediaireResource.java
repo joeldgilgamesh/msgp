@@ -241,6 +241,10 @@ public class DetailVersementIntermediaireResource {
 				references.add(transactionId.get("transactionId"));
 		}
 		
+		
+		 /*************
+	      * Notifying CAMCIS when reconciliation done from partners
+	      ***********/
 		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
 		List<String> refError = new ArrayList<String>();
 		//System.out.println("*********TAB*****"+references.toString());
