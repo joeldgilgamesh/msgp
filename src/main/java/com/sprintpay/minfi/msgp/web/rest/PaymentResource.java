@@ -366,46 +366,46 @@ public class PaymentResource {
 
 		switch (provider) {
 
-		case "uba":
-		case "ecobankcmr2": {
-
-			if (addedParamsPaymentDTO != null) {
-				// construct request build
-				requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
-						String.valueOf((int) Math.round(paymentDTO.getAmount())), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
-						addedParamsPaymentDTO.getLastname(), provider, niu);
-			} else {
-				result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
-				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			case "uba":
+			case "ecobankcmr2": {
+	
+				if (addedParamsPaymentDTO != null) {
+					// construct request build
+					requestBuild = paymentSpecialServices.buildRequestUBA(debitInfo, paymentDTO.getCode(),
+							String.valueOf((int) Math.round(paymentDTO.getAmount())), addedParamsPaymentDTO.getEmail(), addedParamsPaymentDTO.getFirstname(),
+							addedParamsPaymentDTO.getLastname(), provider, niu);
+				} else {
+					result.put("Reject", "Bad Datas Entry Of AddedParamsPayment");
+					return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+				}
 			}
-		}
-			break;
-
-		case "orangecmr":
-		case "orangecmr2":
-		case "mtncmr":
-		case "mtncmr2":
-		case "yup":
-		case "eucmr":
-		case "eucmr2":
-		case "visionfinancecmr":
-			requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf(paymentDTO.getAmount()),
-					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-			break;
-
-		case "ecobankcmr":
-
-			requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf((int) Math.round(paymentDTO.getAmount())),
-					paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
-			break;
-
-		case "afrilandcmr":
-			requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
-					String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmissionOuRecette);
-			break;
-
-		default:
-			break;
+				break;
+	
+			case "orangecmr":
+			case "orangecmr2":
+			case "mtncmr":
+			case "mtncmr2":
+			case "yup":
+			case "eucmr":
+			case "eucmr2":
+			case "visionfinancecmr":
+				requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf(paymentDTO.getAmount()),
+						paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+				break;
+	
+			case "ecobankcmr":
+	
+				requestBuild = paymentSpecialServices.buildRequest(debitInfo, String.valueOf((int) Math.round(paymentDTO.getAmount())),
+						paymentDTO.getMeansOfPayment().toString(), paymentDTO.getCode());
+				break;
+	
+			case "afrilandcmr":
+				requestBuild = paymentSpecialServices.buildRequestAfriland(debitInfo, paymentDTO.getCode(), addedParamsPaymentDTO.getContribuableId(), "",
+						String.valueOf((int) Math.round(paymentDTO.getAmount())), refEmissionOuRecette);
+				break;
+	
+			default:
+				break;
 		}
 
 		if (!MeansOfPayment.AFRILAND.getAll().contains(paymentDTO.getMeansOfPayment().toString())) {
@@ -457,7 +457,7 @@ public class PaymentResource {
 		userDTO.orElse(new UserDTO());
 		paymentService.update(payment.getId(), status, transactionDTO);
 		historiquePaymentService.saveHistPay(status.toString(), transactionDTO.getDate(), payment);
-		log.info("========// " + payment + " //============");
+		//log.info("========// " + payment + " //============");
 		// TODO UPDATE THIS SECTION
 		// detail organisation
 		Map<String, Object> organisationDetails = new HashMap<String, Object>();
@@ -852,7 +852,7 @@ public class PaymentResource {
 				&& (debitInfo.isEmpty() || debitInfo == null)) {
 			result.put("paymentCode", null);
 			result.put("paymentStatus", "CANCELED");
-			result.put("paymentMessageStatus", "payment failed -->> Phone Number is Required");
+			result.put("paymentMessageStatus", "payment failed -->> Phone Number or account number is Required");
 			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
 		}
 

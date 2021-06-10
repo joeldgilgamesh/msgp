@@ -331,6 +331,145 @@ public class DetailVersementIntermediaireResource {
 		return justificatifPaiementDTOs;
 	}
 
+	
+	
+	
+	/* Reconciled payments collected by ECOBANK
+	 * CASE OF PAYMENTS THAT HAVE BEEN COLLECTED AND RECEIVED IN A TEMPORAL ACCOUNT
+	 * AND ONE DAY LATER THE TREASURY ACCOUNT SHOULD BE CREDITED WITH THE AMOUNT FROM 
+	 * THAT TEMPORAL ACCOUNT. THE NOTIFICATION FROM THE ECOBANK SYSTEM SHOULD REACHED HERE.
+	 * 
+	 * NOTE: Here we don't need to check from systag/sygma the reference of the deposit because
+	 * credit means reception of funds.
+	 */
+	@PostMapping("/notification-reconciled-payments")
+	public ResponseEntity<DetailVersementIntermediaireDTO> InsertDetailVersementIntermediaire(
+			@RequestBody DetailVersementIntermediaireDTO detailVersementIntermediaireDTO) throws URISyntaxException {
+		log.debug("REST request to save DetailVersementIntermediaire : {}", detailVersementIntermediaireDTO);
+		if (detailVersementIntermediaireDTO.getId() != null) {
+			throw new BadRequestAlertException("A new detailVersementIntermediaire cannot already have an ID",
+					ENTITY_NAME, "idExists");
+		}
+		if (detailVersementIntermediaireDTO.getPaymentRefs() == null
+				|| detailVersementIntermediaireDTO.getPaymentRefs().isEmpty()) {
+			throw new BadRequestAlertException(
+					"A new detailVersementIntermediaire cannot be save without payments references", ENTITY_NAME,
+					"paymentRefsRequired");
+		}
+
+		// Check if there is no previous data with same NumeroVersment
+		Optional<DetailVersementIntermediaireDTO> oldNumeroVersment = detailVersementIntermediaireService
+				.findByNumeroVersment(detailVersementIntermediaireDTO.getNumeroVersment());
+		if (oldNumeroVersment.isPresent()) {
+			throw new BadRequestAlertException("A detailVersementIntermediaire already exist", ENTITY_NAME,
+					"NumeroVersmentExists");
+		}
+
+		// Check if payments are already reconciled
+		// TODO
+
+		// Check if all provided payments exists and if they are in VALIDATE statut
+		List<Payment> paymentsToReconciled = paymentService
+				.findByRefTransactionInAndStatut(detailVersementIntermediaireDTO.getPaymentRefs(), Statut.VALIDATED);
+		if (paymentsToReconciled == null) {
+			throw new BadRequestAlertException("None of the payments references provided are found in the system",
+					ENTITY_NAME, "paymentRefsNotFound");
+		}
+		if (paymentsToReconciled.size() != detailVersementIntermediaireDTO.getPaymentRefs().size()) {
+			List<String> different = new ArrayList<String>(detailVersementIntermediaireDTO.getPaymentRefs());
+			different.removeAll(paymentsToReconciled.stream().map(payment -> payment.getRefTransaction())
+					.collect(Collectors.toList()));
+			throw new BadRequestAlertException("Theses payments references are not found or validated in the system",
+					different.toString(), "paymentRefsNotFound");
+		}
+
+		
+		//check refpayment from detailversementDTO in transaction and insert them into a list
+		List<String> paymentRefs = new ArrayList<String>();
+		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
+		List<String> references = new ArrayList<String>();
+		for (String ref : paymentRefs) {
+			Map<String, String> transactionId =restClientTransactionService.getTransactionRefOrOrderId(ref);
+			if(transactionId.get("transactionId") != null || !transactionId.get("transactionId").equals(""))
+				references.add(transactionId.get("transactionId"));
+		}
+		
+		
+		 /*************
+	      * Notifying CAMCIS when reconciliation done from partners
+	      ***********/
+		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
+		List<String> refError = new ArrayList<String>();
+		//System.out.println("*********TAB*****"+references.toString());
+		refError = restClientEmissionService.notifyReconciledEmission(references);
+		if(!refError.isEmpty()) {
+			throw new BadRequestAlertException(
+					"Camcis ventilation Error, try again later", ENTITY_NAME,
+					"Error Camcis Ventilation on payments: "+ refError.toString());
+		}
+		
+		// Save detailVersementIntermediaire
+		DetailVersementIntermediaireDTO result = detailVersementIntermediaireDTO;
+		
+		// Update detailVersementIntermediaire.payments
+		paymentService.updateAllPayments(
+				paymentsToReconciled.stream().map(payment -> payment.getRefTransaction()).collect(Collectors.toSet()),
+				Statut.RECONCILED, detailversementMapper.toEntity(detailVersementIntermediaireDTO));
+			
+
+		// TODO: update Emissions and RNF
+
+		// Try to Generate Quittances
+		int retryCount = 0;
+		while (retryCount < MAX_RETRY_COUNT) {
+			try {
+				restClientQuittanceService.genererListeQuittances(
+						paymentsToReconciled.stream().map(payment -> payment.getId()).collect(Collectors.toSet()));
+				break;
+			} catch (HystrixRuntimeException ex) {
+				if (retryCount > MAX_RETRY_COUNT) {
+					throw (ex);
+				}
+				retryCount++;
+				continue;
+			}
+		}
+		// generate notification
+		TypeNotificationDTO typeNotificationPayment = null;
+		try {
+			typeNotificationPayment = restClientNotificationService.getTypeNotification("quittance");
+			log.info("======== CHECK 1============");
+		} catch (FeignException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+			log.info("======== CHECK 2============");
+		} finally {
+			if (typeNotificationPayment == null) {
+				typeNotificationPayment = new TypeNotificationDTO(null, "quittance", "Nouvelle quittance disponible",
+						"Notification des quittances disponible", null, "PUSH", null);
+				typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+				log.info("======== CHECK 3============");
+			}
+
+			for (Payment payment2 : paymentsToReconciled) {
+				Optional<UserDTO> userDTO = restClientUAAService.searchUser(payment2.getCreatedBy());
+				userDTO.orElse(new UserDTO());
+				NotificationDTO notificationPayment = new NotificationDTO(null,
+						"La quittance est disponible pour le payment N° [" + payment2.getId() + "] d'un montant de "
+								+ payment2.getAmount() + " effectué via " + payment2.getMeansOfPayment().name(),
+						userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
+				//restClientNotificationService.createNotification(notificationPayment);
+                kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+                log.info("Notification créé et transmit au broker {}", notificationPayment);
+				log.info("======== CHECK 4============");
+			}
+		}
+
+		return ResponseEntity.ok().body(result);
+	}
+
+	
+	
 	/**
 	 * {@code PUT  /detail-versement-intermediaires} : Updates an existing
 	 * detailVersementIntermediaire.
