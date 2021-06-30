@@ -776,6 +776,12 @@ public class PaymentResource {
 				.headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
 				.build();
 	}
+	
+	@GetMapping("/payment/{refTransaction}")
+	public Optional<PaymentDTO> getPaymentByRefTransaction(@PathVariable String refTransaction) {
+		Payment payment = paymentService.findByRefTransaction(refTransaction);
+		return Optional.ofNullable(paymentMapper.toDto(payment));
+	}
 
 	@PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/effectuerPaiementWithoutApi/{debitInfo}/{niu}/{refEmi}")

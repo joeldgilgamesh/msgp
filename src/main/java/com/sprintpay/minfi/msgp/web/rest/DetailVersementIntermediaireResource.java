@@ -231,30 +231,32 @@ public class DetailVersementIntermediaireResource {
 			}
 		}
 		
+		
+		/*************
+	      * Notifying CAMCIS when reconciliation done from partners only if references is about DOUANES
+	      ***********/
+		
 		//check refpayment from detailversementDTO in transaction and insert them into a list
 		List<String> paymentRefs = new ArrayList<String>();
 		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
-		List<String> references = new ArrayList<String>();
-		for (String ref : paymentRefs) {
-			Map<String, String> transactionId =restClientTransactionService.getTransactionRefOrOrderId(ref);
-			if(transactionId.get("transactionId") != null || !transactionId.get("transactionId").equals(""))
-				references.add(transactionId.get("transactionId"));
+		
+		Optional<List<String>> transactions = restClientTransactionService.getTransactionRefOrOrderId(paymentRefs);
+		
+		//Notifying CAMCIS now only Douane transactions
+		if(!transactions.get().isEmpty()) {
+			
+			//After all the check on the Ms transaction table, we shall notify CAMCIS on the state of the transactions reconciled
+			List<String> refError = new ArrayList<String>();
+			//System.out.println("*********TAB*****"+references.toString());
+			refError = restClientEmissionService.notifyReconciledEmission(transactions.get());
+			if(!refError.isEmpty()) {
+				throw new BadRequestAlertException(
+						"Camcis ventilation Error, try again later", ENTITY_NAME,
+						"Error Camcis Ventilation on payments: "+ refError.toString());
+			}
 		}
 		
-		
-		 /*************
-	      * Notifying CAMCIS when reconciliation done from partners
-	      ***********/
-		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
-		List<String> refError = new ArrayList<String>();
-		//System.out.println("*********TAB*****"+references.toString());
-		refError = restClientEmissionService.notifyReconciledEmission(references);
-		if(!refError.isEmpty()) {
-			throw new BadRequestAlertException(
-					"Camcis ventilation Error, try again later", ENTITY_NAME,
-					"Error Camcis Ventilation on payments: "+ refError.toString());
-		}
-		
+		 
 		// Save detailVersementIntermediaire
 		DetailVersementIntermediaireDTO result = detailVersementIntermediaireDTO;
 		
@@ -384,28 +386,28 @@ public class DetailVersementIntermediaireResource {
 		}
 
 		
+		/*************
+	      * Notifying CAMCIS when reconciliation done from partners only if references is about DOUANES
+	      ***********/
+		
 		//check refpayment from detailversementDTO in transaction and insert them into a list
 		List<String> paymentRefs = new ArrayList<String>();
 		paymentRefs.addAll(detailVersementIntermediaireDTO.getPaymentRefs());
-		List<String> references = new ArrayList<String>();
-		for (String ref : paymentRefs) {
-			Map<String, String> transactionId =restClientTransactionService.getTransactionRefOrOrderId(ref);
-			if(transactionId.get("transactionId") != null || !transactionId.get("transactionId").equals(""))
-				references.add(transactionId.get("transactionId"));
-		}
 		
+		Optional<List<String>> transactions = restClientTransactionService.getTransactionRefOrOrderId(paymentRefs);
 		
-		 /*************
-	      * Notifying CAMCIS when reconciliation done from partners
-	      ***********/
-		//After all the check on the Mss transaction table, we shall notify CAMCIS on the state of the transactions reconciled
-		List<String> refError = new ArrayList<String>();
-		//System.out.println("*********TAB*****"+references.toString());
-		refError = restClientEmissionService.notifyReconciledEmission(references);
-		if(!refError.isEmpty()) {
-			throw new BadRequestAlertException(
-					"Camcis ventilation Error, try again later", ENTITY_NAME,
-					"Error Camcis Ventilation on payments: "+ refError.toString());
+		//Notifying CAMCIS now only Douane transactions
+		if(!transactions.isEmpty() && !transactions.get().isEmpty()) {
+			
+			//After all the check on the Ms transaction table, we shall notify CAMCIS on the state of the transactions reconciled
+			List<String> refError = new ArrayList<String>();
+			//System.out.println("*********TAB*****"+references.toString());
+			refError = restClientEmissionService.notifyReconciledEmission(transactions.get());
+			if(!refError.isEmpty()) {
+				throw new BadRequestAlertException(
+						"Camcis ventilation Error, try again later", ENTITY_NAME,
+						"Error Camcis Ventilation on payments: "+ refError.toString());
+			}
 		}
 		
 		// Save detailVersementIntermediaire

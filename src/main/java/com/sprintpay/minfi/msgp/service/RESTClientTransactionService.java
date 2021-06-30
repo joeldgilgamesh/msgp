@@ -1,6 +1,8 @@
 package com.sprintpay.minfi.msgp.service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public interface RESTClientTransactionService {
 	Map<String, String> confirmationPaymentUBA(@PathVariable("provider") String provider, 
 			@RequestBody Map<String, String> request, @RequestParam ("token") String token);
 	
-	@GetMapping("/api/transactionsreforid/{ref}")
-	Map<String, String> getTransactionRefOrOrderId(@PathVariable("ref") String ref);
+	@PostMapping("/api/transactionsreforid")
+	Optional<List<String>> getTransactionRefOrOrderId(@RequestBody List<String> references);
 
 }
