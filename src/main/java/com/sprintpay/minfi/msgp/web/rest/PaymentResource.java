@@ -1018,7 +1018,7 @@ public class PaymentResource {
 			// update emission status
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, res.get("camcisref"), debitInfo, paymentMapper.toDto(payment)).getBody();
 			
-			if (retourPaiFiscalis[0].getMessage().equals("Cette émission est déjà totalement payée - R0007")) { 
+			if (retourPaiFiscalis ==null || retourPaiFiscalis[0].getMessage().equals("Cette émission est déjà totalement payée - R0007")) { 
 					result.put("paymentMessageStatus","payment Failed"); 
 					result.put("paymentMessage",
 					  "payment already done or remote system didn't approve payment!!! Check your invoice!!"); 
