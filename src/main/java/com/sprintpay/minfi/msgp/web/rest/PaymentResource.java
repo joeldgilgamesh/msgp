@@ -1018,6 +1018,13 @@ public class PaymentResource {
 			// update emission status
 			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, res.get("camcisref"), debitInfo, paymentMapper.toDto(payment)).getBody();
 			
+			if (retourPaiFiscalis[0].getMessage().equals("Cette émission est déjà totalement payée - R0007")) { 
+					result.put("paymentMessageStatus","payment Failed"); 
+					result.put("paymentMessage",
+					  "payment already done or remote system didn't approve payment!!! Check your invoice!!"); 
+					return new ResponseEntity<>(result, HttpStatus.OK); 
+			}
+			
 			// create historique emission
 			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
 					payment.getIdEmission());
@@ -1026,13 +1033,7 @@ public class PaymentResource {
 		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
 				paymentMapper.toEntity(paymentDTO2));
 		
-		/*
-		 * if (retourPaiFiscalis == null) { result.put("paymentMessageStatus",
-		 * "payment Failed"); result.put("suggestion",
-		 * "you have to generate manualy reçu or quittance"); return new
-		 * ResponseEntity<>(result, HttpStatus.OK); }
-		 */
-
+		
 		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
 		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
 		ImputationDTO imputationDTO = new ImputationDTO();
