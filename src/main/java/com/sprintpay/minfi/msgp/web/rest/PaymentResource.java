@@ -1184,7 +1184,14 @@ public class PaymentResource {
 		Map<String, Object> organisationDetails = new HashMap<String, Object>();
 		Object resultRecette = null;
 		EmissionDTO emissionDTO2 = null;
-
+                
+		if (debitInfo.equals("null") || debitInfo.trim().isEmpty()) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Account number is Null");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+                
 		// controle body enter
 		if (body == null) {
 			result.put("paymentCode", null);
