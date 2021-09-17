@@ -1172,6 +1172,396 @@ public class PaymentResource {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 
 	  }
+
+	@PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
+	@PostMapping("/effectuerPaiementWithoutApi2/{debitInfo}/{niu}/{refEmi}")
+	public ResponseEntity<Map<String, Object>> effectuerPaiementManuel2(@RequestBody Map<String, Object> body
+			, @PathVariable String debitInfo, @PathVariable String niu, @PathVariable String refEmi
+	) {
+
+		Map<String, Object> result = new LinkedHashMap<String, Object>();
+		Map<String, String> resultEmission = new LinkedHashMap<String, String>();
+		Map<String, Object> organisationDetails = new HashMap<String, Object>();
+		Object resultRecette = null;
+		EmissionDTO emissionDTO2 = null;
+
+		// controle body enter
+		if (body == null) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Enter Datas is Null");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		JSONObject bodyJson = new JSONObject(body);
+		JSONObject paymentDTOJson = new JSONObject(bodyJson.get("paymentDTO").toString());
+		JSONObject addedParamsPaymentDTOJson = new JSONObject(bodyJson.get("addedParamsPaymentDTO").toString());
+
+		PaymentDTO paymentDTO = null;
+		AddedParamsPaymentDTO addedParamsPaymentDTO = null;
+
+		try {
+			paymentDTO = new ObjectMapper().readValue(paymentDTOJson.toString(), PaymentDTO.class);
+			addedParamsPaymentDTO = new ObjectMapper().readValue(addedParamsPaymentDTOJson.toString(),
+					AddedParamsPaymentDTO.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Datas Entry Of Payment");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		if (paymentDTO == null) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Datas Entry Of Payment");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		String provider = paymentSpecialServices.convertProvider(paymentDTO.getMeansOfPayment().toString());
+
+		// controle du niu en cas des emissions
+		if (!refEmi.equals("null")) {
+
+			Object niuVerif = restClientUAAService.getNiuContribuablesEnregistres(niu);
+
+			if (niuVerif == null) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Usurpateur Voulant effectuer le paiement");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
+
+			// controle du depassement du montant a payer
+			if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
+					&& (paymentDTO.getAmount() > 500000 || paymentDTO.getAmount() <= 0)) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Depassement de montant, le montant doit etre compris entre 0 et 500mill");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+		}
+
+		// controle du numero de telephone, selon le moyen de paiement
+		if ((provider.matches("MOBILE_MONEY|MOBILE_MONEY2|ORANGE_MONEY|ORANGE_MONEY2|EXPRESS_UNION|EXPRESS_UNION2|ECOBANK|ECOBANK2"))
+				&& (debitInfo.isEmpty() || debitInfo == null)) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Phone Number or account number is Required");
+			return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+		}
+
+		// controle des données du paiement
+		if (paymentDTO.getId() != null || (paymentDTO.getIdTransaction() != null) || paymentDTO.getIdDetVersId() != null
+				|| ((paymentDTO.getIdEmission() == null || paymentDTO.getIdEmission() <= 0)
+						&& (paymentDTO.getIdRecette() == null || paymentDTO.getIdRecette() <= 0))) {
+			result.put("paymentCode", null);
+			result.put("paymentStatus", "CANCELED");
+			result.put("paymentMessageStatus", "payment failed -->> Bad Entry");
+			return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+		}
+
+		// complete datas paymentDTO
+		paymentDTO.setStatut(Statut.VALIDATED);
+		paymentDTO.setCode(UUID.randomUUID().toString());
+
+		PaymentDTO paymentDTO2;
+		
+		// case emission
+		if (!refEmi.equals("null")) {
+
+			resultEmission = restClientEmissionService.findRefEmission(paymentDTO.getIdEmission());
+
+			if (resultEmission == null) {// si l emission a payer n existe pas dans la liste des emission
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Does Not Exist");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
+
+			if (resultEmission.get("refEmi") == null || resultEmission.get("refEmi").equals("")) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Does Not Have Reference");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
+
+			if ((Double.parseDouble(resultEmission.get("amount")) - paymentDTO.getAmount()) != 0) {// si les montant ne matche pas
+
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Amount not correct - Paiement Rejected");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+
+			if(!resultEmission.get("refEmi").equals(refEmi)) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Emission Reference not matching with Payment.IdEmission");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+			
+//			// Before sending and making the payment on the transaction ms we shall first get the Emission from CAMCIS
+//			// case of CAMCIS only
+//			if (!resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+//					&& !resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+//					&& !resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+//				 if(!restClientEmissionService.checkEmission(niu, refEmi)) {
+//					 result.put("paymentCode", null);
+//					 result.put("paymentStatus", "CANCELED");
+//					 result.put("paymentMessageStatus", "Payment can't be done - refEmission Not Found");
+//					 return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+//				 }
+//				 
+//	    	}
+
+			// initialize datas of emission ot create before save payment
+			EmissionDTO emissionDTO = new EmissionDTO();
+			emissionDTO.setStatus(Statut.DRAFT);
+			emissionDTO.setAmount(paymentDTO.getAmount());
+			emissionDTO.setRefEmi(refEmi.toString());
+			emissionDTO.setCodeContribuable(niu);
+			emissionDTO.setNature(Nature.valueOf(resultEmission.get("type")));
+
+//			emissionDTO.setIdOrganisation(1L);
+			organisationDetails = restClientOrganisationService
+					.findOrganisationByLibelleCourt(resultEmission.get("codeOrg"));
+			if (!organisationDetails.isEmpty()) {
+				log.info(".................. " + resultEmission.toString());
+				log.info(".................. " + organisationDetails.get("idOrganisation"));
+				emissionDTO.setIdOrganisation(Long.parseLong(organisationDetails.get("idOrganisation").toString()));
+			} else {
+				if (resultEmission.get("type").equalsIgnoreCase(Nature.AVIS.name())
+						|| resultEmission.get("type").equalsIgnoreCase(Nature.AMR.name())
+						|| resultEmission.get("type").equalsIgnoreCase(Nature.IMPOTS.name())) {
+					emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGI_ID);
+				} else {
+					emissionDTO.setIdOrganisation(DEFAULT_ORGANISATION_DGD_ID);
+				}
+			}
+
+
+			//create emission with datas to complete
+			emissionDTO2 = restClientEmissionService.createEmission(emissionDTO);
+
+			// complete datas payment with idEmission create, and save payment
+			paymentDTO.setIdEmission(emissionDTO2.getId());
+			paymentDTO.setIdOrganisation(emissionDTO.getIdOrganisation());
+			
+		
+			
+		} else {// case recette non fiscale, create payment directly with idRecette in
+				// PaymentDTO entry
+
+			if (paymentDTO.getAmount() <= 0) {
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> le montant de la recette doit etre au moins positif");
+				return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+			}
+
+//			paymentDTO2 = paymentService.save(paymentDTO);
+			resultRecette = this.restClientRNFService.getRecettesService(paymentDTO.getIdRecette());
+			if (resultRecette == null) {
+			
+				result.put("paymentCode", null);
+				result.put("paymentStatus", "CANCELED");
+				result.put("paymentMessageStatus", "payment failed -->> Recette Not Found");
+				return new ResponseEntity<>(result, HttpStatus.NOT_FOUND);
+			}
+			
+			
+		}
+		
+		Map<String, String> res = restClientTransactionService.processPaymentInCash(provider,
+				paymentSpecialServices.buildRequestWithoutApi(paymentDTO.getCode(), niu, debitInfo,
+						String.valueOf((int) Math.round(paymentDTO.getAmount())),
+						addedParamsPaymentDTO.getFirstname(), addedParamsPaymentDTO.getLastname(), ""), app.getSecret());
+
+		paymentDTO.setRefTransaction(res.get("transactionid"));
+		paymentDTO2 = paymentService.save(paymentDTO);
+		
+		
+		// create historique payment
+				historiquePaymentService.saveHistPay(Statut.DRAFT.toString(), LocalDateTime.now(),
+						paymentMapper.toEntity(paymentDTO2));
+				
+		//generated recu
+		Map<String, Object> recetteServiceDetails = new HashMap<String, Object>();
+		Payment payment = paymentService.findByCode(paymentDTO2.getCode());
+		Optional<UserDTO> userDTO = Optional.of(new UserDTO());
+		userDTO.orElse(new UserDTO());
+		RetPaiFiscalis[] retourPaiFiscalis = null;
+
+		if (restClientUAAService.searchUser(payment.getCreatedBy()) != null)
+			userDTO = restClientUAAService.searchUser(payment.getCreatedBy());
+		else {
+
+			userDTO.get().setFirstName(addedParamsPaymentDTO.getFirstname());
+			userDTO.get().setLastName(addedParamsPaymentDTO.getLastname());
+			userDTO.get().setRaisonSocialeEntreprise(organisationDetails.get("nomOrganisation").toString());
+		}
+
+//		// case emission
+//		if (!refEmi.equals("null")) {
+//			// update emission status
+//			retourPaiFiscalis = restClientEmissionService.updateEmission(payment.getIdEmission(), Statut.VALIDATED, res.get("camcisref"), debitInfo, paymentMapper.toDto(payment)).getBody();
+//			
+//			if (retourPaiFiscalis ==null || retourPaiFiscalis[0].getMessage().equals("Cette émission est déjà totalement payée - R0007")) { 
+//					result.put("paymentMessageStatus","payment Failed"); 
+//					result.put("paymentMessage",
+//					  "payment already done or remote system didn't approve payment!!! Check your invoice!!"); 
+//					return new ResponseEntity<>(result, HttpStatus.OK); 
+//			}
+//			
+//			// create historique emission
+//			restClientEmissionService.createEmissionHistorique(new EmissionHistoriqueDTO(), Statut.VALIDATED.toString(),
+//					payment.getIdEmission());
+//		}
+
+		historiquePaymentService.saveHistPay(Statut.VALIDATED.toString(), LocalDateTime.now(),
+				paymentMapper.toEntity(paymentDTO2));
+		
+		
+		JustificatifPaiementDTO justificatifPaiementDTO = new JustificatifPaiementDTO();
+		Set<ImputationDTO> listImput = new HashSet<ImputationDTO>();
+		ImputationDTO imputationDTO = new ImputationDTO();
+
+		justificatifPaiementDTO.setIdPaiement(payment.getId());
+		justificatifPaiementDTO.setDateCreation(LocalDateTime.now());
+		justificatifPaiementDTO.setMontant(payment.getAmount());
+		justificatifPaiementDTO.setReferencePaiement(payment.getCode());
+		log.info("======== JUSTIF 3============");
+
+		if (emissionDTO2 != null) {
+			organisationDetails = restClientOrganisationService
+					.findOrganisationById(emissionDTO2.getIdOrganisation());
+//			System.out.println("---------------------***********************" + emissionDTO2.getIdOrganisation());
+//			System.out.println("---------------------***********************" + organisationDetails);
+			log.info("======== JUSTIF 4============");
+
+			if (retourPaiFiscalis != null) {
+				for (int i = 0; i < retourPaiFiscalis.length; i++) {
+					imputationDTO.setMontant(Double.valueOf(retourPaiFiscalis[i].getMontant_imputation()));
+					imputationDTO.setNumDeclarationImputation(payment.getId());
+					imputationDTO.setOperation(emissionDTO2.getRefEmi());
+					imputationDTO.setNatrureDesDroits(retourPaiFiscalis[i].getLibelle_imputation());
+					listImput.add(imputationDTO);
+//					imputationDTO = new ImputationDTO();
+				}
+			} else {
+				imputationDTO.setMontant(payment.getAmount());
+				imputationDTO.setNumDeclarationImputation(payment.getId());
+				imputationDTO.setOperation(emissionDTO2.getRefEmi());
+				imputationDTO
+						.setNatrureDesDroits(emissionDTO2.getNature().name() + " N° " + emissionDTO2.getRefEmi());
+				listImput.add(imputationDTO);
+			}
+
+//			imputationDTO.setMontant(100d);
+//			imputationDTO.setNumDeclarationImputation(payment.getId());
+//			imputationDTO.setOperation(emissionDTO2.getRefEmi());
+//			imputationDTO.setNatrureDesDroits("nature");
+//			listImput.add(imputationDTO);
+
+			log.info("======== JUSTIF 5============");
+			justificatifPaiementDTO.setNui(niu);
+			justificatifPaiementDTO
+					.setIdOrganisation(Long.valueOf((Integer) organisationDetails.get("idOrganisation")));
+//			justificatifPaiementDTO.setIdOrganisation(1L);
+			justificatifPaiementDTO.setNatureRecette(emissionDTO2.getRefEmi());
+			log.info("======== JUSTIF 6============");
+		}
+
+
+		if (paymentDTO2.getIdRecette() != null && paymentDTO2.getIdRecette() > 0) {// emissionDTO == null
+
+			organisationDetails = restClientOrganisationService.findOrganisationById(payment.getIdOrganisation());
+			recetteServiceDetails = restClientRNFService.getResumeRecettesService(payment.getIdRecette());
+			justificatifPaiementDTO.setIdOrganisation(payment.getIdOrganisation());
+
+			justificatifPaiementDTO.setNui(niu);
+			justificatifPaiementDTO.setNatureRecette((String) recetteServiceDetails.get("nature"));
+//			justificatifPaiementDTO.setNatureRecette("nature");
+			imputationDTO.setMontant(payment.getAmount());
+			imputationDTO.setNumDeclarationImputation(payment.getId());
+			imputationDTO.setOperation(String.valueOf(payment.getIdRecette()));
+			imputationDTO.setNatrureDesDroits((String) recetteServiceDetails.get("nature"));
+//			imputationDTO.setNatrureDesDroits("nature");
+			listImput.add(imputationDTO);
+		}
+
+		justificatifPaiementDTO.setTypePaiement(payment.getMeansOfPayment().name());
+		justificatifPaiementDTO.setTypeJustificatifPaiement("RECU");
+		justificatifPaiementDTO.setCode(payment.getCode());
+		log.info("======== JUSTIF 7============");
+		if (userDTO.get().getFirstName() == null) {
+			userDTO.get().setFirstName("");
+		}
+		if (userDTO.get().getLastName() == null) {
+			userDTO.get().setLastName("");
+		}
+		log.info("======== JUSTIF 8============");
+		justificatifPaiementDTO
+				.setNomPrenomClient(userDTO.get().getFirstName() + " " + userDTO.get().getLastName());
+		justificatifPaiementDTO.setNomOrganisation((String) organisationDetails.get("nomOrganisation"));
+		justificatifPaiementDTO.setCodeOrganisation((String) organisationDetails.get("codeOrg"));
+//		justificatifPaiementDTO.setNomOrganisation("nomOrganisation");
+//		justificatifPaiementDTO.setCodeOrganisation("codeOrg");
+		justificatifPaiementDTO.setRaisonSociale(userDTO.get().getRaisonSocialeEntreprise());
+//		justificatifPaiementDTO.setRaisonSociale("raison");
+		justificatifPaiementDTO.setSigle("");
+		justificatifPaiementDTO.setCodePoste(1L);
+		log.info("======== JUSTIF 9============");
+		justificatifPaiementDTO.setExercise(String.valueOf(LocalDateTime.now().getYear()));
+		justificatifPaiementDTO.setMois(LocalDateTime.now().getMonth().name());
+		justificatifPaiementDTO.setLibelleCentre((String) organisationDetails.get("nomOrganisation"));
+		justificatifPaiementDTO.setLibelleCourtCentre((String) organisationDetails.get("codeOrg"));
+//		justificatifPaiementDTO.setLibelleCentre("nomOrganisation");
+//		justificatifPaiementDTO.setLibelleCourtCentre("codeOrg");
+		justificatifPaiementDTO.setIfu(" ");
+		log.info("======== JUSTIF 10============");
+		justificatifPaiementDTO.setImputations(listImput);
+		log.info("======== JUSTIF 11============");
+		restClientQuittanceService.genererRecuOuQuittance(justificatifPaiementDTO);
+		log.info("======== JUSTIF 12============");
+
+		// generate notification
+		TypeNotificationDTO typeNotificationPayment = null;
+		try {
+			typeNotificationPayment = restClientNotificationService.getTypeNotification("payment");
+			log.info("======== CHECK 1============");
+		} catch (FeignException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+			log.info("======== CHECK 2============");
+		} finally {
+
+			if (typeNotificationPayment == null) {
+				typeNotificationPayment = new TypeNotificationDTO(null, "payment", "Notification de paiement",
+						"Notification des paiements effectués", null, "PUSH", null);
+				typeNotificationPayment = restClientNotificationService.createTypeNotification(typeNotificationPayment);
+				log.info("======== CHECK 3============");
+			}
+			NotificationDTO notificationPayment = new NotificationDTO(null,
+					"Votre payment N° [" + payment.getId() + "] d'un montant de " + payment.getAmount()
+							+ " effectué via " + payment.getMeansOfPayment().name()
+							+ " a réussi.",
+					userDTO.get().getId(), applicationName, "NONTRANSMIS", typeNotificationPayment.getId(), null);
+			//restClientNotificationService.createNotification(notificationPayment);
+            kafkaTemplate.send(topic,applicationName+ LocalDateTime.now(),notificationPayment);
+            log.info("Notification créé et transmit au broker {}", notificationPayment);
+			log.info("======== CHECK 4============");
+		}
+		
+		result.put("paymentId", paymentDTO2.getId());
+		result.put("transactionId", res.get("transactionid"));
+		result.put("paymentStatus", paymentDTO2.getStatut());
+		result.put("paymentMessageStatus", "payment successful");
+		return new ResponseEntity<>(result, HttpStatus.OK);
+
+	  }
 	
 	@PreAuthorize("hasRole('AUTH_PAIEMENT_EMISSION') or hasRole('AUTH_PAIEMENT_RECETTE')")
 	@PostMapping("/confirmationPaymentUBA/{phone}/{refEmi}/{niu}/{partnerTrxId}")
